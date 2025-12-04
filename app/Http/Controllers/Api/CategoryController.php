@@ -13,7 +13,8 @@ class CategoryController extends Controller
 {
   public function __construct(
     private CategoryService $categoryService
-  ) {}
+  ) {
+  }
 
   public function index()
   {
@@ -23,8 +24,13 @@ class CategoryController extends Controller
 
   public function store(CreateCategoryRequest $data)
   {
-    $category =  $this->categoryService->create($data);
+    $category = $this->categoryService->create($data);
     return new CategoryResource($category);
+  }
+
+  public function show(Category $category)
+  {
+    return $category;
   }
 
   public function update(Category $category, UpdateCategoryRequest $data)

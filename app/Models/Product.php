@@ -7,4 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
   protected $fillable = ['name', 'body', 'category_id', 'image', 'price', 'discount'];
+
+
+  public function category()
+  {
+    return $this->belongsTo(Category::class);
+  }
+
+  public function colors()
+  {
+    return $this->belongsToMany(Color::class);
+  }
+
+  public function sizes()
+  {
+    return $this->belongsToMany(Size::class);
+  }
+
+  public function materials()
+  {
+    return $this->belongsToMany(Material::class);
+  }
 }

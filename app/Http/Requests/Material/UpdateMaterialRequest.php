@@ -11,7 +11,7 @@ class UpdateMaterialRequest extends FormRequest
    */
   public function authorize(): bool
   {
-    return false;
+    return true;
   }
 
   /**
@@ -22,7 +22,7 @@ class UpdateMaterialRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'material' => ['required', 'string', 'max:255'],
+      'material' => ['sometimes', 'string', 'max:255'],
     ];
   }
 }

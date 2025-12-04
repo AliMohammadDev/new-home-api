@@ -11,7 +11,7 @@ class UpdateSizeRequest extends FormRequest
    */
   public function authorize(): bool
   {
-    return false;
+    return true;
   }
 
   /**
@@ -22,8 +22,7 @@ class UpdateSizeRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'size' => ['required', 'string', 'max:255']
-
+      'size' => ['sometimes', 'string', 'max:255'],
     ];
   }
 }

@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Material extends Model
 {
-  protected $fillable = ['material', 'product_id'];
+  protected $fillable = ['material'];
+
+  public function products()
+  {
+    return $this->belongsToMany(Product::class);
+  }
 }

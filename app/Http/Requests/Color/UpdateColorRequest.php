@@ -11,7 +11,7 @@ class UpdateColorRequest extends FormRequest
    */
   public function authorize(): bool
   {
-    return false;
+    return true;
   }
 
   /**
@@ -22,8 +22,7 @@ class UpdateColorRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'color' => ['required', 'string', 'max:255'],
-
+      'color' => ['sometimes', 'string', 'max:255'],
     ];
   }
 }
