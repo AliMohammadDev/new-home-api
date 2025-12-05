@@ -16,6 +16,7 @@ return new class extends Migration {
       $table->text('body');
       $table->foreignIdFor(Category::class);
       $table->string('image');
+      $table->string('image_public_id')->nullable(); //Cloudinary
       $table->decimal('price', 10, 2);
       $table->decimal('discount', 10, 2)->default(0);
       $table->timestamps();
