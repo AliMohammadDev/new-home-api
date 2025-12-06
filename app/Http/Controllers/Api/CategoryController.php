@@ -22,9 +22,9 @@ class CategoryController extends Controller
     return CategoryResource::collection($categories);
   }
 
-  public function store(CreateCategoryRequest $data)
+  public function store(CreateCategoryRequest $request)
   {
-    $category = $this->categoryService->create($data);
+    $category = $this->categoryService->create($request->validated());
     return new CategoryResource($category);
   }
 
@@ -33,9 +33,9 @@ class CategoryController extends Controller
     return $category;
   }
 
-  public function update(Category $category, UpdateCategoryRequest $data)
+  public function update(Category $category, UpdateCategoryRequest $request)
   {
-    $newCategory = $this->categoryService->update($category, $data);
+    $newCategory = $this->categoryService->update($category, $request->validated());
     return new CategoryResource($newCategory);
   }
   public function destroy(Category $category)

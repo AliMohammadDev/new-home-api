@@ -26,9 +26,13 @@ class ProductController extends Controller
     return ProductResource::collection($products);
   }
 
-  public function store(CreateProductRequest $data)
+  public function store(CreateProductRequest $request)
   {
-    $product = $this->productService->create($data);
+    $validated = $request->validated();
+    $product = $this->productService->create(
+      $validated,
+      $request->file('image')
+    );
     return new ProductResource($product);
   }
 
@@ -37,9 +41,16 @@ class ProductController extends Controller
     return $product;
   }
 
-  public function update(Product $product, UpdateProductRequest $data)
+  public function update(Product $product, UpdateProductRequest $request)
   {
-    $newProduct = $this->productService->update($product, $data);
+    $validated = $request->validated();
+
+    $newProduct = $this->productService->update(
+      $product,
+      $validated,
+      $request->file('image')
+    );
+
     return new ProductResource($newProduct);
   }
   public function destroy(Product $product)

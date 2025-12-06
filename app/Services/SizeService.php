@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Services;
-
-use App\Http\Requests\Size\CreateSizeRequest;
-use App\Http\Requests\Size\UpdateSizeRequest;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Size;
@@ -28,9 +25,9 @@ class SizeService
     return $query->get($columns);
   }
 
-  public function create(CreateSizeRequest $data)
+  public function create(array $data)
   {
-    return Size::create($data->validated());
+    return Size::create($data);
   }
 
   public function show(Size $size)
@@ -38,9 +35,9 @@ class SizeService
     return $size;
   }
 
-  public function update(Size $size, UpdateSizeRequest $data)
+  public function update(Size $size, array $data)
   {
-    $size->update($data->validated());
+    $size->update($data);
     return $size;
   }
 

@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Services;
-
-use App\Http\Requests\Material\CreateMaterialRequest;
-use App\Http\Requests\Material\UpdateMaterialRequest;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Material;
@@ -29,9 +26,9 @@ class MaterialService
     return $query->get($columns);
   }
 
-  public function create(CreateMaterialRequest $data)
+  public function create(array $data)
   {
-    return Material::create($data->validated());
+    return Material::create($data);
   }
 
   public function show(Material $material)
@@ -39,9 +36,9 @@ class MaterialService
     return $material;
   }
 
-  public function update(Material $material, UpdateMaterialRequest $data)
+  public function update(Material $material, array $data)
   {
-    $material->update($data->validated());
+    $material->update($data);
     return $material;
   }
 

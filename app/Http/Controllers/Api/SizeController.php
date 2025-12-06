@@ -22,9 +22,9 @@ class SizeController extends Controller
     return SizeResource::collection($sizes);
   }
 
-  public function store(CreateSizeRequest $data)
+  public function store(CreateSizeRequest $request)
   {
-    $size = $this->sizeService->create($data);
+    $size = $this->sizeService->create($request->validated());
     return new SizeResource($size);
   }
 
@@ -33,9 +33,9 @@ class SizeController extends Controller
     return $size;
   }
 
-  public function update(Size $size, UpdateSizeRequest $data)
+  public function update(Size $size, UpdateSizeRequest $request)
   {
-    $newSize = $this->sizeService->update($size, $data);
+    $newSize = $this->sizeService->update($size, $request->validated());
     return new SizeResource($newSize);
   }
   public function destroy(Size $size)

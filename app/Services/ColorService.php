@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Services;
-
-use App\Http\Requests\Color\CreateColorRequest;
-use App\Http\Requests\Color\UpdateColorRequest;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Color;
@@ -29,9 +26,9 @@ class ColorService
     return $query->get($columns);
   }
 
-  public function create(CreateColorRequest $data)
+  public function create(array $data)
   {
-    return Color::create($data->validated());
+    return Color::create($data);
   }
 
   public function show(Color $color)
@@ -39,9 +36,9 @@ class ColorService
     return $color;
   }
 
-  public function update(Color $color, UpdateColorRequest $data)
+  public function update(Color $color, array $data)
   {
-    $color->update($data->validated());
+    $color->update($data);
     return $color;
   }
 
@@ -50,6 +47,6 @@ class ColorService
     return $color->delete();
   }
 
- 
+
 
 }

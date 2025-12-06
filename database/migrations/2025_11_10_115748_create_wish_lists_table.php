@@ -14,8 +14,9 @@ return new class extends Migration {
   {
     Schema::create('wish_lists', function (Blueprint $table) {
       $table->id();
-      $table->foreignIdFor(User::class);
-      $table->foreignIdFor(Product::class);
+      $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
+      $table->unique(['user_id', 'product_id']);
       $table->timestamps();
     });
   }

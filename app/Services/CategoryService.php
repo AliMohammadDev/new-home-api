@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Services;
-
-use App\Http\Requests\Category\CreateCategoryRequest;
-use App\Http\Requests\Category\UpdateCategoryRequest;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Category;
@@ -29,9 +26,9 @@ class CategoryService
     return $query->get($columns);
   }
 
-  public function create(CreateCategoryRequest $data)
+  public function create(array $data)
   {
-    return Category::create($data->validated());
+    return Category::create($data);
   }
 
   public function show(Category $category)
@@ -39,9 +36,9 @@ class CategoryService
     return $category;
   }
 
-  public function update(Category $category, UpdateCategoryRequest $data)
+  public function update(Category $category, array $data)
   {
-    $category->update($data->validated());
+    $category->update($data);
     return $category;
   }
 

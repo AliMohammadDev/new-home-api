@@ -23,9 +23,9 @@ class MaterialController extends Controller
     return MaterialResource::collection($materials);
   }
 
-  public function store(CreateMaterialRequest $data)
+  public function store(CreateMaterialRequest $request)
   {
-    $material = $this->materialService->create($data);
+    $material = $this->materialService->create($request->validated());
     return new MaterialResource($material);
   }
 
@@ -34,9 +34,9 @@ class MaterialController extends Controller
     return $material;
   }
 
-  public function update(Material $material, UpdateMaterialRequest $data)
+  public function update(Material $material, UpdateMaterialRequest $request)
   {
-    $newMaterial = $this->materialService->update($material, $data);
+    $newMaterial = $this->materialService->update($material, $request->validated());
     return new MaterialResource($newMaterial);
   }
   public function destroy(Material $material)

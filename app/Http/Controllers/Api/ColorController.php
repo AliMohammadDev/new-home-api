@@ -24,9 +24,9 @@ class ColorController extends Controller
     return ColorResource::collection($categories);
   }
 
-  public function store(CreateColorRequest $data)
+  public function store(CreateColorRequest $request)
   {
-    $color = $this->colorService->create($data);
+    $color = $this->colorService->create($request->validated());
     return new ColorResource($color);
   }
 
@@ -35,9 +35,9 @@ class ColorController extends Controller
     return $color;
   }
 
-  public function update(Color $color, UpdateColorRequest $data)
+  public function update(Color $color, UpdateColorRequest $request)
   {
-    $newColor = $this->colorService->update($color, $data);
+    $newColor = $this->colorService->update($color, $request->validated());
     return new ColorResource($newColor);
   }
   public function destroy(Color $color)

@@ -2,14 +2,10 @@
 
 
 namespace App\Services;
-
-use App\Http\Requests\Product\CreateProductRequest;
-use App\Http\Requests\Product\UpdateProductRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Product;
 use Cloudinary\Cloudinary;
+use App\Models\Product;
 
 
 class ProductService
@@ -32,24 +28,18 @@ class ProductService
     return $query->get($columns);
   }
 
-  public function create(CreateProductRequest $data)
+  public function create(array $data, $imageFile = null)
   {
-
-    $validated = $data->validated();
-    // if ($data->hasFile('image')) {
-    //   $validated['image'] = $data->file('image')->store('products', 'public');
-    // }
-    if ($data->hasFile('image')) {
+    if ($imageFile) {
       $cloudinary = new Cloudinary(config('cloudinary.url'));
-
       $uploaded = $cloudinary->uploadApi()->upload(
-        $data->file('image')->getRealPath(),
+        $imageFile->getRealPath(),
         ['folder' => 'products']
       );
-      $validated['image'] = $uploaded['secure_url'];
-      $validated['image_public_id'] = $uploaded['public_id'];
+      $data['image'] = $uploaded['secure_url'];
+      $data['image_public_id'] = $uploaded['public_id'];
     }
-    return Product::create($validated);
+    return Product::create($data);
   }
 
   public function show(Product $product)
@@ -57,41 +47,26 @@ class ProductService
     return $product;
   }
 
-  public function update(Product $product, UpdateProductRequest $data)
+  public function update(Product $product, array $data, $imageFile = null)
   {
-    $validated = $data->validated();
-
-    // if ($data->hasFile('image')) {
-    //   if ($product->image) {
-    //     Storage::disk('public')->delete($product->image);
-    //   }
-    //   $validated['image'] = $data->file('image')->store('products', 'public');
-    // }
-
-    $cloudinary = new Cloudinary(config('cloudinary.url'));
-    if ($data->hasFile('image')) {
+    if ($imageFile) {
+      $cloudinary = new Cloudinary(config('cloudinary.url'));
       if ($product->image_public_id) {
         $cloudinary->uploadApi()->destroy($product->image_public_id);
       }
       $uploaded = $cloudinary->uploadApi()->upload(
-        $data->file('image')->getRealPath(),
+        $imageFile->getRealPath(),
         ['folder' => 'products']
       );
-
-      $validated['image'] = $uploaded['secure_url'];
-      $validated['image_public_id'] = $uploaded['public_id'];
+      $data['image'] = $uploaded['secure_url'];
+      $data['image_public_id'] = $uploaded['public_id'];
     }
-
-
-    $product->update($validated);
+    $product->update($data);
     return $product;
   }
 
   public function delete(Product $product)
   {
-    // if ($product->image) {
-    //   Storage::disk('public')->delete($product->image);
-    // }
     if ($product->image_public_id) {
       $cloudinary = new Cloudinary(config('cloudinary.url'));
       $cloudinary->uploadApi()->destroy($product->image_public_id);
