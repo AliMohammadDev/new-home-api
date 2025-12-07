@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Services;
+
+use App\Models\Cart;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 

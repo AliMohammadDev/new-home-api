@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-  protected $fillable = ['name', 'body', 'category_id', 'image', 'image_public_id','price', 'discount'];
+  protected $fillable = ['name', 'body', 'category_id', 'image', 'image_public_id', 'price', 'discount'];
 
+  public function getFinalPriceAttribute()
+  {
+    return $this->price - ($this->discount ?? 0);
+  }
 
   public function category()
   {
@@ -28,4 +32,15 @@ class Product extends Model
   {
     return $this->belongsToMany(Material::class);
   }
+
+  public function reviews()
+  {
+    return $this->hasMany(Reviews::class);
+  }
+
+  public function averageRating()
+  {
+    return $this->reviews()->avg('rating');
+  }
+
 }

@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 // Route::get('/user', function (Request $request) {
 //   return $request->user();
@@ -19,11 +20,21 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
   Route::get('/me', [AuthController::class, 'me']);
+  // WishList
   Route::apiResource('wishlists', WishListController::class)
     ->only(['index', 'store', 'destroy']);
+
+  // CartItems
+  Route::apiResource('cart-items', CartItemController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+  Route::patch('/cart-items/{cart_item}/increase', [CartItemController::class, 'increase']);
+  Route::patch('/cart-items/{cart_item}/decrease', [CartItemController::class, 'decrease']);
+
+  // Reviews
+  Route::apiResource('reviews', ReviewsController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+
 });
-
-
 
 Route::apiResource('categories', CategoryController::class);
 Route::apiResource('products', ProductController::class);
