@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Cart;
+use App\Models\Checkout;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,10 +13,14 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('carts', function (Blueprint $table) {
+    Schema::create('orders', function (Blueprint $table) {
       $table->id();
+      $table->foreignIdFor(Cart::class)->constrained();
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-      $table->enum('status', ['active', 'disabled'])->default('active');
+      $table->foreignIdFor(Checkout::class)->constrained()->cascadeOnDelete();
+      $table->decimal('total_amount', 10, 2);
+      $table->string('payment_method');
+      $table->enum('status', ['pending', 'completed','cancelled'])->default('pending');
       $table->timestamps();
     });
   }
@@ -24,6 +30,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('carts');
+    Schema::dropIfExists('orders');
   }
 };

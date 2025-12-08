@@ -3,26 +3,32 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/user', function (Request $request) {
-//   return $request->user();
-// })->middleware('auth:sanctum');
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+  // My profile
   Route::get('/me', [AuthController::class, 'me']);
+
   // WishList
   Route::apiResource('wishlists', WishListController::class)
     ->only(['index', 'store', 'destroy']);
+  // Reviews
+  Route::apiResource('reviews', ReviewsController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
 
   // CartItems
   Route::apiResource('cart-items', CartItemController::class)
@@ -30,9 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::patch('/cart-items/{cart_item}/increase', [CartItemController::class, 'increase']);
   Route::patch('/cart-items/{cart_item}/decrease', [CartItemController::class, 'decrease']);
 
-  // Reviews
-  Route::apiResource('reviews', ReviewsController::class)
-    ->only(['index', 'store', 'update', 'destroy']);
+  // Checkouts
+  Route::apiResource('checkouts', CheckoutController::class);
+  // Orders
+  Route::apiResource('orders', OrderController::class);
 
 });
 

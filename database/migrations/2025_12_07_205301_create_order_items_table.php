@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Cart;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,11 +12,13 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('cart_items', function (Blueprint $table) {
+    Schema::create('order_items', function (Blueprint $table) {
       $table->id();
-      $table->foreignIdFor(Cart::class)->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
       $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
-      $table->integer('quantity')->default(1);
+      $table->integer('quantity');
+      $table->decimal('price', 10, 2);
+      $table->decimal('total', 10, 2);
       $table->timestamps();
     });
   }
@@ -26,6 +28,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('cart_items');
+    Schema::dropIfExists('order_items');
   }
 };
