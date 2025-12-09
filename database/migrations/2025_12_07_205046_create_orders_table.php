@@ -19,8 +19,8 @@ return new class extends Migration {
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
       $table->foreignIdFor(Checkout::class)->constrained()->cascadeOnDelete();
       $table->decimal('total_amount', 10, 2);
-      $table->string('payment_method');
-      $table->enum('status', ['pending', 'completed','cancelled'])->default('pending');
+      $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
+      $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
       $table->timestamps();
     });
   }

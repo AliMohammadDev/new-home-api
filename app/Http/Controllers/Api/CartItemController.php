@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CartItem\CreateCartItemRequest;
 use App\Http\Requests\CartItem\UpdateCartItemRequest;
 use App\Http\Resources\CartItemResource;
+use Illuminate\Support\Facades\Auth;
 use App\Services\CartItemService;
 use App\Models\CartItem;
-use Illuminate\Support\Facades\Auth;
 
 class CartItemController extends Controller
 {
@@ -28,7 +28,7 @@ class CartItemController extends Controller
     $validated = $request->validated();
     $cartItem = $this->cartItemService->addToCart(
       Auth::id(),
-      $validated['product_id'],
+      $validated['product_variant_id'],
       $validated['quantity'] ?? 1
     );
     return new CartItemResource($cartItem);
@@ -45,18 +45,14 @@ class CartItemController extends Controller
     $item = $this->cartItemService->increaseQuantity($cart_item);
     return new CartItemResource($item);
   }
-
   public function decrease(CartItem $cart_item)
   {
     $item = $this->cartItemService->decreaseQuantity($cart_item);
     return new CartItemResource($item);
   }
-
-
   public function destroy(CartItem $cart_item)
   {
     $this->cartItemService->delete($cart_item);
-
     return response()->json(['message' => 'Cart item removed']);
   }
 }

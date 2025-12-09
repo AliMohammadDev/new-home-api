@@ -17,7 +17,13 @@ class CartItemService
     $columns = ["*"],
     $userId = null
   ): LengthAwarePaginator|Collection {
-    $query = CartItem::whereHas('cart', function ($q) use ($userId) {
+    $query = $query = CartItem::with([
+      'productVariant.product',
+      'productVariant.color',
+      'productVariant.size',
+      'productVariant.material',
+      'cart'
+    ])->whereHas('cart', function ($q) use ($userId) {
       $q->where('user_id', $userId);
     });
     if ($paginate) {
@@ -29,14 +35,15 @@ class CartItemService
     }
     return $query->get($columns);
   }
-  public function addToCart($userId, $productId, $quantity = 1)
+  public function addToCart($userId, $product_variant_id, $quantity = 1)
   {
     $cart = Cart::firstOrCreate([
       'user_id' => $userId,
       'status' => 'active'
     ]);
+
     $cartItem = CartItem::where('cart_id', $cart->id)
-      ->where('product_id', $productId)
+      ->where('product_variant_id', $product_variant_id)
       ->first();
     if ($cartItem) {
       $cartItem->quantity += $quantity;
@@ -45,7 +52,7 @@ class CartItemService
     }
     return CartItem::create([
       'cart_id' => $cart->id,
-      'product_id' => $productId,
+      'product_variant_id' => $product_variant_id,
       'quantity' => $quantity
     ]);
   }
@@ -55,7 +62,6 @@ class CartItemService
     if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
-
     $cart_item->update([
       'quantity' => $quantity
     ]);
@@ -92,7 +98,6 @@ class CartItemService
     if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
-
     return $cart_item->delete();
   }
 }

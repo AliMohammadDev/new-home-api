@@ -8,7 +8,6 @@ use App\Http\Requests\Material\UpdateMaterialRequest;
 use App\Http\Resources\MaterialResource;
 use App\Models\Material;
 use App\Services\MaterialService;
-use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {

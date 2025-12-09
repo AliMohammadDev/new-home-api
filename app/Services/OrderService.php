@@ -20,7 +20,7 @@ class OrderService
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
     $query = Order::where('user_id', Auth::id())
-      ->with(['user', 'checkout', 'orderItems.product']);
+      ->with(['user', 'checkout', 'orderItems.productVariant.product']);
 
     if ($paginate) {
       return $query->paginate(
@@ -35,7 +35,7 @@ class OrderService
   {
     return DB::transaction(function () use ($data) {
 
-      $checkout = Checkout::with('cart.cartItems.product')
+      $checkout = Checkout::with('cart.cartItems.productVariant.product')
         ->where('id', $data['checkout_id'])
         ->where('user_id', $data['user_id'])
         ->firstOrFail();
@@ -44,7 +44,7 @@ class OrderService
 
       $total = 0;
       foreach ($cart->cartItems as $item) {
-        $total += $item->product->final_price * $item->quantity;
+        $total += $item->productVariant->product->final_price * $item->quantity;
       }
 
       $order = Order::create([
@@ -59,30 +59,30 @@ class OrderService
       foreach ($cart->cartItems as $item) {
         OrderItem::create([
           'order_id' => $order->id,
-          'product_id' => $item->product_id,
+          'product_variant_id' => $item->product_variant_id,
           'quantity' => $item->quantity,
-          'price' => $item->product->price,
-          'total' => $item->product->final_price * $item->quantity,
+          'price' => $item->productVariant->product->price,
+          'total' => $item->productVariant->product->final_price * $item->quantity,
         ]);
+        $item->productVariant->decrement('stock_quantity', $item->quantity);
       }
 
       $cart->cartItems()->delete();
 
       $cart->update(['status' => 'disabled']);
 
-
       Cart::create([
         'user_id' => $checkout->user_id,
         'status' => 'active',
       ]);
 
-      return $order->load(['orderItems.product', 'checkout']);
+      return $order->load(['orderItems.productVariant.product', 'checkout']);
     });
   }
 
   public function showOrder($orderId)
   {
-    return Order::with(['orderItems.product', 'checkout', 'user'])
+    return Order::with(['orderItems.productVariant', 'checkout', 'user'])
       ->findOrFail($orderId);
   }
 

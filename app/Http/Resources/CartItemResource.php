@@ -26,13 +26,12 @@ class CartItemResource extends JsonResource
           'price' => $this->productVariant->product->price,
           'discount' => $this->productVariant->product->discount,
           'final_price' => $this->productVariant->product->final_price,
-          'color' => $this->productVariant->color->name,
-          'size' => $this->productVariant->size->name,
-          'material' => $this->productVariant->material->name,
+          'color' => $this->productVariant->color->color,
+          'size' => $this->productVariant->size->size,
+          'material' => $this->productVariant->material->material,
         ];
       }),
       'total_price' => $this->productVariant->product->final_price * $this->quantity,
     ];
-
   }
 }

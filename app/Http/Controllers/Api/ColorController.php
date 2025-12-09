@@ -7,9 +7,7 @@ use App\Http\Requests\Color\CreateColorRequest;
 use App\Http\Requests\Color\UpdateColorRequest;
 use App\Http\Resources\ColorResource;
 use App\Models\Color;
-use App\Models\Product;
 use App\Services\ColorService;
-use Illuminate\Support\Facades\Request;
 
 class ColorController extends Controller
 {
