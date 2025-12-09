@@ -8,6 +8,7 @@ use App\Http\Resources\ReviewResource;
 use App\Http\Controllers\Controller;
 use App\Services\ReviewsService;
 use App\Models\Reviews;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewsController extends Controller
 {
@@ -18,7 +19,7 @@ class ReviewsController extends Controller
 
   public function index()
   {
-    $items = $this->reviewsService->findAll(userId: auth()->id());
+    $items = $this->reviewsService->findAll(userId: Auth::id());
     return ReviewResource::collection($items);
   }
 
@@ -26,14 +27,14 @@ class ReviewsController extends Controller
   {
     $review = $this->reviewsService->create(
       $request->validated(),
-      auth()->id()
+      Auth::id()
     );
     return new ReviewResource($review);
   }
 
   public function update(UpdateReviewRequest $request, Reviews $review)
   {
-    if ($review->user_id !== auth()->id()) {
+    if ($review->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
 
@@ -44,7 +45,7 @@ class ReviewsController extends Controller
 
   public function destroy(Reviews $review)
   {
-    if ($review->user_id !== auth()->id()) {
+    if ($review->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
 

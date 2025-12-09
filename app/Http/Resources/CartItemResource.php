@@ -17,17 +17,22 @@ class CartItemResource extends JsonResource
     return [
       'id' => $this->id,
       'quantity' => $this->quantity,
-      'product' => $this->whenLoaded('product', function () {
+      'product_variant' => $this->whenLoaded('productVariant', function () {
         return [
-          'id' => $this->product->id,
-          'name' => $this->product->name,
-          'image' => $this->product->image,
-          'price' => $this->product->price,
-          'discount' => $this->product->discount,
-          'final_price' => $this->product->final_price,
+          'id' => $this->productVariant->id,
+          'product_id' => $this->productVariant->product->id,
+          'name' => $this->productVariant->product->name,
+          'image' => $this->productVariant->product->image,
+          'price' => $this->productVariant->product->price,
+          'discount' => $this->productVariant->product->discount,
+          'final_price' => $this->productVariant->product->final_price,
+          'color' => $this->productVariant->color->name,
+          'size' => $this->productVariant->size->name,
+          'material' => $this->productVariant->material->name,
         ];
       }),
-      'total_price' => $this->product->final_price * $this->quantity,
+      'total_price' => $this->productVariant->product->final_price * $this->quantity,
     ];
+
   }
 }

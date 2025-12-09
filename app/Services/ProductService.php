@@ -75,40 +75,5 @@ class ProductService
     return $product->delete();
   }
 
-  public function attachColor(Product $product, string $color_id)
-  {
-    $product->colors()->syncWithoutDetaching([$color_id]);
-    return $product->load('colors');
-  }
-
-  public function attachSize(Product $product, string $size_id)
-  {
-    $product->sizes()->syncWithoutDetaching([$size_id]);
-    return $product->load('sizes');
-  }
-  public function attachMaterial(Product $product, string $material_id)
-  {
-    $product->materials()->syncWithoutDetaching([$material_id]);
-    return $product->load('materials');
-  }
-
-  public function detachColor(Product $product, string $color_id)
-  {
-    $product->colors()->detach($color_id);
-    return $product->load('colors');
-  }
-
-  public function detachSize(Product $product, string $size_id)
-  {
-    $product->sizes()->detach($size_id);
-    return $product->load('sizes');
-  }
-
-  public function detachMaterial(Product $product, string $material_id)
-  {
-    $product->materials()->detach($material_id);
-    return $product->load('materials');
-  }
-
 
 }

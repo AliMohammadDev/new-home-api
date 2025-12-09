@@ -8,7 +8,7 @@ use App\Http\Requests\Checkout\UpdateCheckoutRequest;
 use App\Http\Resources\CheckoutResource;
 use App\Models\Checkout;
 use App\Services\CheckoutService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
@@ -18,7 +18,7 @@ class CheckoutController extends Controller
   }
   public function index()
   {
-    $checkouts = $this->checkoutService->findAll(userId: auth()->id());
+    $checkouts = $this->checkoutService->findAll(userId: Auth::id());
     return CheckoutResource::collection($checkouts);
   }
 
@@ -26,7 +26,7 @@ class CheckoutController extends Controller
   {
     $checkout = $this->checkoutService->createCheckout(
       $request->validated(),
-      auth()->id()
+      Auth::id()
     );
     return new CheckoutResource($checkout);
   }
@@ -34,7 +34,7 @@ class CheckoutController extends Controller
 
   public function update(UpdateCheckoutRequest $request, Checkout $checkout)
   {
-    if ($checkout->user_id !== auth()->id()) {
+    if ($checkout->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
     $updated = $this->checkoutService->updateCheckout(
@@ -46,7 +46,7 @@ class CheckoutController extends Controller
   }
   public function show(Checkout $checkout)
   {
-    if ($checkout->user_id !== auth()->id()) {
+    if ($checkout->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
     return new CheckoutResource($checkout);
@@ -54,7 +54,7 @@ class CheckoutController extends Controller
 
   public function destroy(Checkout $checkout)
   {
-    if ($checkout->user_id !== auth()->id()) {
+    if ($checkout->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
     $this->checkoutService->deleteCheckout($checkout);

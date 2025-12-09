@@ -7,6 +7,7 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -27,7 +28,7 @@ class OrderController extends Controller
       'payment_method' => ['required', 'string'],
     ]);
 
-    $data['user_id'] = auth()->id();
+    $data['user_id'] = Auth::id();
 
     $order = $this->orderService->placeOrder($data);
 

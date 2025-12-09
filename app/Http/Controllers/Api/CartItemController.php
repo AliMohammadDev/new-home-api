@@ -8,6 +8,7 @@ use App\Http\Requests\CartItem\UpdateCartItemRequest;
 use App\Http\Resources\CartItemResource;
 use App\Services\CartItemService;
 use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
 
 class CartItemController extends Controller
 {
@@ -18,7 +19,7 @@ class CartItemController extends Controller
 
   public function index()
   {
-    $items = $this->cartItemService->findAll(userId: auth()->id());
+    $items = $this->cartItemService->findAll(userId: Auth::id());
     return CartItemResource::collection($items);
   }
 
@@ -26,7 +27,7 @@ class CartItemController extends Controller
   {
     $validated = $request->validated();
     $cartItem = $this->cartItemService->addToCart(
-      auth()->id(),
+      Auth::id(),
       $validated['product_id'],
       $validated['quantity'] ?? 1
     );

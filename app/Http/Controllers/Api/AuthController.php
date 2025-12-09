@@ -6,6 +6,7 @@ use App\Http\Requests\Auth\CreateUserRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Controllers\Controller;
 use App\Services\AuthService;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -29,7 +30,7 @@ class AuthController extends Controller
   public function me()
   {
     return response()->json([
-      'user' => auth()->user(),
+      'user' => Auth::User(),
     ], 200);
   }
 }

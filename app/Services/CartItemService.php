@@ -5,6 +5,8 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+
 class CartItemService
 {
 
@@ -50,7 +52,7 @@ class CartItemService
 
   public function updateQuantity(CartItem $cart_item, $quantity)
   {
-    if ($cart_item->cart->user_id !== auth()->id()) {
+    if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
 
@@ -61,7 +63,7 @@ class CartItemService
   }
   public function increaseQuantity(CartItem $cart_item)
   {
-    if ($cart_item->cart->user_id !== auth()->id()) {
+    if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
     $cart_item->quantity += 1;
@@ -72,7 +74,7 @@ class CartItemService
 
   public function decreaseQuantity(CartItem $cart_item)
   {
-    if ($cart_item->cart->user_id !== auth()->id()) {
+    if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
     if ($cart_item->quantity <= 1) {
@@ -87,7 +89,7 @@ class CartItemService
 
   public function delete(CartItem $cart_item)
   {
-    if ($cart_item->cart->user_id !== auth()->id()) {
+    if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
 

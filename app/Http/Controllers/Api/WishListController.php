@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Services\WishListService;
 use Illuminate\Http\Request;
 use App\Models\WishList;
+use Illuminate\Support\Facades\Auth;
 
 class WishListController extends Controller
 {
@@ -16,7 +17,7 @@ class WishListController extends Controller
   }
   public function index()
   {
-    $wishlist = $this->wishListService->findAll(userId: auth()->id());
+    $wishlist = $this->wishListService->findAll(userId: Auth::id());
     return WishListResource::collection($wishlist);
   }
 
@@ -25,7 +26,7 @@ class WishListController extends Controller
     $validatedData = $request->validate([
       'product_id' => 'required|exists:products,id',
     ]);
-    $userId = auth()->id();
+    $userId = Auth::id();
     $productId = $validatedData['product_id'];
     $newWishList = $this->wishListService->create([
       'user_id' => $userId,

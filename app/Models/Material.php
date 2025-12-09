@@ -8,8 +8,4 @@ class Material extends Model
 {
   protected $fillable = ['material'];
 
-  public function products()
-  {
-    return $this->belongsToMany(Product::class);
-  }
 }

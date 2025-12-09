@@ -26,15 +26,6 @@ class ProductResource extends JsonResource
       'price' => $this->price,
       'discount' => $this->discount,
       'final_price' => $this->final_price,
-      'colors' => $this->whenLoaded('colors', function () {
-        return $this->colors->pluck('name');
-      }),
-      'sizes' => $this->whenLoaded('sizes', function () {
-        return $this->sizes->pluck('name');
-      }),
-      'materials' => $this->whenLoaded('materials', function () {
-        return $this->materials->pluck('name');
-      }),
     ];
   }
 }

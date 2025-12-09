@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
@@ -41,6 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
   // Orders
   Route::apiResource('orders', OrderController::class);
 
+  // Products Variants
+  Route::apiResource('product-variants', ProductVariantController::class);
+
+
+
 });
 
 Route::apiResource('categories', CategoryController::class);
@@ -48,14 +54,3 @@ Route::apiResource('products', ProductController::class);
 Route::apiResource('colors', ColorController::class);
 Route::apiResource('sizes', SizeController::class);
 Route::apiResource('materials', MaterialController::class);
-
-
-Route::post('products/{product}/attach-color', [ProductController::class, 'attachColor']);
-Route::post('products/{product}/detach-color', [ProductController::class, 'detachColor']);
-
-Route::post('products/{product}/attach-size', [ProductController::class, 'attachSize']);
-Route::post('products/{product}/detach-size', [ProductController::class, 'detachSize']);
-
-Route::post('products/{product}/attach-material', [ProductController::class, 'attachMaterial']);
-Route::post('products/{product}/detach-material', [ProductController::class, 'detachMaterial']);
-
