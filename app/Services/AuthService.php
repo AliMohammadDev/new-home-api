@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Cart;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -23,9 +22,7 @@ class AuthService
   {
     $user = User::where('email', $data['email'])->first();
     if (!$user || !Hash::check($data['password'], $user->password)) {
-      return response()->json([
-        'message' => 'Invalid email or password',
-      ], 401);
+      return null;
     }
     $user->tokens()->delete();
     $token = $user->createToken('auth_token')->plainTextToken;

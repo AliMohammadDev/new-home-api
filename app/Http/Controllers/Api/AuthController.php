@@ -23,8 +23,13 @@ class AuthController extends Controller
 
   public function login(LoginRequest $request)
   {
-    $result = $this->authService->loginUser($request->validated());
-    return response()->json(["token" => $result]);
+    $token = $this->authService->loginUser($request->validated());
+    if (!$token) {
+      return response()->json([
+        'message' => 'Invalid email or password',
+      ], 401);
+    }
+    return response()->json(["token" => $token]);
   }
 
   public function me()
