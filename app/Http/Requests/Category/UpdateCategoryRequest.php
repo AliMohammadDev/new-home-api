@@ -30,6 +30,7 @@ class UpdateCategoryRequest extends FormRequest
         Rule::unique('categories', 'name')->ignore($this->category),
       ],
       'description' => ['sometimes', 'string', 'max:255'],
+      'image' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
     ];
   }
 }

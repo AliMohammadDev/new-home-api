@@ -24,7 +24,12 @@ class CategoryController extends Controller
 
   public function store(CreateCategoryRequest $request)
   {
-    $category = $this->categoryService->create($request->validated());
+
+    $validated = $request->validated();
+    $category = $this->categoryService->create(
+      $validated,
+      $request->file('image')
+    );
     return new CategoryResource($category);
   }
 
@@ -35,7 +40,12 @@ class CategoryController extends Controller
 
   public function update(Category $category, UpdateCategoryRequest $request)
   {
-    $newCategory = $this->categoryService->update($category, $request->validated());
+    $validated = $request->validated();
+    $newCategory = $this->categoryService->update(
+      $category,
+      $validated,
+      $request->file('image')
+    );
     return new CategoryResource($newCategory);
   }
   public function destroy(Category $category)

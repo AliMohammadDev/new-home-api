@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
   {
     User::factory(10)->create();
 
-    Category::factory(7)->create();
+    // Category::factory(7)->create();
+    $this->call(CategorySeeder::class);
 
     $colors = Color::factory(6)->create();
     $sizes = Size::factory(4)->create();

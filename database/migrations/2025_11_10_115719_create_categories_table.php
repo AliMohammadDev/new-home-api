@@ -14,6 +14,8 @@ return new class extends Migration {
       $table->id();
       $table->string('name')->unique();
       $table->text('description');
+      $table->string('image');
+      $table->string('image_public_id')->nullable(); //Cloudinary
       $table->timestamps();
     });
   }
