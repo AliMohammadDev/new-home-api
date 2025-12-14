@@ -13,25 +13,25 @@ class ProductService
 
   public function getSlidersProducts(int $limit = 10)
   {
-    // Featured
-    $featuredProducts = Product::where('is_featured', true)
-      ->take($limit)
-      ->get();
-
-    // Slider 2)
-    $newProducts = Product::where('created_at', '>=', now()->subDays(30))
-      ->take($limit)
-      ->get();
-
-    //  Discounted
-    $discountedProducts = Product::where('discount', '>', 0)
-      ->take($limit)
-      ->get();
+    $baseQuery = Product::with(['category'])
+      ->withAvg('reviews', 'rating')
+      ->withCount('reviews');
 
     return [
-      'featured' => $featuredProducts,
-      'new' => $newProducts,
-      'discounted' => $discountedProducts,
+      'featured' => (clone $baseQuery)
+        ->where('is_featured', true)
+        ->take($limit)
+        ->get(),
+
+      'new' => (clone $baseQuery)
+        ->where('created_at', '>=', now()->subDays(30))
+        ->take($limit)
+        ->get(),
+
+      'discounted' => (clone $baseQuery)
+        ->where('discount', '>', 0)
+        ->take($limit)
+        ->get(),
     ];
   }
 
@@ -43,7 +43,9 @@ class ProductService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = Product::query();
+    $query = Product::with(['category'])
+      ->withAvg('reviews', 'rating')
+      ->withCount('reviews');
 
     if ($paginate) {
       return $query->paginate(
