@@ -15,6 +15,12 @@ class ProductController extends Controller
     private ProductService $productService
   ) {
   }
+  public function allByLimit($limit = 10)
+  {
+    $products = $this->productService->getAllProductsByLimit($limit);
+    return ProductResource::collection($products);
+  }
+
 
   public function sliders()
   {

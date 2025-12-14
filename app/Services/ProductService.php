@@ -11,6 +11,15 @@ use App\Models\Product;
 class ProductService
 {
 
+  public function getAllProductsByLimit(int $limit = 10)
+  {
+    return Product::with(['category'])
+      ->withAvg('reviews', 'rating')
+      ->withCount('reviews')
+      ->take($limit)
+      ->get();
+  }
+
   public function getSlidersProducts(int $limit = 10)
   {
     $baseQuery = Product::with(['category'])

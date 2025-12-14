@@ -53,6 +53,8 @@ Route::apiResource('categories', CategoryController::class);
 
 Route::apiResource('products', ProductController::class);
 Route::get('/products-sliders', [ProductController::class, 'sliders']);
+Route::get('products-all/{limit?}', [ProductController::class, 'allByLimit']);
+
 
 Route::apiResource('colors', ColorController::class);
 Route::apiResource('sizes', SizeController::class);
