@@ -38,6 +38,7 @@ class ProductFactory extends Factory
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/tableWare_v5v14i.png',
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/kitchenWare_vy9qnp.png',
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/bakeWare_kbtsga.png',
+      ' https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
     ];
     $imageUrl = $this->faker->randomElement($images);
     $imagePublicId = pathinfo($imageUrl, PATHINFO_FILENAME);
@@ -49,7 +50,7 @@ class ProductFactory extends Factory
       'image_public_id' => $imagePublicId,
       'price' => $this->faker->numberBetween(100, 1000),
       'discount' => $this->faker->numberBetween(0, min(200, $this->faker->numberBetween(100, 1000) / 2)),
-
+      'is_featured' => $this->faker->boolean(20),
     ];
   }
 }

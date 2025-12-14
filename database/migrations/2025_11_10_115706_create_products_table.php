@@ -20,6 +20,7 @@ return new class extends Migration {
       $table->string('image_public_id')->nullable(); //Cloudinary
       $table->decimal('price', 10, 2);
       $table->decimal('discount', 10, 2)->default(0);
+      $table->boolean('is_featured')->default(false);
       $table->timestamps();
     });
   }

@@ -54,7 +54,7 @@ class CategorySeeder extends Seeder
         'name' => 'Aoppliances',
         'description' => 'Durable and versatile bakeware designed for even baking and easy
             release. Perfect for cakes, cookies, muffins, and more.',
-        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697897/cookWare_ebauy6.png',
+        'image' => ' https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711498/Aoppliances_hrauey.png',
       ],
       [
         'name' => 'Drinkware',

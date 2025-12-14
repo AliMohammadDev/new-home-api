@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
   use HasFactory;
-  protected $fillable = ['name', 'body', 'category_id', 'image', 'image_public_id', 'price', 'discount'];
+  protected $fillable = ['name', 'body', 'category_id', 'image', 'image_public_id', 'price', 'discount', 'is_featured'];
 
   public function getFinalPriceAttribute()
   {
