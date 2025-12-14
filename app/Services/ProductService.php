@@ -10,6 +10,33 @@ use App\Models\Product;
 
 class ProductService
 {
+
+  public function getSlidersProducts(int $limit = 10)
+  {
+    // Featured
+    $featuredProducts = Product::where('is_featured', true)
+      ->take($limit)
+      ->get();
+
+    // Slider 2)
+    $newProducts = Product::where('created_at', '>=', now()->subDays(30))
+      ->take($limit)
+      ->get();
+
+    //  Discounted
+    $discountedProducts = Product::where('discount', '>', 0)
+      ->take($limit)
+      ->get();
+
+    return [
+      'featured' => $featuredProducts,
+      'new' => $newProducts,
+      'discounted' => $discountedProducts,
+    ];
+  }
+
+
+
   public function findAll(
     $paginate = false,
     $perPage = 10,

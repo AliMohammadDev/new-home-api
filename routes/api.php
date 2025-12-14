@@ -50,7 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::apiResource('categories', CategoryController::class);
+
 Route::apiResource('products', ProductController::class);
+Route::get('/products-sliders', [ProductController::class, 'sliders']);
+
 Route::apiResource('colors', ColorController::class);
 Route::apiResource('sizes', SizeController::class);
 Route::apiResource('materials', MaterialController::class);

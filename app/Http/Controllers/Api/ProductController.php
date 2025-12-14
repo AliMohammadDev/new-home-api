@@ -16,6 +16,18 @@ class ProductController extends Controller
   ) {
   }
 
+  public function sliders()
+  {
+    $sliders = $this->productService->getSlidersProducts();
+
+    return response()->json([
+      'featured' => ProductResource::collection($sliders['featured']),
+      'new' => ProductResource::collection($sliders['new']),
+      'discounted' => ProductResource::collection($sliders['discounted']),
+    ]);
+  }
+
+
   public function index()
   {
     $products = $this->productService->findAll();
