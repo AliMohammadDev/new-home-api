@@ -35,7 +35,14 @@ class CategoryController extends Controller
 
   public function show(Category $category)
   {
-    return $category;
+    $category->load([
+      'products' => function ($query) {
+        $query->withAvg('reviews', 'rating')
+          ->withCount('reviews');
+      }
+    ]);
+
+    return new CategoryResource($category);
   }
 
   public function update(Category $category, UpdateCategoryRequest $request)

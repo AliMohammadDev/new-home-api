@@ -54,6 +54,7 @@ Route::apiResource('categories', CategoryController::class);
 Route::apiResource('products', ProductController::class);
 Route::get('/products-sliders', [ProductController::class, 'sliders']);
 Route::get('products-all/{limit?}', [ProductController::class, 'allByLimit']);
+Route::get('products-category/{name}', [ProductController::class, 'byCategoryName']);
 
 
 Route::apiResource('colors', ColorController::class);

@@ -15,6 +15,13 @@ class ProductController extends Controller
     private ProductService $productService
   ) {
   }
+
+
+  public function byCategoryName($name)
+  {
+    $products = $this->productService->findProductsByCategoryName($name);
+    return ProductResource::collection($products);
+  }
   public function allByLimit($limit = 10)
   {
     $products = $this->productService->getAllProductsByLimit($limit);

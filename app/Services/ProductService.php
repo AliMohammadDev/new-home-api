@@ -11,6 +11,18 @@ use App\Models\Product;
 class ProductService
 {
 
+  public function findProductsByCategoryName(string $categoryName)
+  {
+    return Product::with(['category'])
+      ->withAvg('reviews', 'rating')
+      ->withCount('reviews')
+      ->whereHas('category', function ($query) use ($categoryName) {
+        $query->where('name', $categoryName);
+      })
+      ->get();
+  }
+
+
   public function getAllProductsByLimit(int $limit = 10)
   {
     return Product::with(['category'])
