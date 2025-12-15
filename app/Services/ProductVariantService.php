@@ -7,13 +7,90 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductVariantService
 {
+
+
+  public function findVariantsByCategoryName(string $categoryName)
+  {
+    return ProductVariant::with([
+      'product' => function ($query) use ($categoryName) {
+        $query->select('id', 'name', 'image', 'price', 'discount', 'category_id')
+          ->withAvg('reviews', 'rating')
+          ->withCount('reviews')
+          ->with(['category:id,name,image'])
+          ->whereHas('category', fn($q) => $q->where('name', $categoryName));
+      },
+      'color:id,color',
+      'size:id,size',
+      'material:id,material'
+    ])->get()->filter(fn($variant) => $variant->product !== null);
+
+  }
+
+
+
+  public function getAllProductVariantsByLimit(int $limit = 10)
+  {
+    return ProductVariant::with([
+      'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->with(['category:id,name,image']),
+      'color:id,color',
+      'size:id,size',
+      'material:id,material',
+    ])->take($limit)->get();
+  }
+
+
+  public function getSlidersProductsVariants(int $limit = 10)
+  {
+    $baseQuery = ProductVariant::with([
+      'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->with(['category:id,name,image']),
+      'color:id,color',
+      'size:id,size',
+      'material:id,material',
+    ]);
+
+    return [
+      'featured' => (clone $baseQuery)
+        ->whereHas('product', fn($q) => $q->where('is_featured', true))
+        ->take($limit)
+        ->get(),
+
+      'new' => (clone $baseQuery)
+        ->whereHas('product', fn($q) => $q->where('created_at', '>=', now()->subDays(30)))
+        ->take($limit)
+        ->get(),
+
+      'discounted' => (clone $baseQuery)
+        ->whereHas('product', fn($q) => $q->where('discount', '>', 0))
+        ->take($limit)
+        ->get(),
+    ];
+  }
+
+
+
   public function findAll(
     $paginate = false,
     $perPage = 10,
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = ProductVariant::with(['product', 'color', 'size', 'material']);
+    $query = ProductVariant::with([
+      'product' => fn($q) => $q
+        ->select('id', 'category_id', 'name', 'image', 'price', 'discount', 'created_at', 'is_featured')
+        ->with('category:id,name,image')
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews'),
+
+      'color:id,color',
+      'size:id,size',
+      'material:id,material',
+    ]);
 
     if ($paginate) {
       return $query->paginate(

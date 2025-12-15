@@ -16,6 +16,31 @@ class ProductVariantController extends Controller
   ) {
   }
 
+  public function byVariantsCategoryName($name)
+  {
+    $products = $this->productVariantService->findVariantsByCategoryName($name);
+    return ProductVariantResource::collection($products);
+  }
+
+  public function allVariantsByLimit($limit = 10)
+  {
+    $variants = $this->productVariantService->getAllProductVariantsByLimit($limit);
+    return ProductVariantResource::collection($variants);
+  }
+
+
+  public function slidersVariants()
+  {
+    $sliders = $this->productVariantService->getSlidersProductsVariants();
+    return response()->json([
+      'featured' => ProductVariantResource::collection($sliders['featured']),
+      'new' => ProductVariantResource::collection($sliders['new']),
+      'discounted' => ProductVariantResource::collection($sliders['discounted']),
+    ]);
+  }
+
+
+
   public function index()
   {
     $variants = $this->productVariantService->findAll();

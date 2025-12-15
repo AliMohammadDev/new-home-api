@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ColorController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
+use App\Mail\ContactUsMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 
@@ -44,8 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
   // Orders
   Route::apiResource('orders', OrderController::class);
 
-  // Products Variants
-  Route::apiResource('product-variants', ProductVariantController::class);
+
 
 
 
@@ -54,11 +56,22 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::apiResource('categories', CategoryController::class);
 
 Route::apiResource('products', ProductController::class);
-Route::get('/products-sliders', [ProductController::class, 'sliders']);
-Route::get('products-all/{limit?}', [ProductController::class, 'allByLimit']);
-Route::get('products-category/{name}', [ProductController::class, 'byCategoryName']);
+// Products Variants
+Route::apiResource('product-variants', ProductVariantController::class);
 
+Route::get('variants-all/{limit?}', [ProductVariantController::class, 'allVariantsByLimit']);
+Route::get('variants-sliders', [ProductVariantController::class, 'slidersVariants']);
+Route::get('variants-category/{name}', [ProductVariantController::class, 'byVariantsCategoryName']);
+
+
+Route::get('/products-sliders', [ProductController::class, 'sliders']);
+// Route::get('products-all/{limit?}', [ProductController::class, 'allByLimit']);
+// Route::get('products-category/{name}', [ProductController::class, 'byCategoryName']);
 
 Route::apiResource('colors', ColorController::class);
 Route::apiResource('sizes', SizeController::class);
 Route::apiResource('materials', MaterialController::class);
+
+
+Route::post('/contact-us', [ContactController::class, 'send'])
+  ->middleware('throttle:5,1'); // 5 requests per minute
