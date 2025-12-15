@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Auth\CreateUserRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,5 +38,17 @@ class AuthController extends Controller
     return response()->json([
       'user' => Auth::User(),
     ], 200);
+  }
+
+  public function updateProfile(UpdateProfileRequest $request)
+  {
+    $user = $this->authService->updateProfile(
+      Auth::user(),
+      $request->validated()
+    );
+    return response()->json([
+      'message' => 'Profile updated successfully',
+      'user' => $user,
+    ]);
   }
 }

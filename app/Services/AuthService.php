@@ -28,4 +28,13 @@ class AuthService
     $token = $user->createToken('auth_token')->plainTextToken;
     return $token;
   }
+
+  public function updateProfile(User $user, array $data): User
+  {
+    if (isset($data['password'])) {
+      $data['password'] = Hash::make($data['password']);
+    }
+    $user->update($data);
+    return $user;
+  }
 }

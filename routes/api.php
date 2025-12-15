@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
   // My profile
   Route::get('/me', [AuthController::class, 'me']);
+  // Update profile
+  Route::put('/profile', [AuthController::class, 'updateProfile']);
 
   // WishList
   Route::apiResource('wishlists', WishListController::class)
