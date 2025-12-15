@@ -22,7 +22,7 @@ class CategorySeeder extends Seeder
             Designed for modern kitchens, our cookware combines high-quality
             materials with ergonomic design — helping you create meals that look
             as good as they taste.',
-        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697897/cookWare_ebauy6.png',
+        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782469/Cookware_otjpq6.png',
       ],
       [
         'name' => 'Tableware',
@@ -32,13 +32,13 @@ class CategorySeeder extends Seeder
             Made from premium materials and refined finishes, our tableware
             enhances any table setting — adding elegance, balance, and charm to
             your dining moments.',
-        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697894/tableWare_h0xs5q.png',
+        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782432/Tableware_gxzzx8.png',
       ],
       [
         'name' => 'Kitchenware',
         'description' => 'Essential kitchenware for cooking, prep, and serving—durable,
             practical, and designed for everyday use.',
-        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697896/kitchenWare_ptecqi.png',
+        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782445/Kitchenware_ejtsmk.png',
       ],
       [
         'name' => 'Bakeware',
@@ -60,7 +60,7 @@ class CategorySeeder extends Seeder
         'name' => 'Drinkware',
         'description' => "Discover the perfect balance of performance, durability, and design with our premium cookware collection. Each piece is crafted to deliver even heat distribution, reliable cooking results, and long-lasting quality. From everyday meals to gourmet creations, our cookware helps you cook with confidence and style. Designed for comfort, efficiency, and versatility, it’s the ideal companion for every modern kitchen.",
 
-        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697899/drinkWare_wz7t0x.png',
+        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782458/Drinkware_kdbeql.png',
       ],
       [
         'name' => 'Forhome',

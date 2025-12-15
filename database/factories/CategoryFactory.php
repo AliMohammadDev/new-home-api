@@ -18,13 +18,13 @@ class CategoryFactory extends Factory
   {
 
     $categories = [
-      'Drinkware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697899/drinkWare_wz7t0x.png',
-      'Cookware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697897/cookWare_ebauy6.png',
+      'Drinkware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782458/Drinkware_kdbeql.png',
+      'Cookware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782469/Cookware_otjpq6.png',
       'Bakeware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697897/bakeWare_lhwmob.png',
       'Aoppliances' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
-      'Kitchenware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697896/kitchenWare_ptecqi.png',
+      'Kitchenware' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782445/Kitchenware_ejtsmk.png',
       'ForHome' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697894/forHome_vnwztz.png',
-      'TableWare' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765697894/tableWare_h0xs5q.png',
+      'TableWare' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765782432/Tableware_gxzzx8.png',
     ];
     $name = $this->faker->unique()->randomElement(array_keys($categories));
     $imageUrl = $categories[$name];
