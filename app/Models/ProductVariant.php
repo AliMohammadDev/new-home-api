@@ -42,6 +42,11 @@ class ProductVariant extends Model
     return $this->belongsTo(Material::class);
   }
 
+  public function wishlists()
+  {
+    return $this->hasMany(WishList::class);
+  }
+
   public function cartItems()
   {
     return $this->hasMany(CartItem::class);

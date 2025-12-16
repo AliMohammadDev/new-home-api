@@ -15,10 +15,17 @@ class WishListService
     $columns = ["*"],
     $userId = null
   ): LengthAwarePaginator|Collection {
-    $query = WishList::query();
+    $query = WishList::with([
+      'productVariant.product',
+      'productVariant.color',
+      'productVariant.size',
+      'productVariant.material',
+    ]);
+
     if ($userId) {
       $query->where('user_id', $userId);
     }
+
     if ($paginate) {
       return $query->paginate(
         perPage: $perPage,

@@ -24,13 +24,13 @@ class WishListController extends Controller
   public function store(Request $request)
   {
     $validatedData = $request->validate([
-      'product_id' => 'required|exists:products,id',
+      'product_variant_id' => 'required|exists:product_variants,id',
     ]);
     $userId = Auth::id();
-    $productId = $validatedData['product_id'];
-    $newWishList = $this->wishListService->create([
+    $productId = $validatedData['product_variant_id'];
+    $newWishList = $this->wishListService->create(data: [
       'user_id' => $userId,
-      'product_id' => $productId,
+      'product_variant_id' => $productId,
     ]);
     return new WishListResource($newWishList);
   }
