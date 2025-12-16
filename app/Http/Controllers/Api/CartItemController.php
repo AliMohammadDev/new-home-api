@@ -20,7 +20,16 @@ class CartItemController extends Controller
   public function index()
   {
     $items = $this->cartItemService->findAll(userId: Auth::id());
-    return CartItemResource::collection($items);
+
+    $cartItems = CartItemResource::collection($items);
+
+    $cartTotal = $items->sum(function ($item) {
+      return $item->quantity * $item->productVariant->product->final_price;
+    });
+    return response()->json([
+      'data' => $cartItems,
+      'cart_total' => $cartTotal,
+    ]);
   }
 
   public function store(CreateCartItemRequest $request)
