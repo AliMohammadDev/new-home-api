@@ -57,6 +57,12 @@ class CartItemController extends Controller
   public function decrease(CartItem $cart_item)
   {
     $item = $this->cartItemService->decreaseQuantity($cart_item);
+    if (!$item) {
+      return response()->json([
+        'message' => 'Item removed from cart',
+      ], 200);
+    }
+
     return new CartItemResource($item);
   }
   public function destroy(CartItem $cart_item)
