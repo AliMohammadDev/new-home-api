@@ -17,4 +17,9 @@ class WishList extends Model
   {
     return $this->belongsTo(ProductVariant::class, 'product_variant_id');
   }
+
+  public function getCreatedAtFormattedAttribute()
+  {
+    return $this->created_at->format('H:i d, M Y');
+  }
 }

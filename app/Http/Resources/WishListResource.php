@@ -32,6 +32,7 @@ class WishListResource extends JsonResource
           'material' => $this->productVariant->material?->material,
         ];
       }),
+      'created_at' => $this->created_at_formatted,
     ];
 
   }
