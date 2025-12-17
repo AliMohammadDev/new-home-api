@@ -32,15 +32,14 @@ class DatabaseSeeder extends Seeder
     $materials = Material::factory(3)->create();
 
     Product::factory(20)->create()->each(function ($product) use ($colors, $sizes, $materials) {
-      ProductVariant::factory(rand(1, 3))->create([
+      $variants = ProductVariant::factory(rand(1, 3))->create([
         'product_id' => $product->id,
         'color_id' => $colors->random()->id,
         'size_id' => $sizes->random()->id,
         'material_id' => $materials->random()->id,
       ]);
-
       Reviews::factory(rand(0, 5))->create([
-        'product_id' => $product->id,
+        'product_variant_id' => $variants->random()->id,
       ]);
     });
   }

@@ -56,4 +56,11 @@ class ProductVariant extends Model
   {
     return $this->hasMany(OrderItem::class);
   }
+
+  public function reviews()
+  {
+    return $this->hasMany(Reviews::class);
+  }
+
+
 }

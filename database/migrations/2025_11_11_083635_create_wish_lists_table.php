@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;

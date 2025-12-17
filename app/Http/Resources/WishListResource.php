@@ -16,7 +16,6 @@ class WishListResource extends JsonResource
   {
     return [
       'id' => $this->id,
-
       'product_variant' => $this->whenLoaded('productVariant', function () {
         return [
           'id' => $this->productVariant->id,

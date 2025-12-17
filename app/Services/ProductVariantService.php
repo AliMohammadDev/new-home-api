@@ -14,15 +14,16 @@ class ProductVariantService
     return ProductVariant::with([
       'product' => function ($query) use ($categoryName) {
         $query->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-          ->withAvg('reviews', 'rating')
-          ->withCount('reviews')
           ->with(['category:id,name,image'])
           ->whereHas('category', fn($q) => $q->where('name', $categoryName));
       },
       'color:id,color',
       'size:id,size',
       'material:id,material'
-    ])->get()->filter(fn($variant) => $variant->product !== null);
+    ])
+      ->withAvg('reviews', 'rating')
+      ->withCount('reviews')
+      ->get()->filter(fn($variant) => $variant->product !== null);
 
   }
 
@@ -32,13 +33,13 @@ class ProductVariantService
   {
     return ProductVariant::with([
       'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews')
         ->with(['category:id,name,image']),
       'color:id,color',
       'size:id,size',
       'material:id,material',
-    ])->take($limit)->get();
+    ])->withAvg('reviews', 'rating')
+      ->withCount('reviews')
+      ->take($limit)->get();
   }
 
 
@@ -46,13 +47,12 @@ class ProductVariantService
   {
     $baseQuery = ProductVariant::with([
       'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews')
         ->with(['category:id,name,image']),
       'color:id,color',
       'size:id,size',
       'material:id,material',
-    ]);
+    ])->withAvg('reviews', 'rating')
+      ->withCount('reviews');
 
     return [
       'featured' => (clone $baseQuery)
@@ -83,14 +83,13 @@ class ProductVariantService
     $query = ProductVariant::with([
       'product' => fn($q) => $q
         ->select('id', 'category_id', 'name', 'image', 'price', 'discount', 'created_at', 'is_featured')
-        ->with('category:id,name,image')
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews'),
-
+        ->with('category:id,name,image'),
       'color:id,color',
       'size:id,size',
       'material:id,material',
-    ]);
+    ])->withAvg('reviews', 'rating')
+      ->withCount('reviews');
+    ;
 
     if ($paginate) {
       return $query->paginate(

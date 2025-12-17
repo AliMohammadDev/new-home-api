@@ -17,7 +17,7 @@ class ReviewsService
     $columns = ["*"],
     $userId = null
   ): LengthAwarePaginator|Collection {
-    $query = Reviews::with(['product', 'user']);
+    $query = Reviews::with(['ProductVariant', 'user']);
     if ($userId) {
       $query->where('user_id', $userId);
     }
@@ -35,7 +35,7 @@ class ReviewsService
     return Reviews::updateOrCreate(
       [
         'user_id' => $userId,
-        'product_id' => $data['product_id'],
+        'product_variant_id' => $data['product_variant_id'],
       ],
       [
         'rating' => $data['rating'],

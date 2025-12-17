@@ -30,13 +30,14 @@ class ProductVariantResource extends JsonResource
         'price' => $product->price,
         'discount' => $product->discount,
         'final_price' => $product->final_price,
-        'reviews_avg' => $product->reviews_avg_rating ?? 0,
-        'reviews_count' => $product->reviews_count ?? 0,
+
       ],
       'color' => $this->color->color,
       'size' => $this->size->size,
       'material' => $this->material->material,
       'stock_quantity' => $this->stock_quantity,
+      'reviews_avg' => $this->reviews_avg_rating,
+      'reviews_count' => $this->reviews_count,
     ];
   }
 }

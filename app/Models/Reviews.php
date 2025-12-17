@@ -10,7 +10,7 @@ class Reviews extends Model
   use HasFactory;
   protected $fillable = [
     'user_id',
-    'product_id',
+    'product_variant_id',
     'rating',
     'comment',
   ];
@@ -18,8 +18,9 @@ class Reviews extends Model
   {
     return $this->belongsTo(User::class);
   }
-  public function product()
+  public function productVariant()
   {
-    return $this->belongsTo(Product::class);
+    return $this->belongsTo(ProductVariant::class, 'product_variant_id');
   }
+
 }

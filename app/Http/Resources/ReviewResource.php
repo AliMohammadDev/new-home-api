@@ -22,7 +22,22 @@ class ReviewResource extends JsonResource
         'id' => $this->user->id,
         'name' => $this->user->name,
       ],
-      'product_id' => $this->product_id,
+      'product_variant' => $this->whenLoaded('productVariant', function () {
+        return [
+          'id' => $this->productVariant->id,
+          'product_id' => $this->productVariant->product->id,
+          'name' => $this->productVariant->product->name,
+          'image' => $this->productVariant->product->image,
+          'price' => $this->productVariant->product->price,
+          'discount' => $this->productVariant->product->discount,
+          'final_price' => $this->productVariant->product->final_price,
+
+          'color' => $this->productVariant->color?->color,
+          'size' => $this->productVariant->size?->size,
+          'material' => $this->productVariant->material?->material,
+        ];
+      }),
+      'created_at' => $this->created_at_formatted,
     ];
   }
 }
