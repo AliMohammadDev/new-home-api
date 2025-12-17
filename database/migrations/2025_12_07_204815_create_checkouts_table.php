@@ -16,8 +16,14 @@ return new class extends Migration {
       $table->id();
       $table->string('first_name');
       $table->string('last_name');
+      $table->string('email');
+      $table->string('phone');
+      $table->string('country');
       $table->string('city');
-      $table->string('address');
+      $table->string('street')->nullable();
+      $table->string('floor')->nullable();
+      $table->string('postal_code')->nullable();
+      $table->text('additional_information')->nullable();
       $table->foreignIdFor(Cart::class)->constrained();
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
       $table->enum('status', ['pending', 'completed'])->default('pending');

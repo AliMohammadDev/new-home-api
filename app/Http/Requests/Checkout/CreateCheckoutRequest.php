@@ -24,9 +24,15 @@ class CreateCheckoutRequest extends FormRequest
     return [
       'first_name' => ['required', 'string', 'max:150'],
       'last_name' => ['required', 'string', 'max:150'],
+      'email' => ['required', 'email', 'max:255'],
+      'phone' => ['required', 'string', 'max:20'],
+      'country' => ['required', 'string', 'max:150'],
       'city' => ['required', 'string', 'max:150'],
-      'address' => ['required', 'string', 'max:150'],
-      'cart_id'=> ['required', 'string','exists:carts,id'],
+      'street' => ['nullable', 'string', 'max:150'],
+      'floor' => ['nullable', 'string', 'max:50'],
+      'postal_code' => ['nullable', 'string', 'max:20'],
+      'additional_information' => ['nullable', 'string', 'max:500'],
+      'cart_id' => ['required', 'exists:carts,id'],
     ];
   }
 }

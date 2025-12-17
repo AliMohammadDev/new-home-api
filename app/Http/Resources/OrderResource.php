@@ -19,7 +19,7 @@ class OrderResource extends JsonResource
       'total_amount' => $this->total_amount,
       'payment_method' => $this->payment_method,
       'status' => $this->status,
-      'created_at' => $this->created_at,
+      'created_at' => $this->created_at_formatted,
       'checkout' => new CheckoutResource($this->whenLoaded('checkout')),
       'items' => OrderItemResource::collection(
         $this->whenLoaded('orderItems')

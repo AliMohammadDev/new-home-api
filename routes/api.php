@@ -13,8 +13,6 @@ use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
-use App\Mail\ContactUsMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 
@@ -46,10 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::apiResource('checkouts', CheckoutController::class);
   // Orders
   Route::apiResource('orders', OrderController::class);
-
-
-
-
 
 });
 

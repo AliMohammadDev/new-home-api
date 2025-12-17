@@ -18,9 +18,14 @@ class CheckoutResource extends JsonResource
       'id' => $this->id,
       'first_name' => $this->first_name,
       'last_name' => $this->last_name,
+      'email' => $this->email,
+      'phone' => $this->phone,
+      'country' => $this->country,
       'city' => $this->city,
-      'address' => $this->address,
-      'status' => $this->status,
+      'street' => $this->street,
+      'floor' => $this->floor,
+      'postal_code' => $this->postal_code,
+      'additional_information' => $this->additional_information,
       'cart_id' => $this->cart_id,
     ];
   }

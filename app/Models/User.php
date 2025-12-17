@@ -56,4 +56,8 @@ class User extends Authenticatable
     return $this->hasMany(Reviews::class);
   }
 
+  public function activeCart()
+  {
+    return $this->hasOne(Cart::class)->where('status', 'active');
+  }
 }

@@ -38,12 +38,19 @@ class CheckoutService
     return Checkout::create([
       'first_name' => $data['first_name'],
       'last_name' => $data['last_name'],
+      'email' => $data['email'],
+      'phone' => $data['phone'],
+      'country' => $data['country'],
       'city' => $data['city'],
-      'address' => $data['address'],
-      'cart_id' => $cart->id,
+      'street' => $data['street'] ?? '',
+      'floor' => $data['floor'] ?? null,
+      'postal_code' => $data['postal_code'] ?? null,
+      'additional_information' => $data['additional_information'] ?? null,
+      'cart_id' => $data['cart_id'],
       'user_id' => $userId,
       'status' => 'pending',
     ]);
+
   }
 
   public function updateCheckout(Checkout $checkout, array $data)

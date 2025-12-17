@@ -34,4 +34,9 @@ class Order extends Model
   {
     return $this->hasMany(OrderItem::class);
   }
+
+  public function getCreatedAtFormattedAttribute()
+  {
+    return $this->created_at->format('H:i d, M Y');
+  }
 }

@@ -22,10 +22,16 @@ class UpdateCheckoutRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'first_name' => ['sometimes','string','max:150'],
-      'last_name'  => ['sometimes','string','max:150'],
-      'city'       => ['sometimes','string','max:150'],
-      'address'    => ['sometimes','string','max:150'],
+      'first_name' => ['sometimes', 'string', 'max:150'],
+      'last_name' => ['sometimes', 'string', 'max:150'],
+      'email' => ['sometimes', 'email', 'max:255'],
+      'phone' => ['sometimes', 'string', 'max:20'],
+      'country' => ['sometimes', 'string', 'max:150'],
+      'city' => ['sometimes', 'string', 'max:150'],
+      'street' => ['sometimes', 'string', 'max:150'],
+      'floor' => ['sometimes', 'nullable', 'string', 'max:50'],
+      'postal_code' => ['sometimes', 'nullable', 'string', 'max:20'],
+      'additional_information' => ['sometimes', 'nullable', 'string', 'max:500'],
     ];
   }
 }
