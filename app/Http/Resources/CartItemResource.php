@@ -31,7 +31,11 @@ class CartItemResource extends JsonResource
           'material' => $this->productVariant->material->material,
         ];
       }),
-      'total_price' => $this->productVariant->product->final_price * $this->quantity,
+      'total_price' => round(
+        $this->productVariant->product->final_price * $this->quantity,
+        2
+      ),
+
     ];
   }
 }

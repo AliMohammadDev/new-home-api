@@ -23,9 +23,13 @@ class CartItemController extends Controller
 
     $cartItems = CartItemResource::collection($items);
 
-    $cartTotal = $items->sum(function ($item) {
-      return $item->quantity * $item->productVariant->product->final_price;
-    });
+    $cartTotal = round(
+      $items->sum(function ($item) {
+        return $item->quantity * $item->productVariant->product->final_price;
+      }),
+      2
+    );
+
     return response()->json([
       'data' => $cartItems,
       'cart_total' => $cartTotal,
