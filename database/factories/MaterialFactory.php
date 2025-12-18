@@ -16,6 +16,9 @@ class MaterialFactory extends Factory
    */
   public function definition(): array
   {
-    return ['material' => $this->faker->word()];
+    $materials = ['Ceramic', 'Glass', 'Stainless Steel', 'Cast Iron', 'Plastic', 'Wood'];
+    return [
+      'material' => $this->faker->randomElement($materials),
+    ];
   }
 }
