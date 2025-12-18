@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ProductVariantService
 {
@@ -23,7 +24,13 @@ class ProductVariantService
     ])
       ->withAvg('reviews', 'rating')
       ->withCount('reviews')
-      ->get()->filter(fn($variant) => $variant->product !== null);
+      ->whereIn('id', function ($q) {
+        $q->select(DB::raw('MIN(id)'))
+          ->from('product_variants')
+          ->groupBy('product_id');
+      })
+      ->get()
+      ->filter(fn($variant) => $variant->product !== null);
 
   }
 
@@ -39,7 +46,13 @@ class ProductVariantService
       'material:id,material',
     ])->withAvg('reviews', 'rating')
       ->withCount('reviews')
-      ->take($limit)->get();
+      ->whereIn('id', function ($q) {
+        $q->select(DB::raw('MIN(id)'))
+          ->from('product_variants')
+          ->groupBy('product_id');
+      })
+      ->take($limit)
+      ->get();
   }
 
 
@@ -52,7 +65,12 @@ class ProductVariantService
       'size:id,size',
       'material:id,material',
     ])->withAvg('reviews', 'rating')
-      ->withCount('reviews');
+      ->withCount('reviews')
+      ->whereIn('id', function ($q) {
+        $q->select(DB::raw('MIN(id)'))
+          ->from('product_variants')
+          ->groupBy('product_id');
+      });
 
     return [
       'featured' => (clone $baseQuery)
@@ -88,8 +106,14 @@ class ProductVariantService
       'size:id,size',
       'material:id,material',
     ])->withAvg('reviews', 'rating')
-      ->withCount('reviews');
-    ;
+      ->withCount('reviews')
+      ->whereIn('id', function ($q) {
+        $q->select(DB::raw('MIN(id)'))
+          ->from('product_variants')
+          ->groupBy('product_id');
+      });
+
+
 
     if ($paginate) {
       return $query->paginate(
