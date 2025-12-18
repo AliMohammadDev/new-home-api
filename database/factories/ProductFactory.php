@@ -38,7 +38,7 @@ class ProductFactory extends Factory
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/tableWare_v5v14i.png',
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/kitchenWare_vy9qnp.png',
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/bakeWare_kbtsga.png',
-      ' https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
+      'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
     ];
     $imageUrl = $this->faker->unique()->randomElement($images);
     $imagePublicId = pathinfo($imageUrl, PATHINFO_FILENAME);
