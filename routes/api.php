@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::apiResource('wishlists', WishListController::class)
     ->only(['index', 'store', 'destroy']);
   // Reviews
-  Route::apiResource('reviews', ReviewsController::class)
+  Route::apiResource('reviews', controller: ReviewsController::class)
     ->only(['index', 'store', 'update', 'destroy']);
 
   // CartItems

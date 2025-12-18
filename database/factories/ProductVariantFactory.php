@@ -25,7 +25,7 @@ class ProductVariantFactory extends Factory
       'color_id' => Color::factory(),
       'size_id' => Size::factory(),
       'material_id' => Material::factory(),
-      'stock_quantity' => $this->faker->numberBetween(0, 100),
+      'stock_quantity' => $this->faker->numberBetween(1, 100),
     ];
   }
 }

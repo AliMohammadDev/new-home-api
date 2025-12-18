@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Review;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateReviewRequest extends FormRequest
 {
@@ -22,7 +23,12 @@ class CreateReviewRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'product_variant_id' => 'required|exists:product_variants,id',
+      'product_variant_id' => [
+        'required',
+        'exists:product_variants,id',
+        Rule::unique('reviews')
+          ->where('user_id', auth()->id()),
+      ],
       'rating' => 'required|integer|min:1|max:5',
       'comment' => 'nullable|string|max:500',
     ];

@@ -40,16 +40,18 @@ class ProductFactory extends Factory
       'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/bakeWare_kbtsga.png',
       ' https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
     ];
-    $imageUrl = $this->faker->randomElement($images);
+    $imageUrl = $this->faker->unique()->randomElement($images);
     $imagePublicId = pathinfo($imageUrl, PATHINFO_FILENAME);
+
+    $price = $this->faker->randomFloat(2, 0.2, 100);
     return [
       'name' => ucfirst($this->faker->words(2, true)),
       'body' => $this->faker->paragraph(),
       'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
       'image' => $imageUrl,
       'image_public_id' => $imagePublicId,
-      'price' => $this->faker->numberBetween(100, 1000),
-      'discount' => $this->faker->numberBetween(0, min(200, $this->faker->numberBetween(100, 1000) / 2)),
+      'price' => $price,
+      'discount' => $this->faker->numberBetween(0, 50),
       'is_featured' => $this->faker->boolean(20),
     ];
   }

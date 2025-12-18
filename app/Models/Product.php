@@ -10,10 +10,14 @@ class Product extends Model
   use HasFactory;
   protected $fillable = ['name', 'body', 'category_id', 'image', 'image_public_id', 'price', 'discount', 'is_featured'];
 
+
   public function getFinalPriceAttribute()
   {
-    return $this->price - ($this->discount ?? 0);
+
+    $discountedAmount = $this->price * ($this->discount / 100);
+    return round($this->price - $discountedAmount, 2);
   }
+
 
   public function category()
   {
