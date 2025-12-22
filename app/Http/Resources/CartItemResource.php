@@ -22,7 +22,7 @@ class CartItemResource extends JsonResource
           'id' => $this->productVariant->id,
           'product_id' => $this->productVariant->product->id,
           'name' => $this->productVariant->product->name,
-          'image' => $this->productVariant->product->image,
+          'image' => $this->productVariant->product->getFirstMediaUrl('product_images', 'default'),
           'price' => $this->productVariant->product->price,
           'discount' => $this->productVariant->product->discount,
           'final_price' => $this->productVariant->product->final_price,

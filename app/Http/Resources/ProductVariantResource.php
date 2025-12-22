@@ -21,11 +21,11 @@ class ProductVariantResource extends JsonResource
       'product' => [
         'id' => $product->id,
         'name' => $product->name,
-        'image' => $product->image,
+        'image' => $product->getFirstMediaUrl('product_images', 'default'),
         'category' => [
           'id' => $product->category->id,
           'name' => $product->category->name,
-          'image' => $product->category->image,
+          'image' => $product->category->getFirstMediaUrl('category_images', 'default'),
         ],
         'price' => $product->price,
         'discount' => $product->discount,

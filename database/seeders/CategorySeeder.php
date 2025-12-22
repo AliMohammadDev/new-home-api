@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -54,7 +54,7 @@ class CategorySeeder extends Seeder
         'name' => 'Aoppliances',
         'description' => 'Durable and versatile bakeware designed for even baking and easy
             release. Perfect for cakes, cookies, muffins, and more.',
-        'image' => ' https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711498/Aoppliances_hrauey.png',
+        'image' => 'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711498/Aoppliances_hrauey.png',
       ],
       [
         'name' => 'Drinkware',
@@ -74,17 +74,20 @@ class CategorySeeder extends Seeder
       ],
     ];
 
-    foreach ($categories as $category) {
-      $imagePublicId = pathinfo($category['image'], PATHINFO_FILENAME);
+    foreach ($categories as $categoryData) {
 
-      Category::updateOrCreate(
-        ['name' => $category['name']],
+      $category = Category::updateOrCreate(
+        ['name' => $categoryData['name']],
         [
-          'description' => $category['description'],
-          'image' => $category['image'],
-          'image_public_id' => $imagePublicId,
+          'description' => $categoryData['description'],
         ]
       );
+      // if (!$category->hasMedia('category_images')) {
+      //   $category
+      //     ->addMediaFromUrl(trim($categoryData['image']))
+      //     ->usingFileName(Str::uuid() . '.png')
+      //     ->toMediaCollection('category_images', 'public');
+      // }
     }
   }
 }

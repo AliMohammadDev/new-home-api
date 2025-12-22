@@ -14,8 +14,8 @@ class ProductVariantService
   {
     return ProductVariant::with([
       'product' => function ($query) use ($categoryName) {
-        $query->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-          ->with(['category:id,name,image'])
+        $query->select('id', 'name', 'price', 'discount', 'category_id')
+          ->with(['category:id,name'])
           ->whereHas('category', fn($q) => $q->where('name', $categoryName));
       },
       'color:id,color',
@@ -32,6 +32,7 @@ class ProductVariantService
       ->get()
       ->filter(fn($variant) => $variant->product !== null);
 
+
   }
 
 
@@ -39,8 +40,8 @@ class ProductVariantService
   public function getAllProductVariantsByLimit(int $limit = 10)
   {
     return ProductVariant::with([
-      'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-        ->with(['category:id,name,image']),
+      'product' => fn($q) => $q->select('id', 'name', 'price', 'discount', 'category_id')
+        ->with(['category:id,name']),
       'color:id,color',
       'size:id,size',
       'material:id,material',
@@ -53,14 +54,15 @@ class ProductVariantService
       })
       ->take($limit)
       ->get();
+
   }
 
 
   public function getSlidersProductsVariants(int $limit = 10)
   {
     $baseQuery = ProductVariant::with([
-      'product' => fn($q) => $q->select('id', 'name', 'image', 'price', 'discount', 'category_id')
-        ->with(['category:id,name,image']),
+      'product' => fn($q) => $q->select('id', 'name', 'price', 'discount', 'category_id')
+        ->with(['category:id,name']),
       'color:id,color',
       'size:id,size',
       'material:id,material',
@@ -88,6 +90,8 @@ class ProductVariantService
         ->take($limit)
         ->get(),
     ];
+
+
   }
 
 
@@ -100,8 +104,8 @@ class ProductVariantService
   ): LengthAwarePaginator|Collection {
     $query = ProductVariant::with([
       'product' => fn($q) => $q
-        ->select('id', 'category_id', 'name', 'image', 'price', 'discount', 'created_at', 'is_featured')
-        ->with('category:id,name,image'),
+        ->select('id', 'category_id', 'name', 'price', 'discount', 'created_at', 'is_featured')
+        ->with('category:id,name'),
       'color:id,color',
       'size:id,size',
       'material:id,material',

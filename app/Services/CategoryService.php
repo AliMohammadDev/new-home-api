@@ -29,7 +29,6 @@ class CategoryService
 
   public function create(array $data, $imageFile = null)
   {
-    // return Category::create($data);
     if ($imageFile) {
       $cloudinary = new Cloudinary(config('cloudinary.url'));
       $uploaded = $cloudinary->uploadApi()->upload(

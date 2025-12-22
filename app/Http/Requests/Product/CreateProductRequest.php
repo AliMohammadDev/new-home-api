@@ -25,7 +25,7 @@ class CreateProductRequest extends FormRequest
       'name' => ['required', 'string', 'max:255'],
       'body' => ['required', 'string', 'max:255'],
       'category_id' => ['required', 'exists:categories,id'],
-      'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+      'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:3072'],
       'image_public_id' => ['nullable', 'string'],
       'price' => ['required', 'numeric', 'min:0'],
       'discount' => ['nullable', 'numeric', 'min:0'],

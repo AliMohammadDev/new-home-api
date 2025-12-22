@@ -2,16 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\MediaLibrary\CategoryPathGenerator;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
-class Category extends Model
+class Category extends Model implements HasMedia
 {
-  use HasFactory;
-  protected $fillable = ['name', 'description', 'image', 'image_public_id',];
+  use InteractsWithMedia;
 
-  public function products()
+  protected $fillable = ['name', 'description'];
+
+  protected static function booting(): void
   {
-    return $this->hasMany(Product::class);
+    PathGeneratorFactory::setCustomPathGenerators(
+      static::class,
+      CategoryPathGenerator::class
+    );
+  }
+
+  public function registerMediaConversions(?Media $media = null): void
+  {
+    $this->addMediaConversion('default')
+      ->fit(Fit::Max, 1000, 1000)
+      ->quality(70)
+      ->format('webp')
+      ->nonQueued();
   }
 }
