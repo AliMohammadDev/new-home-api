@@ -32,7 +32,11 @@ class ProductVariantResource extends JsonResource
         'final_price' => $product->final_price,
 
       ],
-      'color' => $this->color->color,
+      'color' => [
+        'name' => $this->color->color,
+        'hex_code' => $this->color->hex_code,
+      ],
+
       'size' => $this->size->size,
       'material' => $this->material->material,
       'stock_quantity' => $this->stock_quantity,

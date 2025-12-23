@@ -6,6 +6,7 @@ use App\Filament\Resources\ColorResource\Pages;
 use App\Filament\Resources\ColorResource\RelationManagers;
 use App\Models\Color;
 use Filament\Forms;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -30,6 +31,11 @@ class ColorResource extends Resource
         Forms\Components\TextInput::make('color')
           ->label('اسم اللون')
           ->required(),
+
+        ColorPicker::make('hex_code')
+          ->label('كود اللون')
+          ->required()
+          ->format('hex'),
       ]);
   }
 
@@ -37,6 +43,10 @@ class ColorResource extends Resource
   {
     return $table
       ->columns([
+        Tables\Columns\ColorColumn::make('hex_code')
+          ->label('اللون')
+          ->copyable(),
+
         Tables\Columns\TextColumn::make('color')
           ->label('اللون')
           ->sortable()
