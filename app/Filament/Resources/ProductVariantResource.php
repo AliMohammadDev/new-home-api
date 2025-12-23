@@ -12,7 +12,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductVariantResource extends Resource
 {
@@ -21,6 +20,8 @@ class ProductVariantResource extends Resource
   protected static ?string $navigationLabel = 'خيارات المنتج';
   protected static ?string $navigationGroup = 'إدارة المنتجات';
   protected static ?string $modelLabel = 'خيار المنتج';
+  protected static ?string $pluralModelLabel = 'خيارات المنتج';
+
 
 
   public static function form(Form $form): Form
@@ -69,6 +70,8 @@ class ProductVariantResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+
       ])
       ->bulkActions([
         Tables\Actions\DeleteBulkAction::make(),
@@ -107,10 +110,12 @@ class ProductVariantResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          // Tables\Actions\DeleteBulkAction::make(),
         ]),
       ]);
   }
@@ -128,6 +133,8 @@ class ProductVariantResource extends Resource
       'index' => Pages\ListProductVariants::route('/'),
       'create' => Pages\CreateProductVariant::route('/create'),
       'edit' => Pages\EditProductVariant::route('/{record}/edit'),
+      'view' => Pages\ViewProductVariant::route('/{record}'),
+
     ];
   }
 }

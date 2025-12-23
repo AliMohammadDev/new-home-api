@@ -2,10 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CartResource\RelationManagers\CartItemsRelationManager;
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
-use App\Filament\Resources\CategoryResource\Widgets\CategoriesCountWidget;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -14,7 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class CategoryResource extends Resource
 {
@@ -45,7 +42,6 @@ class CategoryResource extends Resource
           ->image()
           ->imageEditor()
           ->maxSize(10240)
-
       ]);
   }
 
@@ -88,10 +84,24 @@ class CategoryResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, Category $record) {
+            if ($record->products()->exists()) {
+              Notification::make()
+                ->danger()
+                ->title('خطأ في الحذف')
+                ->body('لا يمكن حذف هذا الصنف لارتباطه بمنتج.')
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make(),
+
         ]),
       ]);
   }
@@ -108,6 +118,7 @@ class CategoryResource extends Resource
       'index' => Pages\ListCategories::route('/'),
       'create' => Pages\CreateCategory::route('/create'),
       'edit' => Pages\EditCategory::route('/{record}/edit'),
+      'view' => Pages\ViewCategory::route('/{record}'),
     ];
   }
 

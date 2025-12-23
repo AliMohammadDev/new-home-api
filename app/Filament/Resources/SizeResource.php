@@ -7,6 +7,7 @@ use App\Filament\Resources\SizeResource\RelationManagers;
 use App\Models\Size;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -62,6 +63,21 @@ class SizeResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, Size $record) {
+            if ($record->productVariants()->exists()) {
+              Notification::make()
+                ->danger()
+                ->title('خطأ في الحذف')
+                ->body('لا يمكن حذف هذا الحجم لارتباطه بمنتجات.')
+                ->send();
+              $action->halt();
+            }
+          }),
+
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -83,6 +99,8 @@ class SizeResource extends Resource
       'index' => Pages\ListSizes::route('/'),
       'create' => Pages\CreateSize::route('/create'),
       'edit' => Pages\EditSize::route('/{record}/edit'),
+      'view' => Pages\ViewSize::route('/{record}'),
+
     ];
   }
 }

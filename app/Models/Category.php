@@ -32,4 +32,10 @@ class Category extends Model implements HasMedia
       ->format('webp')
       ->nonQueued();
   }
+
+  public function products()
+  {
+    return $this->hasMany(Product::class);
+  }
+
 }

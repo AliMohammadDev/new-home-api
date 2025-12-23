@@ -8,12 +8,12 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditProductVariant extends EditRecord
 {
-    protected static string $resource = ProductVariantResource::class;
+  protected static string $resource = ProductVariantResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      // Actions\DeleteAction::make(),
+    ];
+  }
 }

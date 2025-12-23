@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class ColorResource extends Resource
 {
@@ -59,6 +60,20 @@ class ColorResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, Color $record) {
+            if ($record->productVariants()->exists()) {
+              Notification::make()
+                ->danger()
+                ->title('خطأ في الحذف')
+                ->body('لا يمكن حذف هذا اللون لارتباطه بمنتجات.')
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -80,6 +95,7 @@ class ColorResource extends Resource
       'index' => Pages\ListColors::route('/'),
       'create' => Pages\CreateColor::route('/create'),
       'edit' => Pages\EditColor::route('/{record}/edit'),
+      'view' => Pages\ViewColor::route('/{record}'),
     ];
   }
 }

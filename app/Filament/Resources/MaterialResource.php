@@ -7,6 +7,7 @@ use App\Filament\Resources\MaterialResource\RelationManagers;
 use App\Models\Material;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -60,6 +61,21 @@ class MaterialResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, Material $record) {
+            if ($record->productVariants()->exists()) {
+              Notification::make()
+                ->danger()
+                ->title('خطأ في الحذف')
+                ->body('لا يمكن حذف هذا المادة لارتباطه بمنتجات.')
+                ->send();
+
+              $action->halt();
+            }
+          }),
+
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -81,6 +97,8 @@ class MaterialResource extends Resource
       'index' => Pages\ListMaterials::route('/'),
       'create' => Pages\CreateMaterial::route('/create'),
       'edit' => Pages\EditMaterial::route('/{record}/edit'),
+      'view' => Pages\ViewMaterial::route('/{record}'),
+
     ];
   }
 }
