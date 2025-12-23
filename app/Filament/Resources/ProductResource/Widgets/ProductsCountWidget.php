@@ -8,6 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class ProductsCountWidget extends ChartWidget
 {
+  protected int|string|array $columnSpan = 1;
   protected static ?string $heading = 'عدد المنتجات';
 
   protected function getData(): array

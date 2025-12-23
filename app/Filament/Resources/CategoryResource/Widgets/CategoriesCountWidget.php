@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class CategoriesCountWidget extends BaseWidget
 {
 
+  protected int|string|array $columnSpan = 1;
   protected function getStats(): array
   {
     return [

@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class UsersCountWidget extends BaseWidget
 {
 
+  protected int|string|array $columnSpan = 1;
   protected function getStats(): array
   {
     return [
