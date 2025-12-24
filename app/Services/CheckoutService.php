@@ -35,22 +35,25 @@ class CheckoutService
     $cart = Cart::where('id', $data['cart_id'])
       ->where('user_id', $userId)
       ->firstOrFail();
-    return Checkout::create([
-      'first_name' => $data['first_name'],
-      'last_name' => $data['last_name'],
-      'email' => $data['email'],
-      'phone' => $data['phone'],
-      'country' => $data['country'],
-      'city' => $data['city'],
-      'street' => $data['street'] ?? '',
-      'floor' => $data['floor'] ?? null,
-      'postal_code' => $data['postal_code'] ?? null,
-      'additional_information' => $data['additional_information'] ?? null,
-      'cart_id' => $data['cart_id'],
-      'user_id' => $userId,
-      'status' => 'pending',
-    ]);
-
+    return Checkout::updateOrCreate(
+      [
+        'cart_id' => $cart->id,
+        'user_id' => $userId,
+      ],
+      [
+        'first_name' => $data['first_name'],
+        'last_name' => $data['last_name'],
+        'email' => $data['email'],
+        'phone' => $data['phone'],
+        'country' => $data['country'],
+        'city' => $data['city'],
+        'street' => $data['street'] ?? '',
+        'floor' => $data['floor'] ?? null,
+        'postal_code' => $data['postal_code'] ?? null,
+        'additional_information' => $data['additional_information'] ?? null,
+        'status' => 'pending',
+      ]
+    );
   }
 
   public function updateCheckout(Checkout $checkout, array $data)
