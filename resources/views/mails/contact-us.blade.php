@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>New Contact Message</title>
+    {{-- style --}}
     <style>
         body {
             font-family: Arial, sans-serif;

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ColorController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
@@ -69,3 +70,7 @@ Route::apiResource('materials', MaterialController::class);
 
 Route::post('/contact-us', [ContactController::class, 'send'])
   ->middleware('throttle:5,1'); // 5 requests per minute
+
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
