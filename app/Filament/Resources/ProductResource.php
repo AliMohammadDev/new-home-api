@@ -91,8 +91,7 @@ class ProductResource extends Resource
 
         Tables\Columns\TextColumn::make('final_price')
           ->label('السعر النهائي')
-          ->sortable()
-          ->searchable(),
+          ->sortable(),
 
         Tables\Columns\IconColumn::make('is_featured')
           ->label('مميز')

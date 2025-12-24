@@ -79,17 +79,11 @@ class OrderResource extends Resource
 
         TextColumn::make('total_amount')
           ->label('المبلغ الكلي')
-          ->formatStateUsing(fn($state) => number_format($state, 2, '.', ',')),
-
-        TextColumn::make('order_items_count')
-          ->label('عدد المنتجات')
-          ->counts('orderItems'),
-
-        TextColumn::make('created_at')
-          ->label('تاريخ الطلب')
-          ->since()
+          ->formatStateUsing(fn($state) => number_format($state, 2, '.', ','))
           ->sortable()
           ->searchable(),
+        TextColumn::make('order_items_count')->label('عدد المنتجات')->counts('orderItems'),
+        TextColumn::make('created_at')->label('تاريخ الطلب')->since()->sortable()->searchable(),
       ])
       ->defaultSort('created_at', 'desc')
 
