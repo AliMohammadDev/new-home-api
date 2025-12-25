@@ -13,13 +13,11 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 
@@ -36,9 +34,12 @@ class AdminPanelProvider extends PanelProvider
       ->brandLogo(asset('images/home-logo-black_dicco2.svg'))
       ->darkModeBrandLogo(asset('images/home-logo-white_c2et5l.svg'))
       ->brandLogoHeight('3rem')
+      ->broadcasting()
       ->colors([
         'primary' => '#025043',
       ])
+      ->databaseNotifications()
+      ->databaseNotificationsPolling('30s')
       ->font('Cairo')
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,

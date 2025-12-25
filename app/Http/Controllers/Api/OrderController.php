@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderProcessed;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Models\User;
+use App\Notifications\NewOrderNotification;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +35,14 @@ class OrderController extends Controller
 
     $order = $this->orderService->placeOrder($data);
 
+    // fire event OrderProcessed
+    broadcast(new OrderProcessed($order));
+
+    $admins = User::where('role', 'admin')->get();
+
+    foreach ($admins as $admin) {
+      $admin->notify(new NewOrderNotification($order));
+    }
     return new OrderResource($order);
   }
 

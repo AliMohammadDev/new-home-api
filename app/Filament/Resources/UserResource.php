@@ -42,7 +42,7 @@ class UserResource extends Resource
           ->required()
           ->options([
             'admin' => 'مدير',
-            'user' => 'مستخدم',
+            'customer' => 'مستخدم',
           ]),
 
         TextInput::make('password')
@@ -103,6 +103,16 @@ class UserResource extends Resource
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
         Tables\Actions\DeleteAction::make()->label('حذف'),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('حذف المحدد')
+            ->requiresConfirmation()
+            ->modalHeading('تأكيد الحذف')
+            ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')
+            ->modalSubmitActionLabel('نعم، احذف'),
+        ]),
       ]);
   }
 

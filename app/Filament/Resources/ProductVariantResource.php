@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
-use App\Filament\Resources\ProductVariantResource\RelationManagers;
 use App\Models\ProductVariant;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -115,7 +114,7 @@ class ProductVariantResource extends Resource
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          // Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\DeleteBulkAction::make(),
         ]),
       ]);
   }
@@ -134,7 +133,6 @@ class ProductVariantResource extends Resource
       'create' => Pages\CreateProductVariant::route('/create'),
       'edit' => Pages\EditProductVariant::route('/{record}/edit'),
       'view' => Pages\ViewProductVariant::route('/{record}'),
-
     ];
   }
 }
