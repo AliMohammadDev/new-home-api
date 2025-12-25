@@ -32,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
       ->id('admin')
       ->path('admin')
       ->login()
-      // تم حذف contentGrid لأنها تسبب الخطأ هنا
       ->brandName('المنزل الحديث')
       ->brandLogo(asset('images/home-logo-black_dicco2.svg'))
       ->darkModeBrandLogo(asset('images/home-logo-white_c2et5l.svg'))
@@ -40,8 +39,7 @@ class AdminPanelProvider extends PanelProvider
       ->colors([
         'primary' => '#025043',
       ])
-      // طريقة صحيحة وآمنة لتكبير الخط في كامل اللوحة
-      ->font('Cairo') // اختيار خط عربي ممتاز
+      ->font('Cairo')
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
         fn(): string => \Illuminate\Support\Facades\Blade::render('
