@@ -18,11 +18,17 @@ class OrderController extends Controller
     private OrderService $orderService
   ) {
   }
-  public function index()
+  public function index(Request $request)
   {
-    $orders = $this->orderService->findAll();
+    $orders = $this->orderService->findAll(
+      paginate: true,
+      perPage: $request->get('per_page', 5),
+      page: $request->get('page', 1),
+    );
+
     return OrderResource::collection($orders);
   }
+
 
   public function store(Request $request)
   {

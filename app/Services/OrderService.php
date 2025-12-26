@@ -20,7 +20,7 @@ class OrderService
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
     $query = Order::where('user_id', Auth::id())
-      ->with(['user', 'checkout', 'orderItems.productVariant.product']);
+      ->with(['user', 'checkout', 'orderItems.productVariant.product'])->latest();
 
     if ($paginate) {
       return $query->paginate(
