@@ -15,9 +15,21 @@ class WishListController extends Controller
     private WishListService $wishListService
   ) {
   }
-  public function index()
+  // public function index()
+  // {
+  //   $wishlist = $this->wishListService->findAll(userId: Auth::id());
+  //   return WishListResource::collection($wishlist);
+  // }
+
+  public function index(Request $request)
   {
-    $wishlist = $this->wishListService->findAll(userId: Auth::id());
+    $wishlist = $this->wishListService->findAll(
+      paginate: true,
+      perPage: $request->get('per_page', 5),
+      page: $request->get('page', 1),
+      userId: Auth::id(),
+    );
+
     return WishListResource::collection($wishlist);
   }
 
