@@ -23,7 +23,7 @@ class OrderItemResource extends JsonResource
         return [
           'id' => $this->productVariant->id,
           'product_id' => $this->productVariant->product->id,
-          'name' => $this->productVariant->product->name,
+          'name' => $this->productVariant->product->translated_name,
           'image' => $this->productVariant->product->getFirstMediaUrl('product_images', 'default'),
           'price' => $this->productVariant->product->price,
           'discount' => $this->productVariant->product->discount,

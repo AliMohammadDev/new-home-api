@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Filament\Resources\ProductResource\Widgets\ProductsCountWidget;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -12,8 +10,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Tabs;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\App;
 
 class ProductResource extends Resource
 {
@@ -26,44 +25,75 @@ class ProductResource extends Resource
   protected static ?string $navigationGroup = 'إدارة المنتجات';
 
 
+
   public static function form(Form $form): Form
   {
     return $form
       ->schema([
-        Forms\Components\TextInput::make('name')
-          ->label('اسم المنتج')
-          ->required(),
+        Tabs::make('Languages')
+          ->tabs([
+            Tabs\Tab::make('English')->schema([
+              Forms\Components\Card::make()
+                ->schema([
+                  Forms\Components\TextInput::make('name.en')
+                    ->label('اسم المنتج (EN)')
+                    ->required(),
+                  Forms\Components\Textarea::make('body.en')
+                    ->label('الوصف (EN)')
+                    ->required(),
+                ]),
+            ]),
+            Tabs\Tab::make('Arabic')->schema([
+              Forms\Components\Card::make()
+                ->schema([
+                  Forms\Components\TextInput::make('name.ar')
+                    ->label('اسم المنتج (AR)')
+                    ->required(),
+                  Forms\Components\Textarea::make('body.ar')
+                    ->label('الوصف (AR)')
+                    ->required(),
+                ]),
+            ]),
+          ]),
 
-        Forms\Components\Textarea::make('body')
-          ->label('الوصف')
-          ->required(),
+        Forms\Components\Card::make()
+          ->schema([
+            Forms\Components\Select::make('category_id')
+              ->label('الصنف')
+              ->relationship('category', 'id')
+              ->getOptionLabelFromRecordUsing(fn($record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
+              ->searchable(['name'])
+              ->preload()
+              ->required(),
 
-        Forms\Components\Select::make('category_id')
-          ->label('الصنف')
-          ->relationship('category', 'name')
-          ->required(),
 
-        Forms\Components\TextInput::make('price')
-          ->label('السعر')
-          ->numeric()
-          ->required(),
+            Forms\Components\Grid::make(2)
+              ->schema([
+                Forms\Components\TextInput::make('price')
+                  ->label('السعر')
+                  ->numeric()
+                  ->required(),
 
-        Forms\Components\TextInput::make('discount')
-          ->label('الخصم %')
-          ->numeric()
-          ->default(0),
+                Forms\Components\TextInput::make('discount')
+                  ->label('الخصم %')
+                  ->numeric()
+                  ->default(0),
+              ]),
 
-        Forms\Components\Toggle::make('is_featured')
-          ->label('منتج مميز'),
+            Forms\Components\Toggle::make('is_featured')
+              ->label('منتج مميز'),
 
-        SpatieMediaLibraryFileUpload::make('image')
-          ->label('الصورة')
-          ->collection('product_images')
-          ->image()
-          ->imageEditor()
-          ->maxSize(10240)
+            SpatieMediaLibraryFileUpload::make('image')
+              ->label('الصورة')
+              ->collection('product_images')
+              ->image()
+              ->imageEditor()
+              ->maxSize(10240),
+          ]),
       ]);
   }
+
+
 
   public static function table(Table $table): Table
   {
@@ -76,13 +106,21 @@ class ProductResource extends Resource
 
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')
+          ->getStateUsing(fn(Product $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
+          ->sortable()
+          ->searchable(),
+
+        Tables\Columns\TextColumn::make('body')
+          ->label('الوصف')
+          ->getStateUsing(fn(Product $record) => $record->body[App::getLocale()] ?? $record->body['en'] ?? '')
+          ->limit(50)
           ->sortable()
           ->searchable(),
 
         Tables\Columns\TextColumn::make('category.name')
           ->label('الصنف')
-          ->sortable()
-          ->searchable(),
+          ->getStateUsing(fn($record) => $record->category->name[App::getLocale()] ?? $record->category->name['en'] ?? '')
+          ->sortable(),
 
         Tables\Columns\TextColumn::make('price')
           ->label('السعر')

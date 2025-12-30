@@ -16,8 +16,8 @@ class CategoryResource extends JsonResource
   {
     return [
       'id' => $this->id,
-      'name' => $this->name,
-      'description' => $this->description,
+      'name' => $this->translated_name,
+      'description' => $this->translated_description,
       'image' => $this->getFirstMediaUrl('category_images', 'default'),
       'products' => ProductResource::collection($this->whenLoaded('products')),
     ];

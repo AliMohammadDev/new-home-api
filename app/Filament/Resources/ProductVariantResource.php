@@ -28,8 +28,14 @@ class ProductVariantResource extends Resource
     return $form
       ->schema([
         Forms\Components\Select::make('product_id')
-          ->relationship('product', 'name')
           ->label('المنتج')
+          ->relationship('product', 'id')
+          ->getOptionLabelFromRecordUsing(
+            fn($record) =>
+            $record->name[app()->getLocale()] ?? $record->name['en'] ?? ''
+          )
+          ->searchable(['name'])
+          ->preload()
           ->required(),
 
         Forms\Components\Select::make('color_id')

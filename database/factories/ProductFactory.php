@@ -19,16 +19,22 @@ class ProductFactory extends Factory
   public function definition(): array
   {
     $price = $this->faker->randomFloat(2, 0.2, 100);
+
     return [
-      'name' => ucfirst($this->faker->words(2, true)),
-      'body' => $this->faker->paragraph(),
+      'name' => [
+        'en' => ucfirst($this->faker->words(2, true)),
+        'ar' => ucfirst($this->faker->words(2, true)),
+      ],
+      'body' => [
+        'en' => $this->faker->paragraph(),
+        'ar' => $this->faker->paragraph(),
+      ],
       'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
       'price' => $price,
       'discount' => $this->faker->numberBetween(0, 50),
       'is_featured' => $this->faker->boolean(20),
     ];
   }
-
 
   // public function configure()
   // {

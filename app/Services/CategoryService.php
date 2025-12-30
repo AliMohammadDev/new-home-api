@@ -29,15 +29,15 @@ class CategoryService
 
   public function create(array $data, $imageFile = null)
   {
-    if ($imageFile) {
-      $cloudinary = new Cloudinary(config('cloudinary.url'));
-      $uploaded = $cloudinary->uploadApi()->upload(
-        $imageFile->getRealPath(),
-        ['folder' => 'categories']
-      );
-      $data['image'] = $uploaded['secure_url'];
-      $data['image_public_id'] = $uploaded['public_id'];
-    }
+    // if ($imageFile) {
+    //   $cloudinary = new Cloudinary(config('cloudinary.url'));
+    //   $uploaded = $cloudinary->uploadApi()->upload(
+    //     $imageFile->getRealPath(),
+    //     ['folder' => 'categories']
+    //   );
+    //   $data['image'] = $uploaded['secure_url'];
+    //   $data['image_public_id'] = $uploaded['public_id'];
+    // }
     return Category::create($data);
   }
   public function show(Category $category)
@@ -47,18 +47,18 @@ class CategoryService
 
   public function update(Category $category, array $data, $imageFile = null)
   {
-    if ($imageFile) {
-      $cloudinary = new Cloudinary(config('cloudinary.url'));
-      if ($category->image_public_id) {
-        $cloudinary->uploadApi()->destroy($category->image_public_id);
-      }
-      $uploaded = $cloudinary->uploadApi()->upload(
-        $imageFile->getRealPath(),
-        ['folder' => 'categories']
-      );
-      $data['image'] = $uploaded['secure_url'];
-      $data['image_public_id'] = $uploaded['public_id'];
-    }
+    // if ($imageFile) {
+    //   $cloudinary = new Cloudinary(config('cloudinary.url'));
+    //   if ($category->image_public_id) {
+    //     $cloudinary->uploadApi()->destroy($category->image_public_id);
+    //   }
+    //   $uploaded = $cloudinary->uploadApi()->upload(
+    //     $imageFile->getRealPath(),
+    //     ['folder' => 'categories']
+    //   );
+    //   $data['image'] = $uploaded['secure_url'];
+    //   $data['image_public_id'] = $uploaded['public_id'];
+    // }
     $category->update($data);
     return $category;
   }

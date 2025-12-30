@@ -34,7 +34,7 @@ class ColorFactory extends Factory
     $colorName = array_rand($this->colors);
 
     return [
-      'name' => $colorName,
+      'color' => $colorName,
       'hex_code' => $this->colors[$colorName],
     ];
   }

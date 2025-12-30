@@ -90,10 +90,7 @@ class ProductVariantService
         ->take($limit)
         ->get(),
     ];
-
-
   }
-
 
 
   public function findAll(
@@ -116,9 +113,6 @@ class ProductVariantService
           ->from('product_variants')
           ->groupBy('product_id');
       });
-
-
-
     if ($paginate) {
       return $query->paginate(
         perPage: $perPage,

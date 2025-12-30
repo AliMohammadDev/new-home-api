@@ -51,5 +51,20 @@ class Product extends Model implements HasMedia
       ->nonQueued();
   }
 
+  protected $casts = [
+    'name' => 'array',
+    'body' => 'array',
+  ];
+
+  public function getTranslatedNameAttribute(): string
+  {
+    return $this->name[app()->getLocale()] ?? $this->name['en'] ?? '';
+  }
+
+  public function getTranslatedBodyAttribute(): string
+  {
+    return $this->body[app()->getLocale()] ?? $this->body['en'] ?? '';
+  }
+
 
 }

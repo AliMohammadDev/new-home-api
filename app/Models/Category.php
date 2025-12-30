@@ -38,4 +38,25 @@ class Category extends Model implements HasMedia
     return $this->hasMany(Product::class);
   }
 
+  protected $casts = [
+    'name' => 'array',
+    'description' => 'array',
+  ];
+
+
+  public function getTranslatedNameAttribute(): string
+  {
+    return $this->name[app()->getLocale()]
+      ?? $this->name['en']
+      ?? '';
+  }
+
+  public function getTranslatedDescriptionAttribute(): string
+  {
+    return $this->description[app()->getLocale()]
+      ?? $this->description['en']
+      ?? '';
+  }
+
+
 }

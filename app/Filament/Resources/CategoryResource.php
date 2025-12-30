@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\App;
 
 class CategoryResource extends Resource
 {
@@ -28,22 +29,35 @@ class CategoryResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\TextInput::make('name')
-          ->label('اسم التصنيف')
-          ->required()
-          ->unique(ignoreRecord: true),
-
-        Forms\Components\Textarea::make('description')
-          ->label('الوصف'),
+        Forms\Components\Tabs::make('Languages')
+          ->tabs([
+            Forms\Components\Tabs\Tab::make('English')
+              ->schema([
+                Forms\Components\TextInput::make('name.en')
+                  ->label('اسم التصنيف (EN)')
+                  ->required(),
+                Forms\Components\Textarea::make('description.en')
+                  ->label('الوصف (EN)'),
+              ]),
+            Forms\Components\Tabs\Tab::make('Arabic')
+              ->schema([
+                Forms\Components\TextInput::make('name.ar')
+                  ->label('اسم التصنيف (AR)')
+                  ->required(),
+                Forms\Components\Textarea::make('description.ar')
+                  ->label('الوصف (AR)'),
+              ]),
+          ]),
 
         SpatieMediaLibraryFileUpload::make('image')
           ->label('الصورة')
           ->collection('category_images')
           ->image()
           ->imageEditor()
-          ->maxSize(10240)
+          ->maxSize(10240),
       ]);
   }
+
 
   public static function table(Table $table): Table
   {
@@ -57,10 +71,13 @@ class CategoryResource extends Resource
 
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')
+          ->getStateUsing(fn(Category $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->sortable()
           ->searchable(),
+
         Tables\Columns\TextColumn::make('description')
           ->label('الوصف')
+          ->getStateUsing(fn(Category $record) => $record->description[App::getLocale()] ?? $record->description['en'] ?? '')
           ->sortable()
           ->searchable()
           ->limit(50),
@@ -79,7 +96,10 @@ class CategoryResource extends Resource
             Forms\Components\TextInput::make('name')->label('اسم التصنيف'),
           ])
           ->query(function (Builder $query, array $data) {
-            return $query->when($data['name'] ?? null, fn($q, $name) => $q->where('name', 'like', "%$name%"));
+            return $query->when($data['name'] ?? null, function ($q, $name) {
+              $locale = App::getLocale();
+              $q->where("name->$locale", 'like', "%$name%");
+            });
           }),
       ])
       ->actions([

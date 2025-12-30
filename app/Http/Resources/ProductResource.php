@@ -16,8 +16,8 @@ class ProductResource extends JsonResource
   {
     return [
       'id' => $this->id,
-      'name' => $this->name,
-      'body' => $this->body,
+      'name' => $this->translated_name,
+      'body' => $this->translated_body,
       // category
       'category' => new CategoryResource($this->whenLoaded('category')),
       'image' => $this->getFirstMediaUrl('product_images', 'default'),
@@ -25,9 +25,6 @@ class ProductResource extends JsonResource
       'discount' => $this->discount,
       'is_featured' => $this->is_featured,
       'final_price' => $this->final_price,
-      // reviews
-      'rating' => round($this->reviews_avg_rating, 1),
-      'reviews_count' => $this->reviews_count,
     ];
   }
 }
