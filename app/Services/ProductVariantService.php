@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class ProductVariantService
@@ -12,11 +13,14 @@ class ProductVariantService
 
   public function findVariantsByCategoryName(string $categoryName)
   {
+    $locale = App::getLocale();
     return ProductVariant::with([
-      'product' => function ($query) use ($categoryName) {
+      'product' => function ($query) use ($categoryName, $locale) {
         $query->select('id', 'name', 'price', 'discount', 'category_id')
           ->with(['category:id,name'])
-          ->whereHas('category', fn($q) => $q->where('name', $categoryName));
+          ->whereHas('category', function ($q) use ($categoryName, $locale) {
+            $q->where("name->{$locale}", $categoryName);
+          });
       },
       'color:id,color',
       'size:id,size',
