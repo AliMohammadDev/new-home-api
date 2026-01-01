@@ -17,8 +17,7 @@ class SizeResource extends JsonResource
     return [
       'id' => $this->id,
       'size' => $this->size,
-      'products' => ProductResource::collection($this->whenLoaded('products')),
-
+      'productVariants' => ProductVariantResource::collection($this->whenLoaded('productVariants')),
     ];
   }
 }

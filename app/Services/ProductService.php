@@ -57,7 +57,12 @@ class ProductService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = Product::with(['category']);
+    // $query = Product::with(['category']);
+    $query = Product::with([
+      'category.media',
+      'media',  
+    ]);
+
 
     if ($paginate) {
       return $query->paginate(

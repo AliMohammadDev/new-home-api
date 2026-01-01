@@ -16,7 +16,7 @@ class WishListService
     $userId = null
   ): LengthAwarePaginator|Collection {
     $query = WishList::with([
-      'productVariant.product',
+      'productVariant.product.media',
       'productVariant.color',
       'productVariant.size',
       'productVariant.material',

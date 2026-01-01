@@ -15,7 +15,7 @@ class CategoryService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = Category::query();
+    $query = Category::with('media');
 
     if ($paginate) {
       return $query->paginate(

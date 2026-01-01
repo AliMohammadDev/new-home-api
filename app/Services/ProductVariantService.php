@@ -19,7 +19,10 @@ class ProductVariantService
         $query->select('id', 'name', 'price', 'discount', 'category_id')
           ->with(['category:id,name'])
           ->whereHas('category', function ($q) use ($categoryName, $locale) {
-            $q->where("name->{$locale}", $categoryName);
+            $q->whereRaw(
+              "LOWER(JSON_UNQUOTE(name->'$.{$locale}')) = ?",
+              [strtolower($categoryName)]
+            );
           });
       },
       'color:id,color',
