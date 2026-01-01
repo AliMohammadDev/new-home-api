@@ -145,8 +145,16 @@ class ProductVariantService
   public function show(ProductVariant $product_variant)
   {
     return $product_variant
-      ->load(['product', 'color', 'size', 'material']);
+      ->load([
+        'product.category',
+        'color',
+        'size',
+        'material',
+      ])
+      ->loadAvg('reviews', 'rating')
+      ->loadCount('reviews');
   }
+
 
   public function delete(ProductVariant $product_variant)
   {
