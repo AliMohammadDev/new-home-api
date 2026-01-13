@@ -66,8 +66,8 @@ class CategoryResource extends Resource
         Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
           ->collection('category_images')
           ->conversion('default')
-          ->label('الصورة'),
-
+          ->label('الصورة')
+          ->circular(),
 
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')

@@ -16,31 +16,6 @@ class ProductController extends Controller
   ) {
   }
 
-
-  public function byCategoryName($name)
-  {
-    $products = $this->productService->findProductsByCategoryName($name);
-    return ProductResource::collection($products);
-  }
-  public function allByLimit($limit = 10)
-  {
-    $products = $this->productService->getAllProductsByLimit($limit);
-    return ProductResource::collection($products);
-  }
-
-
-  public function sliders()
-  {
-    $sliders = $this->productService->getSlidersProducts();
-
-    return response()->json([
-      'featured' => ProductResource::collection($sliders['featured']),
-      'new' => ProductResource::collection($sliders['new']),
-      'discounted' => ProductResource::collection($sliders['discounted']),
-    ]);
-  }
-
-
   public function index()
   {
     $products = $this->productService->findAll();
@@ -59,7 +34,9 @@ class ProductController extends Controller
 
   public function show(Product $product)
   {
-    return $product;
+    $product->load('category.media');
+
+    return new ProductResource($product);
   }
 
   public function update(Product $product, UpdateProductRequest $request)

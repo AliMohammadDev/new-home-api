@@ -25,7 +25,7 @@ class CartItemController extends Controller
 
     $cartTotal = round(
       $items->sum(function ($item) {
-        return $item->quantity * $item->productVariant->product->final_price;
+        return $item->quantity * $item->productVariant->final_price;
       }),
       2
     );

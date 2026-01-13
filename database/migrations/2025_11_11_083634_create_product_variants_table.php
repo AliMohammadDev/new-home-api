@@ -17,12 +17,16 @@ return new class extends Migration {
     Schema::create('product_variants', function (Blueprint $table) {
       $table->id();
       $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
-      $table->foreignIdFor(Color::class)->constrained();
-      $table->foreignIdFor(Size::class)->constrained();
-      $table->foreignIdFor(Material::class)->constrained();
+      $table->foreignIdFor(Color::class)->nullable()->constrained();
+      $table->foreignIdFor(Size::class)->nullable()->constrained();
+      $table->foreignIdFor(Material::class)->nullable()->constrained();
+      $table->decimal('price', 10, 2);
+      $table->decimal('discount', 10, 2)->default(0);
       $table->integer('stock_quantity')->default(0);
-      $table->string('sku')->nullable();
+      $table->string('sku')->unique()->nullable();
       $table->timestamps();
+
+      $table->unique(['product_id', 'color_id', 'size_id', 'material_id'], 'product_variant_unique');
     });
   }
 

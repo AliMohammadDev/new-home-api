@@ -26,7 +26,12 @@ class CreateProductVariantRequest extends FormRequest
       'color_id' => ['required', 'exists:colors,id'],
       'size_id' => ['required', 'exists:sizes,id'],
       'material_id' => ['required', 'exists:materials,id'],
+      'price' => ['required', 'numeric', 'min:0'],
+      'discount' => ['nullable', 'numeric', 'min:0'],
       'stock_quantity' => ['required', 'integer', 'min:0'],
+
+      'images' => ['nullable', 'array'],
+      'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],// 10MB
     ];
   }
 }

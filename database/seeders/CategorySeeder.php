@@ -80,15 +80,6 @@ class CategorySeeder extends Seeder
           'description' => $categoryData['description'],
         ]
       );
-
-      /*
-      if (!$category->hasMedia('category_images')) {
-          $category
-              ->addMediaFromUrl(trim($categoryData['image']))
-              ->usingFileName(Str::uuid() . '.png')
-              ->toMediaCollection('category_images', 'public');
-      }
-      */
     }
   }
 }

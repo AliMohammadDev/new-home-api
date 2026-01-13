@@ -8,5 +8,12 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewSize extends ViewRecord
 {
-    protected static string $resource = SizeResource::class;
+  protected static string $resource = SizeResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\EditAction::make(),
+    ];
+  }
 }

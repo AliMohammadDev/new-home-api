@@ -31,7 +31,6 @@ class UpdateCategoryRequest extends FormRequest
       'description.en' => ['sometimes', 'string'],
       'description.ar' => ['sometimes', 'string'],
 
-      'image' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:3072'],
     ];
   }
 

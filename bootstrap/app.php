@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\IdempotencyMiddleware;
 use App\Http\Middleware\SetLocalMiddleware;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->alias([
       'idempotency' => IdempotencyMiddleware::class,
       'setLocale' => SetLocalMiddleware::class,
+      'admin' => AdminMiddleware::class
     ]);
   })
   ->withExceptions(function (Exceptions $exceptions): void {

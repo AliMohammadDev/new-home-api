@@ -19,6 +19,7 @@ class CartItemService
   ): LengthAwarePaginator|Collection {
     $query = $query = CartItem::with([
       'productVariant.product',
+      'productVariant.images',
       'productVariant.color',
       'productVariant.size',
       'productVariant.material',
@@ -41,7 +42,6 @@ class CartItemService
       'user_id' => $userId,
       'status' => 'active'
     ]);
-
     $cartItem = CartItem::where('cart_id', $cart->id)
       ->where('product_variant_id', $product_variant_id)
       ->first();
@@ -76,7 +76,6 @@ class CartItemService
     $cart_item->save();
     return $cart_item;
   }
-
 
   public function decreaseQuantity(CartItem $cart_item)
   {

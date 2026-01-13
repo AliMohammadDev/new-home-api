@@ -16,23 +16,29 @@ class CartItemResource extends JsonResource
   {
     return [
       'id' => $this->id,
+      'image' => $this->productVariant?->image
+        ? asset('storage/product_variants/' . $this->productVariant->image)
+        : (
+          $this->productVariant?->images?->first()
+          ? asset('storage/product_variants/' . $this->productVariant->images->first()->image)
+          : null
+        ),
       'quantity' => $this->quantity,
       'product_variant' => $this->whenLoaded('productVariant', function () {
         return [
           'id' => $this->productVariant->id,
           'product_id' => $this->productVariant->product->id,
           'name' => $this->productVariant->product->translated_name,
-          'image' => $this->productVariant->product->getFirstMediaUrl('product_images', 'default'),
-          'price' => $this->productVariant->product->price,
-          'discount' => $this->productVariant->product->discount,
-          'final_price' => $this->productVariant->product->final_price,
+          'price' => $this->productVariant->price,
+          'discount' => $this->productVariant->discount,
+          'final_price' => $this->productVariant->final_price,
           'color' => $this->productVariant->color->color,
           'size' => $this->productVariant->size->size,
           'material' => $this->productVariant->material->material,
         ];
       }),
       'total_price' => round(
-        $this->productVariant->product->final_price * $this->quantity,
+        $this->productVariant->final_price * $this->quantity,
         2
       ),
 

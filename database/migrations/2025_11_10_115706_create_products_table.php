@@ -13,15 +13,9 @@ return new class extends Migration {
   {
     Schema::create('products', function (Blueprint $table) {
       $table->id();
-      $table->json('name'); 
+      $table->json('name');
       $table->json('body');
-       // $table->string('name');
-      // $table->text('body');
       $table->foreignIdFor(Category::class);
-      // $table->string('image');
-      // $table->string('image_public_id')->nullable(); //Cloudinary
-      $table->decimal('price', 10, 2);
-      $table->decimal('discount', 10, 2)->default(0);
       $table->boolean('is_featured')->default(false);
       $table->timestamps();
     });

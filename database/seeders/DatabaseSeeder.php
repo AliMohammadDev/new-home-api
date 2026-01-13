@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
 use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
@@ -12,6 +11,7 @@ use App\Models\Size;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,27 +20,43 @@ class DatabaseSeeder extends Seeder
   /**
    * Seed the application's database.
    */
+
   public function run(): void
   {
-    User::factory(10)->create();
-
-    // Category::factory(7)->create();
+    $users = User::factory(10)->create();
     $this->call(CategorySeeder::class);
 
     $colors = Color::factory(6)->create();
     $sizes = Size::factory(4)->create();
     $materials = Material::factory(3)->create();
+    $products = Product::factory(10)->create();
 
-    Product::factory(20)->create()->each(function ($product) use ($colors, $sizes, $materials) {
-      $variants = ProductVariant::factory(rand(1, 3))->create([
-        'product_id' => $product->id,
+    for ($i = 0; $i < 15; $i++) {
+      $variant = ProductVariant::firstOrCreate([
+        'product_id' => $products->random()->id,
         'color_id' => $colors->random()->id,
         'size_id' => $sizes->random()->id,
         'material_id' => $materials->random()->id,
+      ], [
+        'price' => rand(10, 100),
+        'discount' => rand(0, 30),
+        'stock_quantity' => rand(5, 50),
+        'sku' => 'PROD-' . strtoupper(Str::random(8)),
       ]);
-      Reviews::factory(rand(0, 5))->create([
-        'product_variant_id' => $variants->random()->id,
-      ]);
-    });
+
+      $numberOfReviews = rand(0, 2);
+
+      if ($numberOfReviews > 0) {
+        $randomUsers = $users->random($numberOfReviews);
+
+        foreach ($randomUsers as $user) {
+          Reviews::factory()->create([
+            'product_variant_id' => $variant->id,
+            'user_id' => $user->id,
+          ]);
+        }
+      }
+    }
   }
+
 }

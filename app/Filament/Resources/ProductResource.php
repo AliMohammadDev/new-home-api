@@ -65,30 +65,10 @@ class ProductResource extends Resource
               ->searchable(['name'])
               ->preload()
               ->required(),
-
-
-            Forms\Components\Grid::make(2)
-              ->schema([
-                Forms\Components\TextInput::make('price')
-                  ->label('السعر')
-                  ->numeric()
-                  ->required(),
-
-                Forms\Components\TextInput::make('discount')
-                  ->label('الخصم %')
-                  ->numeric()
-                  ->default(0),
-              ]),
-
             Forms\Components\Toggle::make('is_featured')
               ->label('منتج مميز'),
 
-            SpatieMediaLibraryFileUpload::make('image')
-              ->label('الصورة')
-              ->collection('product_images')
-              ->image()
-              ->imageEditor()
-              ->maxSize(10240),
+
           ]),
       ]);
   }
@@ -99,11 +79,6 @@ class ProductResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
-          ->collection('product_images')
-          ->conversion('default')
-          ->label('الصورة'),
-
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')
           ->getStateUsing(fn(Product $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
@@ -121,16 +96,7 @@ class ProductResource extends Resource
           ->label('الصنف')
           ->getStateUsing(fn($record) => $record->category->name[App::getLocale()] ?? $record->category->name['en'] ?? '')
           ->sortable(),
-
-        Tables\Columns\TextColumn::make('price')
-          ->label('السعر')
-          ->sortable()
-          ->searchable(),
-
-        Tables\Columns\TextColumn::make('final_price')
-          ->label('السعر النهائي')
-          ->sortable(),
-
+          
         Tables\Columns\IconColumn::make('is_featured')
           ->label('مميز')
           ->boolean()

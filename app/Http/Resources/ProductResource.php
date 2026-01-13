@@ -20,11 +20,7 @@ class ProductResource extends JsonResource
       'body' => $this->translated_body,
       // category
       'category' => new CategoryResource($this->whenLoaded('category')),
-      'image' => $this->getFirstMediaUrl('product_images', 'default'),
-      'price' => $this->price,
-      'discount' => $this->discount,
       'is_featured' => $this->is_featured,
-      'final_price' => $this->final_price,
     ];
   }
 }

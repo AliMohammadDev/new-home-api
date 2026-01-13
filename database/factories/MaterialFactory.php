@@ -18,7 +18,7 @@ class MaterialFactory extends Factory
   {
     $materials = ['Ceramic', 'Glass', 'Stainless Steel', 'Cast Iron', 'Plastic', 'Wood'];
     return [
-      'material' => $this->faker->randomElement($materials),
+      'material' => $this->faker->unique()->randomElement($materials),
     ];
   }
 }

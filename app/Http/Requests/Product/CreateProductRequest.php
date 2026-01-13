@@ -31,10 +31,6 @@ class CreateProductRequest extends FormRequest
       'body.ar' => ['required', 'string', 'max:1000'],
 
       'category_id' => ['required', 'exists:categories,id'],
-      'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:3072'],
-      'image_public_id' => ['nullable', 'string'],
-      'price' => ['required', 'numeric', 'min:0'],
-      'discount' => ['nullable', 'numeric', 'min:0'],
       'is_featured' => ['nullable', 'boolean'],
 
     ];

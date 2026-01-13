@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
-use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderItemsRelationManager;
-use App\Filament\Resources\OrderResource\Widgets\OrdersCountWidget;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,8 +11,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 
 class OrderResource extends Resource
 {
@@ -122,7 +122,53 @@ class OrderResource extends Resource
     ];
   }
 
+  public static function infolist(Infolist $infolist): Infolist
+  {
+    return $infolist->schema([
+      Section::make('معلومات الطلب')
+        ->schema([
+          TextEntry::make('id')->label('رقم الطلب'),
+          TextEntry::make('status')
+            ->label('الحالة')
+            ->badge()
+            ->color(fn(string $state): string => match ($state) {
+              'pending' => 'warning',
+              'completed' => 'success',
+              'cancelled' => 'danger',
+              default => 'gray',
+            })
+            ->formatStateUsing(fn(string $state): string => match ($state) {
+              'pending' => 'قيد الانتظار',
+              'completed' => 'مكتمل',
+              'cancelled' => 'ملغي',
+              default => $state,
+            }),
+          TextEntry::make('payment_method')->label('طريقة الدفع'),
+          TextEntry::make('total_amount')
+            ->label('المبلغ الكلي')
+            ->formatStateUsing(fn($state) => number_format($state, 2)),
+          TextEntry::make('created_at')->label('تاريخ الطلب')->since(),
+        ])
+        ->columns(2),
 
+      Section::make('معلومات العميل')
+        ->schema([
+          TextEntry::make('user.name')->label('الاسم'),
+          TextEntry::make('user.email')->label('البريد الإلكتروني'),
+        ])
+        ->columns(2),
+
+      Section::make('معلومات الشحن')
+        ->schema([
+          TextEntry::make('checkout.full_name')->label('الاسم الكامل'),
+          TextEntry::make('checkout.phone')->label('رقم الهاتف'),
+          TextEntry::make('checkout.city')->label('المدينة'),
+          TextEntry::make('checkout.address')->label('العنوان'),
+          TextEntry::make('checkout.postal_code')->label('الرمز البريدي'),
+        ])
+        ->columns(2),
+    ]);
+  }
 
 
 }

@@ -31,8 +31,7 @@ class ColorFactory extends Factory
    */
   public function definition(): array
   {
-    $colorName = array_rand($this->colors);
-
+    $colorName = $this->faker->unique()->randomElement(array_keys($this->colors));
     return [
       'color' => $colorName,
       'hex_code' => $this->colors[$colorName],

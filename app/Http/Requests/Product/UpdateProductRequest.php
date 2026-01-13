@@ -31,9 +31,7 @@ class UpdateProductRequest extends FormRequest
       'body.ar' => ['sometimes', 'string', 'max:1000'],
 
       'category_id' => ['sometimes', 'exists:categories,id'],
-      'image' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:3072'],
-      'price' => ['sometimes', 'numeric', 'min:0'],
-      'discount' => ['sometimes', 'numeric', 'min:0'],
+
       'is_featured' => ['sometimes', 'boolean'],
     ];
   }

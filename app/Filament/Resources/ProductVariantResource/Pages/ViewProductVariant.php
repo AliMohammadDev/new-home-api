@@ -8,5 +8,12 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewProductVariant extends ViewRecord
 {
-    protected static string $resource = ProductVariantResource::class;
+  protected static string $resource = ProductVariantResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\EditAction::make(),
+    ];
+  }
 }

@@ -8,5 +8,12 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewMaterial extends ViewRecord
 {
-    protected static string $resource = MaterialResource::class;
+  protected static string $resource = MaterialResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\EditAction::make(),
+    ];
+  }
 }

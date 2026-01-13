@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class ProductVariant extends Model
 {
   use HasFactory;
@@ -13,9 +15,21 @@ class ProductVariant extends Model
     'color_id',
     'size_id',
     'material_id',
+    'price',
+    'discount',
     'stock_quantity',
+    'sku'
   ];
 
+  public function getFinalPriceAttribute()
+  {
+    $discountedAmount = $this->price * ($this->discount / 100);
+    return round($this->price - $discountedAmount, 2);
+  }
+  public function images()
+  {
+    return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
+  }
   /*
   |--------------------------------------------------------------------------
   | Relationships
