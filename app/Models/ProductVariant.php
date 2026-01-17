@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-
+use Illuminate\Support\Str;
 
 class ProductVariant extends Model
 {
@@ -20,6 +19,27 @@ class ProductVariant extends Model
     'stock_quantity',
     'sku'
   ];
+
+  protected static function boot()
+  {
+    parent::boot();
+
+    static::creating(function ($variant) {
+      if (empty($variant->sku)) {
+        $variant->sku = self::generateUniqueSku();
+      }
+    });
+  }
+
+
+  private static function generateUniqueSku()
+  {
+    do {
+      $sku = 'PROD-' . strtoupper(Str::random(8));
+    } while (self::where('sku', $sku)->exists());
+
+    return $sku;
+  }
 
   public function getFinalPriceAttribute()
   {

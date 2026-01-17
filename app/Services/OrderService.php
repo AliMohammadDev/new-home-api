@@ -41,10 +41,9 @@ class OrderService
         ->firstOrFail();
 
       $cart = $checkout->cart;
-
       $total = 0;
       foreach ($cart->cartItems as $item) {
-        $total += $item->productVariant->product->final_price * $item->quantity;
+        $total += $item->productVariant->final_price * $item->quantity;
       }
 
       $order = Order::create([
@@ -61,8 +60,8 @@ class OrderService
           'order_id' => $order->id,
           'product_variant_id' => $item->product_variant_id,
           'quantity' => $item->quantity,
-          'price' => $item->productVariant->product->price,
-          'total' => $item->productVariant->product->final_price * $item->quantity,
+          'price' => $item->productVariant->price,
+          'total' => $item->productVariant->final_price * $item->quantity,
         ]);
         $item->productVariant->decrement('stock_quantity', $item->quantity);
       }
@@ -82,9 +81,16 @@ class OrderService
 
   public function showOrder($orderId)
   {
-    return Order::with(['orderItems.productVariant', 'checkout', 'user'])
-      ->findOrFail($orderId);
+    return Order::with([
+      'orderItems.productVariant.product',
+      'orderItems.productVariant.color',
+      'orderItems.productVariant.size',
+      'orderItems.productVariant.material',
+      'checkout',
+      'user'
+    ])->findOrFail($orderId);
   }
+
 
   public function updateOrderStatus(Order $order, array $data)
   {

@@ -34,7 +34,7 @@ class ProductVariantFactory extends Factory
       'discount' => $this->faker->numberBetween(0, 50),
 
       'stock_quantity' => $this->faker->numberBetween(0, 100),
-      'sku' => 'SKU-' . strtoupper($this->faker->unique()->bothify('??###-??')),
+      'sku' => 'PROD-' . strtoupper($this->faker->unique()->bothify('??###-??')),
     ];
   }
 }

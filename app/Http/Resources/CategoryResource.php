@@ -19,7 +19,7 @@ class CategoryResource extends JsonResource
       'name' => $this->translated_name,
       'description' => $this->translated_description,
       'image' => $this->getFirstMediaUrl('category_images', 'default'),
-      // 'products' => ProductResource::collection($this->whenLoaded('products')),
+      'products' => ProductResource::collection($this->whenLoaded('products')),
     ];
   }
 }
