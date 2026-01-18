@@ -46,4 +46,22 @@ class WishListService
   {
     return $wishlist->delete();
   }
+
+  public function toggle($userId, $productVariantId)
+  {
+    $exists = WishList::where('user_id', $userId)
+      ->where('product_variant_id', $productVariantId)
+      ->first();
+
+    if ($exists) {
+      $exists->delete();
+      return ['status' => 'removed'];
+    }
+
+    $new = WishList::create([
+      'user_id' => $userId,
+      'product_variant_id' => $productVariantId
+    ]);
+    return ['status' => 'added', 'data' => $new];
+  }
 }

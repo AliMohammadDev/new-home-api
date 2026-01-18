@@ -15,11 +15,6 @@ class WishListController extends Controller
     private WishListService $wishListService
   ) {
   }
-  // public function index()
-  // {
-  //   $wishlist = $this->wishListService->findAll(userId: Auth::id());
-  //   return WishListResource::collection($wishlist);
-  // }
 
   public function index(Request $request)
   {
@@ -33,18 +28,30 @@ class WishListController extends Controller
     return WishListResource::collection($wishlist);
   }
 
+  // public function store(Request $request)
+  // {
+  //   $validatedData = $request->validate([
+  //     'product_variant_id' => 'required|exists:product_variants,id',
+  //   ]);
+  //   $userId = Auth::id();
+  //   $productId = $validatedData['product_variant_id'];
+  //   $newWishList = $this->wishListService->create(data: [
+  //     'user_id' => $userId,
+  //     'product_variant_id' => $productId,
+  //   ]);
+  //   return new WishListResource($newWishList);
+  // }
+
+  // toggle
   public function store(Request $request)
   {
-    $validatedData = $request->validate([
+    $request->validate([
       'product_variant_id' => 'required|exists:product_variants,id',
     ]);
-    $userId = Auth::id();
-    $productId = $validatedData['product_variant_id'];
-    $newWishList = $this->wishListService->create(data: [
-      'user_id' => $userId,
-      'product_variant_id' => $productId,
-    ]);
-    return new WishListResource($newWishList);
+
+    $result = $this->wishListService->toggle(Auth::id(), $request->product_variant_id);
+
+    return response()->json($result);
   }
   public function destroy(WishList $wishlist)
   {
