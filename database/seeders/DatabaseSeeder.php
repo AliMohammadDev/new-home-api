@@ -48,12 +48,19 @@ class DatabaseSeeder extends Seeder
 
       if ($numberOfReviews > 0) {
         $randomUsers = $users->random($numberOfReviews);
-
         foreach ($randomUsers as $user) {
-          Reviews::factory()->create([
-            'product_variant_id' => $variant->id,
-            'user_id' => $user->id,
-          ]);
+          Reviews::updateOrCreate(
+            [
+              'user_id' => $user->id,
+              'product_variant_id' => $variant->id,
+            ],
+            [
+              'rating' => rand(1, 5),
+              'comment' => 'This is a seed comment.',
+              'created_at' => now(),
+              'updated_at' => now(),
+            ]
+          );
         }
       }
     }
