@@ -13,4 +13,17 @@ class Material extends Model
   {
     return $this->hasMany(ProductVariant::class);
   }
+
+  protected $casts = [
+    'material' => 'array',
+  ];
+
+
+  public function getTranslatedMaterialAttribute(): string
+  {
+    return $this->material[app()->getLocale()]
+      ?? $this->material['en']
+      ?? '';
+  }
+
 }

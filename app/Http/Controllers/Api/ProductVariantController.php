@@ -22,7 +22,7 @@ class ProductVariantController extends Controller
     return ProductVariantResource::collection($products);
   }
 
-  public function allVariantsByLimit($limit = 10)
+  public function allVariantsByLimit($limit = 20)
   {
     $variants = $this->productVariantService->getAllProductVariantsByLimit($limit);
     return ProductVariantResource::collection($variants);

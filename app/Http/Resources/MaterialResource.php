@@ -16,7 +16,7 @@ class MaterialResource extends JsonResource
   {
     return [
       'id' => $this->id,
-      'material' => $this->material,
+      'material' => $this->translated_material,
       'productVariants' => ProductVariantResource::collection($this->whenLoaded('productVariants')),
 
     ];

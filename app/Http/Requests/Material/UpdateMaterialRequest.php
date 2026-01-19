@@ -22,7 +22,9 @@ class UpdateMaterialRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'material' => ['sometimes', 'string', 'max:255'],
+      'material' => ['sometimes', 'array'],
+      'material.en' => ['sometimes', 'string', 'max:255'],
+      'material.ar' => ['sometimes', 'string', 'max:255'],
     ];
   }
 }

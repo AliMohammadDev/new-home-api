@@ -22,7 +22,9 @@ class CreateMaterialRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'material' => ['required', 'string', 'max:255'],
+      'material' => ['required', 'array', 'max:255'],
+      'material.en' => ['required', 'string', 'max:255'],
+      'material.ar' => ['required', 'string', 'max:255'],
     ];
   }
 }

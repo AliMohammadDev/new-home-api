@@ -8,24 +8,20 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
 
 class ProductVariantService
 {
 
-  public function findVariantsByCategoryName(string $categoryName)
+  public function findVariantsByCategoryName(int $categoryName)
   {
-    $locale = App::getLocale();
     return ProductVariant::with([
-      'product' => function ($query) use ($categoryName, $locale) {
+      'product' => function ($query) use ($categoryName) {
         $query->select('id', 'name', 'category_id')
           ->with(['category:id,name'])
-          ->whereHas('category', function ($q) use ($categoryName, $locale) {
-            $q->whereRaw(
-              "LOWER(JSON_UNQUOTE(name->'$.{$locale}')) = ?",
-              [strtolower($categoryName)]
-            );
+          ->whereHas('category', function ($q) use ($categoryName) {
+            $q->where('id', $categoryName);
           });
       },
       'color:id,color',
@@ -42,8 +38,6 @@ class ProductVariantService
       ->get()
       ->filter(fn($variant) => $variant->product !== null);
   }
-
-
 
   public function getAllProductVariantsByLimit(int $limit = 10)
   {
@@ -62,7 +56,6 @@ class ProductVariantService
       })
       ->take($limit)
       ->get();
-
   }
 
 

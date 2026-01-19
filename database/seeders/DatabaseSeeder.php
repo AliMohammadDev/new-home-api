@@ -6,7 +6,6 @@ use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\Reviews;
 use App\Models\Size;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -24,46 +23,46 @@ class DatabaseSeeder extends Seeder
   public function run(): void
   {
     $users = User::factory(10)->create();
+
+    // Categories
     $this->call(CategorySeeder::class);
+
+    // Products (real content)
+    $this->call(ProductSeeder::class);
 
     $colors = Color::factory(6)->create();
     $sizes = Size::factory(4)->create();
     $materials = Material::factory(3)->create();
-    $products = Product::factory(10)->create();
 
-    for ($i = 0; $i < 15; $i++) {
-      $variant = ProductVariant::firstOrCreate([
-        'product_id' => $products->random()->id,
-        'color_id' => $colors->random()->id,
-        'size_id' => $sizes->random()->id,
-        'material_id' => $materials->random()->id,
-      ], [
-        'price' => rand(10, 100),
-        'discount' => rand(0, 30),
-        'stock_quantity' => rand(5, 50),
-        'sku' => 'PROD-' . strtoupper(Str::random(8)),
-      ]);
+    $products = Product::all();
 
-      $numberOfReviews = rand(0, 2);
 
-      if ($numberOfReviews > 0) {
-        $randomUsers = $users->random($numberOfReviews);
-        foreach ($randomUsers as $user) {
-          Reviews::updateOrCreate(
-            [
-              'user_id' => $user->id,
-              'product_variant_id' => $variant->id,
-            ],
-            [
-              'rating' => rand(1, 5),
-              'comment' => 'This is a seed comment.',
-              'created_at' => now(),
-              'updated_at' => now(),
-            ]
-          );
-        }
+    foreach ($products as $product) {
+      for ($i = 0; $i < 2; $i++) {
+        $color = $colors->random();
+        $size = $sizes->random();
+        $material = $materials->random();
+
+        ProductVariant::firstOrCreate(
+          [
+            'product_id' => $product->id,
+            'color_id' => $color->id,
+            'size_id' => $size->id,
+            'material_id' => $material->id,
+          ],
+          [
+            'price' => rand(30, 200),
+            'discount' => rand(0, 25),
+            'stock_quantity' => rand(10, 60),
+            'sku' => 'PROD-' . strtoupper(Str::random(8)),
+          ]
+        );
       }
     }
+
+
+
+
   }
 
 }

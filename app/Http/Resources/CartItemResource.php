@@ -36,7 +36,7 @@ class CartItemResource extends JsonResource
           'color_name' => $this->productVariant->color->color,
           'color_code' => $this->productVariant->color->hex_code,
           'size' => $this->productVariant->size->size,
-          'material' => $this->productVariant->material->material,
+          'material' => $this->productVariant->material->translated_material,
         ];
       }),
 
@@ -58,7 +58,7 @@ class CartItemResource extends JsonResource
                 $material = $variant->material;
                 return [
                   'id' => $material->id,
-                  'name' => $material->material,
+                  'name' => $material->translated_material,
                   'stock' => $variant->stock_quantity,
                   'variant_id' => $variant->id,
                   'price' => $variant->price,

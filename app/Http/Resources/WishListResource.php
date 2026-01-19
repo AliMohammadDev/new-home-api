@@ -33,7 +33,7 @@ class WishListResource extends JsonResource
           'final_price' => $this->productVariant->final_price,
           'color' => $this->productVariant->color?->color,
           'size' => $this->productVariant->size?->size,
-          'material' => $this->productVariant->material?->material,
+          'material' => $this->productVariant->material?->translated_material,
         ];
       }),
       'created_at' => $this->created_at_formatted,

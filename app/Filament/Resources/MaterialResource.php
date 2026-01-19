@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MaterialResource\Pages;
-use App\Filament\Resources\MaterialResource\RelationManagers;
 use App\Models\Material;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,7 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\App;
 
 class MaterialResource extends Resource
 {
@@ -28,9 +27,21 @@ class MaterialResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\TextInput::make('material')
-          ->label('اسم الخامة')
-          ->required(),
+        Forms\Components\Tabs::make('Languages')
+          ->tabs([
+            Forms\Components\Tabs\Tab::make('English')
+              ->schema([
+                Forms\Components\TextInput::make('material.en')
+                  ->label('اسم المادة (EN)')
+                  ->required(),
+              ]),
+            Forms\Components\Tabs\Tab::make('Arabic')
+              ->schema([
+                Forms\Components\TextInput::make('material;.ar')
+                  ->label('اسم المادة (AR)')
+                  ->required(),
+              ]),
+          ]),
       ]);
   }
 
@@ -39,7 +50,8 @@ class MaterialResource extends Resource
     return $table
       ->columns([
         Tables\Columns\TextColumn::make('material')
-          ->label('مادة')
+          ->label('الاسم')
+          ->getStateUsing(fn(Material $record) => $record->material[App::getLocale()] ?? $record->material['en'] ?? '')
           ->sortable()
           ->searchable(),
         Tables\Columns\TextColumn::make('created_at')
@@ -71,7 +83,6 @@ class MaterialResource extends Resource
                 ->title('خطأ في الحذف')
                 ->body('لا يمكن حذف هذا المادة لارتباطه بمنتجات.')
                 ->send();
-
               $action->halt();
             }
           }),

@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -34,22 +35,27 @@ class ProductVariantResource extends Resource
           ->schema([
             Forms\Components\Grid::make(3)
               ->schema([
-                Forms\Components\TextInput::make('color_id')
+                Forms\Components\Select::make('color_id')
                   ->label('اللون')
-                  ->formatStateUsing(fn($record) => $record?->color?->color)
-                  ->disabled(),
-                Forms\Components\TextInput::make('size_id')
+                  ->options(\App\Models\Color::pluck('color', 'id'))
+                  ->required()
+                ,
+                Forms\Components\Select::make('size_id')
                   ->label('الحجم')
-                  ->formatStateUsing(fn($record) => $record?->size?->size)
-                  ->disabled(),
-                Forms\Components\TextInput::make('material_id')
+                  ->options(\App\Models\Size::pluck('size', 'id'))
+                  ->required(),
+                Forms\Components\Select::make('material_id')
                   ->label('المادة')
-                  ->formatStateUsing(fn($record) => $record?->material?->material)
-                  ->disabled(),
+                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                    return [$item->id => $name];
+                  }))
+                  ->required()
+                ,
                 Forms\Components\Grid::make(2)
                   ->schema([
-                    Forms\Components\TextInput::make('price')->label('السعر')->disabled(),
-                    Forms\Components\TextInput::make('discount')->label('الخصم %')->disabled(),
+                    Forms\Components\TextInput::make('price')->label('السعر'),
+                    Forms\Components\TextInput::make('discount')->label('الخصم %'),
                   ]),
               ]),
             Forms\Components\TextInput::make('stock_quantity')
@@ -117,12 +123,10 @@ class ProductVariantResource extends Resource
                   }
 
                   if (isset($item['id']) && $item['id']) {
-                    // تحديث موجود
                     ProductVariantImage::where('id', $item['id'])->update([
                       'image' => $imageValue
                     ]);
                   } else {
-                    // إضافة جديد
                     $record->images()->create([
                       'image' => $imageValue
                     ]);
@@ -149,7 +153,10 @@ class ProductVariantResource extends Resource
                   ->dehydrated(false),
                 Forms\Components\MultiSelect::make('temp_materials')
                   ->label('المواد')
-                  ->options(\App\Models\Material::pluck('material', 'id'))
+                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                    return [$item->id => $name];
+                  }))
                   ->dehydrated(false),
               ]),
             Forms\Components\Actions::make([
@@ -206,14 +213,20 @@ class ProductVariantResource extends Resource
                   ->options(\App\Models\Size::pluck('size', 'id'))->required(),
                 Forms\Components\Select::make('material_id')
                   ->label('المادة')
-                  ->options(\App\Models\Material::pluck('material', 'id'))->required(),
+                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                    return [$item->id => $name];
+                  }))
+                  ->required(),
                 Forms\Components\TextInput::make('stock_quantity')
                   ->label('الكمية')
                   ->numeric()->required(),
-                Forms\Components\TextInput::make('price')->label('السعر')->numeric()->required(),
+                Forms\Components\TextInput::make('price')->label('السعر')->numeric()
+                  ->required()
+                  ->minValue(0.01)
+                ,
                 Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
               ]),
-
             FileUpload::make('images')
               ->label('صور الخيار')
               ->multiple()
@@ -240,7 +253,16 @@ class ProductVariantResource extends Resource
             })->toArray();
           }),
 
-        TextColumn::make('product.name')->label('المنتج')->sortable()
+        Tables\Columns\TextColumn::make('product.name')
+          ->label('المنتج')
+          ->getStateUsing(function (ProductVariant $record) {
+            $name = $record->product?->name;
+            if (is_array($name)) {
+              return $name[app()->getLocale()] ?? $name['en'] ?? '';
+            }
+            return $name ?? '';
+          })
+          ->sortable()
           ->searchable(),
         Tables\Columns\ColorColumn::make('color.hex_code')
           ->label('اللون')

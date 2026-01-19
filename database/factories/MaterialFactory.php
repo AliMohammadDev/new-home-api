@@ -16,7 +16,15 @@ class MaterialFactory extends Factory
    */
   public function definition(): array
   {
-    $materials = ['Ceramic', 'Glass', 'Stainless Steel', 'Cast Iron', 'Plastic', 'Wood'];
+    $materials = [
+      ['en' => 'Ceramic', 'ar' => 'سيراميك'],
+      ['en' => 'Glass', 'ar' => 'زجاج'],
+      ['en' => 'Stainless Steel', 'ar' => 'ستانلس ستيل'],
+      ['en' => 'Cast Iron', 'ar' => 'حديد صلب'],
+      ['en' => 'Plastic', 'ar' => 'بلاستيك'],
+      ['en' => 'Wood', 'ar' => 'خشب'],
+    ];
+
     return [
       'material' => $this->faker->unique()->randomElement($materials),
     ];
