@@ -207,6 +207,9 @@ class ProductVariantService
       ->load([
         'images',
         'product.category',
+        'product.variants' => function ($query) {
+          $query->withAvg('reviews', 'rating')->withCount('reviews');
+        },
         'product.variants.color',
         'product.variants.size',
         'product.variants.material',

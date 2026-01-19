@@ -64,6 +64,9 @@ class ProductVariantResource extends JsonResource
                       'price' => $variant->price,
                       'final_price' => $variant->final_price,
                       'sku' => $variant->sku,
+
+                      'reviews_avg' => $variant->reviews_avg_rating,
+                      'reviews_count' => $variant->reviews_count,
                     ];
                   })->values(),
                 ];
