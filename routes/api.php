@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\ProductVariantPackageController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\WishListController;
@@ -53,6 +54,24 @@ Route::middleware(['setLocale'])->group(function () {
   Route::get('colors', [ColorController::class, 'index']);
   Route::get('sizes', [SizeController::class, 'index']);
   Route::get('materials', [MaterialController::class, 'index']);
+
+
+  // Product Variant Packages
+  Route::get(
+    'product-variant-packages',
+    [ProductVariantPackageController::class, 'index']
+  );
+
+  Route::get(
+    'product-variant-packages/{product_variant_package}',
+    [ProductVariantPackageController::class, 'show']
+  );
+
+  Route::get(
+    'product-variants/{product_variant}/packages',
+    [ProductVariantPackageController::class, 'byVariant']
+  );
+
 });
 
 
@@ -111,4 +130,9 @@ Route::middleware(['setLocale', 'auth:sanctum', 'admin'])->group(function () {
 
   Route::apiResource('materials', MaterialController::class)
     ->except(['index']);
+
+  Route::apiResource(
+    'product-variant-packages',
+    ProductVariantPackageController::class
+  )->except(['index', 'show']);
 });

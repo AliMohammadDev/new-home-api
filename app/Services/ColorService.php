@@ -4,7 +4,6 @@ namespace App\Services;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Color;
-use App\Models\Product;
 
 class ColorService
 {
@@ -52,7 +51,5 @@ class ColorService
   {
     return $color->delete();
   }
-
-
 
 }

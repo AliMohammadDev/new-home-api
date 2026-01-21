@@ -11,9 +11,6 @@ class Product extends Model
   use HasFactory;
   protected $fillable = ['name', 'body', 'category_id', 'is_featured'];
 
-
-
-
   public function category()
   {
     return $this->belongsTo(Category::class);
@@ -38,6 +35,5 @@ class Product extends Model
   {
     return $this->body[app()->getLocale()] ?? $this->body['en'] ?? '';
   }
-
 
 }

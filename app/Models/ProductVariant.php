@@ -56,6 +56,12 @@ class ProductVariant extends Model
   |--------------------------------------------------------------------------
   */
 
+
+  public function packages()
+  {
+    return $this->hasMany(ProductVariantPackage::class, 'product_variant_id');
+  }
+
   public function product()
   {
     return $this->belongsTo(Product::class);
@@ -95,6 +101,5 @@ class ProductVariant extends Model
   {
     return $this->hasMany(Reviews::class);
   }
-
 
 }
