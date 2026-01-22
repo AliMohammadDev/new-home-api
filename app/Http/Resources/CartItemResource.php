@@ -17,12 +17,11 @@ class CartItemResource extends JsonResource
     return [
       'id' => $this->id,
       'image' => $this->productVariant?->image
-        ? asset('storage/product_variants/' . $this->productVariant->image)
-        : (
-          $this->productVariant?->images?->first()
-          ? asset('storage/product_variants/' . $this->productVariant->images->first()->image)
-          : null
-        ),
+        ? asset('storage/product_variants/' . $this->productVariant->id . '/' . $this->productVariant->image)
+        : ($this->productVariant?->images?->first()
+          ? asset('storage/product_variants/' . $this->productVariant->id . '/' . $this->productVariant->images->first()->image)
+          : null),
+
       'quantity' => $this->quantity,
       'product_variant' => $this->whenLoaded('productVariant', function () {
         return [
@@ -40,17 +39,14 @@ class CartItemResource extends JsonResource
         ];
       }),
 
-
       'available_options' => $this->productVariant->product->variants->groupBy('color_id')->map(function ($colorGroup) {
         $color = $colorGroup->first()->color;
-
         return [
           'id' => $color->id,
           'name' => $color->color,
           'hex' => $color->hex_code,
           'available_sizes' => $colorGroup->groupBy('size_id')->map(function ($sizeGroup) {
             $size = $sizeGroup->first()->size;
-
             return [
               'id' => $size->id,
               'name' => $size->size,
@@ -75,7 +71,6 @@ class CartItemResource extends JsonResource
         $this->productVariant->final_price * $this->quantity,
         2
       ),
-
     ];
   }
 }

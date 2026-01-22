@@ -2,17 +2,47 @@
 
 namespace Database\Factories;
 
-use App\Models\Color;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use App\Models\ProductVariant;
+use Illuminate\Support\Str;
 use App\Models\Material;
 use App\Models\Product;
+use App\Models\Color;
+use App\Models\ProductVariantImage;
 use App\Models\Size;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProductVariant>
  */
 class ProductVariantFactory extends Factory
 {
+
+  protected $model = ProductVariant::class;
+  private $imageUrls = [
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362028/product26_dtvezt.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362027/product25_znewrk.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362027/product24_wtqy1b.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362012/product23_dyuq2s.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362011/product22_ozcq5j.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765362011/product21_scks0d.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765361097/product13_zm7evn.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765361097/product12_cyevgx.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765361097/product11_iziqjk.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765360179/product3_wqtz8x.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765360178/product4_gffzpk.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765360178/product5_dtuw99.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765360175/product2_c9f42c.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765360173/product1_tb5wqp.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358899/forHome_qzgnuf.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358899/cookWare_jr8zzy.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/drinkWare_bd59t8.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/tableWare_v5v14i.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/kitchenWare_vy9qnp.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/bakeWare_kbtsga.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
+  ];
 
   /**
    * Define the model's default state.
@@ -21,9 +51,7 @@ class ProductVariantFactory extends Factory
    */
   public function definition(): array
   {
-
     $price = $this->faker->randomFloat(2, 0.2, 100);
-
     return [
       'product_id' => Product::factory(),
       'color_id' => Color::factory(),
@@ -36,5 +64,41 @@ class ProductVariantFactory extends Factory
       'stock_quantity' => $this->faker->numberBetween(0, 100),
       'sku' => 'PROD-' . strtoupper($this->faker->unique()->bothify('??###-??')),
     ];
+  }
+
+  public function configure()
+  {
+    return $this->afterCreating(function (ProductVariant $variant) {
+      try {
+        $remoteUrl = $this->faker->randomElement($this->imageUrls);
+
+        $directory = "product_variants/{$variant->id}";
+        if (!Storage::disk('public')->exists($directory)) {
+          Storage::disk('public')->makeDirectory($directory);
+        }
+
+        $filename = Str::uuid() . '.webp';
+        $path = "{$directory}/{$filename}";
+
+        $img = Image::make($remoteUrl)
+          ->resize(1000, 1000, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+          })
+          ->encode('webp', 70);
+
+        Storage::disk('public')->put($path, (string) $img);
+
+        ProductVariantImage::create([
+          'product_variant_id' => $variant->id,
+          'image' => $filename,
+        ]);
+
+        $variant->update(['image' => $filename]);
+
+      } catch (\Exception $e) {
+        logger()->error("Failed to seed image for variant {$variant->id}: " . $e->getMessage());
+      }
+    });
   }
 }

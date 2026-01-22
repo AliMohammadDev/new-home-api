@@ -19,7 +19,6 @@ class ReviewsFactory extends Factory
   public function definition(): array
   {
     return [
-      // 'user_id' => User::factory(),
       'user_id' => User::inRandomOrder()->first()?->id,
       'product_variant_id' => ProductVariant::inRandomOrder()->first()?->id ?? ProductVariant::factory(),
       'rating' => $this->faker->numberBetween(1, 5),

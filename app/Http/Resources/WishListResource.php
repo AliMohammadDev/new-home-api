@@ -20,12 +20,10 @@ class WishListResource extends JsonResource
         return [
           'id' => $this->productVariant->id,
           'image' => $this->productVariant?->image
-            ? asset('storage/product_variants/' . $this->productVariant->image)
-            : (
-              $this->productVariant?->images?->first()
-              ? asset('storage/product_variants/' . $this->productVariant->images->first()->image)
-              : null
-            ),
+            ? asset('storage/product_variants/' . $this->productVariant->id . '/' . $this->productVariant->image)
+            : ($this->productVariant?->images?->first()
+              ? asset('storage/product_variants/' . $this->productVariant->id . '/' . $this->productVariant->images->first()->image)
+              : null),
           'product_id' => $this->productVariant->product->id,
           'name' => $this->productVariant->product->translated_name,
           'price' => $this->productVariant->price,

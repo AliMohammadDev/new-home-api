@@ -18,13 +18,13 @@ class ProductVariantResource extends JsonResource
     return [
       'id' => $this->id,
       'image' => $this->image
-        ? asset('storage/product_variants/' . $this->image)
+        ? asset('storage/product_variants/' . $this->id . '/' . $this->image)
         : ($this->images->first()
-          ? asset('storage/product_variants/' . $this->images->first()->image)
+          ? asset('storage/product_variants/' . $this->id . '/' . $this->images->first()->image)
           : null),
 
       'product_all_images' => $this->images->map(function ($img) {
-        return asset('storage/product_variants/' . $img->image);
+        return asset('storage/product_variants/' . $this->id . '/' . $img->image);
       }),
 
       'product' => $this->whenLoaded('product', function () {

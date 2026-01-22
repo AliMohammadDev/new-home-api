@@ -23,11 +23,7 @@ class DatabaseSeeder extends Seeder
   public function run(): void
   {
     $users = User::factory(10)->create();
-
-    // Categories
     $this->call(CategorySeeder::class);
-
-    // Products (real content)
     $this->call(ProductSeeder::class);
 
     $colors = Color::factory(6)->create();
@@ -36,33 +32,28 @@ class DatabaseSeeder extends Seeder
 
     $products = Product::all();
 
-
     foreach ($products as $product) {
-      for ($i = 0; $i < 2; $i++) {
-        $color = $colors->random();
-        $size = $sizes->random();
-        $material = $materials->random();
+      $combinations = [];
 
-        ProductVariant::firstOrCreate(
-          [
-            'product_id' => $product->id,
-            'color_id' => $color->id,
-            'size_id' => $size->id,
-            'material_id' => $material->id,
-          ],
-          [
-            'price' => rand(30, 200),
-            'discount' => rand(0, 25),
-            'stock_quantity' => rand(10, 60),
-            'sku' => 'PROD-' . strtoupper(Str::random(8)),
-          ]
-        );
+      for ($i = 0; $i < 2; $i++) {
+        $c_id = $colors->random()->id;
+        $s_id = $sizes->random()->id;
+        $m_id = $materials->random()->id;
+
+        $key = "{$c_id}-{$s_id}-{$m_id}";
+        if (in_array($key, $combinations)) {
+          continue;
+        }
+        $combinations[] = $key;
+
+        ProductVariant::factory()->create([
+          'product_id' => $product->id,
+          'color_id' => $c_id,
+          'size_id' => $s_id,
+          'material_id' => $m_id,
+        ]);
       }
     }
-
-
-
-
   }
 
 }
