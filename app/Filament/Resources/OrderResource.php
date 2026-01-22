@@ -160,10 +160,18 @@ class OrderResource extends Resource
 
       Section::make('معلومات الشحن')
         ->schema([
-          TextEntry::make('checkout.full_name')->label('الاسم الكامل'),
+          TextEntry::make('full_name')
+            ->label('الاسم الكامل')
+            ->getStateUsing(function ($record) {
+              if (!$record->checkout)
+                return '-';
+
+              return "{$record->checkout->first_name} {$record->checkout->last_name}";
+            }) ,
           TextEntry::make('checkout.phone')->label('رقم الهاتف'),
           TextEntry::make('checkout.city')->label('المدينة'),
-          TextEntry::make('checkout.address')->label('العنوان'),
+          TextEntry::make('checkout.floor')->label('الطابق'),
+          TextEntry::make('checkout.street')->label('الشارع'),
           TextEntry::make('checkout.postal_code')->label('الرمز البريدي'),
         ])
         ->columns(2),

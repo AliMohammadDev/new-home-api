@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductVariant\CreateProductVariantRequest;
 use App\Http\Requests\ProductVariant\UpdateProductVariantRequest;
 use App\Http\Resources\ProductVariantResource;
 use App\Services\ProductVariantService;
+use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
 
 class ProductVariantController extends Controller

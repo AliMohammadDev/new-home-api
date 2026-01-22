@@ -11,18 +11,18 @@ class ColorFactory extends Factory
 {
 
   private $colors = [
-    'red' => '#EF4444',
-    'blue' => '#3B82F6',
-    'green' => '#22C55E',
-    'yellow' => '#EAB308',
-    'black' => '#000000',
+    'stainless_steel' => '#C7C9CC',
+    'black' => '#111827',
     'white' => '#FFFFFF',
+    'off_white' => '#F9FAF7',
+    'cream' => '#FFF1C1',
     'gray' => '#9CA3AF',
-    'fuchsia' => '#D946EF',
-    'purple' => '#8B5CF6',
-    'pink' => '#EC4899',
-    'orange' => '#F97316',
-    'brown' => '#92400E',
+    'charcoal' => '#374151',
+    'navy' => '#1E3A8A',
+    'olive' => '#6B8E23',
+    'beige' => '#E5D3B3',
+    'brown' => '#8B5A2B',
+    'copper' => '#B87333',
   ];
   /**
    * Define the model's default state.

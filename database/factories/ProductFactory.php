@@ -18,7 +18,6 @@ class ProductFactory extends Factory
    */
   public function definition(): array
   {
-
     return [
       'name' => [
         'en' => ucfirst($this->faker->words(2, true)),

@@ -139,9 +139,25 @@ class ProductVariantService
         'image' => '',
       ]);
 
+      if (isset($data['packages']) && is_array($data['packages'])) {
+        foreach ($data['packages'] as $packageData) {
+          $variant->packages()->create([
+            'quantity' => $packageData['quantity'],
+            'price' => $packageData['price'],
+          ]);
+        }
+      }
+
       if (isset($data['images']) && is_array($data['images'])) {
+        $variantDirectory = "product_variants/{$variant->id}";
+
+        if (!Storage::disk('public')->exists($variantDirectory)) {
+          Storage::disk('public')->makeDirectory($variantDirectory);
+        }
+
         foreach ($data['images'] as $index => $imageFile) {
           $filename = Str::uuid() . '.webp';
+          $finalPath = "{$variantDirectory}/{$filename}";
 
           $img = Image::make($imageFile)
             ->resize(1000, 1000, function ($constraint) {
@@ -150,7 +166,7 @@ class ProductVariantService
             })
             ->encode('webp', 70);
 
-          Storage::disk('public')->put('product_variants/' . $filename, $img);
+          Storage::disk('public')->put($finalPath, $img);
 
           ProductVariantImage::create([
             'product_variant_id' => $variant->id,
@@ -172,9 +188,26 @@ class ProductVariantService
     return DB::transaction(function () use ($data, $product_variant) {
       $product_variant->update($data);
 
+      if (isset($data['packages']) && is_array($data['packages'])) {
+        $product_variant->packages()->delete();
+        foreach ($data['packages'] as $packageData) {
+          $product_variant->packages()->create([
+            'quantity' => $packageData['quantity'],
+            'price' => $packageData['price'],
+          ]);
+        }
+      }
+
       if (isset($data['images']) && is_array($data['images'])) {
+        $variantDirectory = "product_variants/{$product_variant->id}";
+
+        if (!Storage::disk('public')->exists($variantDirectory)) {
+          Storage::disk('public')->makeDirectory($variantDirectory);
+        }
+
         foreach ($data['images'] as $index => $imageFile) {
-          $filename = Str::uuid() . '.webp';
+          $filename = (string) Str::uuid() . '.webp';
+          $finalPath = "{$variantDirectory}/{$filename}";
 
           $img = Image::make($imageFile)
             ->resize(1000, 1000, function ($constraint) {
@@ -183,7 +216,7 @@ class ProductVariantService
             })
             ->encode('webp', 70);
 
-          Storage::disk('public')->put('product_variants/' . $filename, $img);
+          Storage::disk('public')->put($finalPath, $img);
 
           ProductVariantImage::create([
             'product_variant_id' => $product_variant->id,

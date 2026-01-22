@@ -32,6 +32,9 @@ class UpdateProductVariantRequest extends FormRequest
 
       'images' => ['nullable', 'array'],
       'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:10240'], // 10MB
+'packages' => ['nullable', 'array'],
+        'packages.*.quantity' => ['required_with:packages', 'integer', 'min:1'],
+        'packages.*.price' => ['required_with:packages', 'numeric', 'min:0'],
     ];
   }
 }

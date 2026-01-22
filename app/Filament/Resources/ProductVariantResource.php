@@ -3,19 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
-use App\Models\ProductVariant;
-use App\Models\ProductVariantImage;
-use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\App;
+use Filament\Resources\Resource;
+use App\Models\ProductVariant;
 use Illuminate\Support\Str;
+use Filament\Tables\Table;
+use Filament\Forms\Form;
+use Filament\Tables;
+use Filament\Forms;
 
 class ProductVariantResource extends Resource
 {
@@ -38,8 +35,7 @@ class ProductVariantResource extends Resource
                 Forms\Components\Select::make('color_id')
                   ->label('اللون')
                   ->options(\App\Models\Color::pluck('color', 'id'))
-                  ->required()
-                ,
+                  ->required(),
                 Forms\Components\Select::make('size_id')
                   ->label('الحجم')
                   ->options(\App\Models\Size::pluck('size', 'id'))
@@ -50,8 +46,7 @@ class ProductVariantResource extends Resource
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
                   }))
-                  ->required()
-                ,
+                  ->required(),
                 Forms\Components\Grid::make(2)
                   ->schema([
                     Forms\Components\TextInput::make('price')->label('السعر'),
@@ -63,28 +58,31 @@ class ProductVariantResource extends Resource
               ->numeric()
               ->required(),
 
+
+            // edit image
             Forms\Components\Repeater::make('images')
               ->relationship('images')
               ->label('صور الخيار')
               ->schema([
-                FileUpload::make('image')
+                Forms\Components\FileUpload::make('image')
                   ->label('الصورة')
                   ->image()
                   ->multiple()
                   ->maxFiles(1)
-                  ->directory('product_variants')
+                  ->directory(fn($record) => "product_variants/{$record->product_variant_id}")
                   ->visibility('public')
                   ->required()
                   ->getUploadedFileNameForStorageUsing(function ($file) {
                     return (string) Str::uuid() . '.webp';
                   })
                   ->imageEditor()
-                  ->formatStateUsing(function ($state) {
+                  ->formatStateUsing(function ($state, $record) {
                     if (blank($state))
                       return [];
                     $path = is_array($state) ? $state : [$state];
-                    return collect($path)->map(function ($p) {
-                      return str_contains($p, 'product_variants/') ? $p : "product_variants/{$p}";
+                    return collect($path)->map(function ($p) use ($record) {
+                      $dir = "product_variants/{$record->product_variant_id}/";
+                      return str_contains($p, $dir) ? $p : $dir . $p;
                     })->toArray();
                   })
                   ->dehydrateStateUsing(function ($state) {
@@ -97,7 +95,6 @@ class ProductVariantResource extends Resource
               ->saveRelationshipsUsing(function ($record, $state) {
                 $existingImages = $record->images()->pluck('image', 'id')->toArray();
                 $newItems = collect($state);
-
                 $newIds = $newItems->pluck('id')->filter()->toArray();
                 $deletedIds = array_diff(array_keys($existingImages), $newIds);
 
@@ -109,7 +106,7 @@ class ProductVariantResource extends Resource
                       Storage::disk('public')->delete($path);
                     }
                   }
-                  ProductVariantImage::where('id', $id)->delete();
+                  \App\Models\ProductVariantImage::where('id', $id)->delete();
                 }
 
                 foreach ($state as $item) {
@@ -117,27 +114,56 @@ class ProductVariantResource extends Resource
                   if (is_array($imageValue)) {
                     $imageValue = array_values($imageValue)[0] ?? null;
                   }
-
                   if ($imageValue) {
                     $imageValue = basename((string) $imageValue);
                   }
-
                   if (isset($item['id']) && $item['id']) {
-                    ProductVariantImage::where('id', $item['id'])->update([
-                      'image' => $imageValue
-                    ]);
+                    \App\Models\ProductVariantImage::where('id', $item['id'])->update(['image' => $imageValue]);
                   } else {
-                    $record->images()->create([
-                      'image' => $imageValue
-                    ]);
+                    $record->images()->create(['image' => $imageValue]);
                   }
                 }
               })
               ->grid(3)
               ->columnSpanFull(),
+
+            // edit packages
+            Forms\Components\Placeholder::make('no_packages_message')
+              ->label('باقات الكميات (Packages)')
+              ->content('لا توجد باقات أسعار مضافة لهذا الخيار حالياً.')
+              ->visible(
+                fn($record, $context) =>
+                in_array($context, ['edit', 'view']) && $record && $record->packages()->count() === 0
+              ),
+
+            Forms\Components\Repeater::make('packages')
+              ->relationship('packages')
+              ->label(fn($record) => $record && $record->packages()->count() > 0 ? 'باقات الكميات (Packages)' : '')
+              ->visible(fn($context) => in_array($context, ['edit', 'view']))
+              ->schema([
+                Forms\Components\Grid::make(2)
+                  ->schema([
+                    Forms\Components\TextInput::make('quantity')
+                      ->label('عدد القطع في الباقة')
+                      ->numeric()
+                      ->required()
+                      ->minValue(1),
+                    Forms\Components\TextInput::make('price')
+                      ->label('سعر الباقة')
+                      ->numeric()
+                      ->required()
+                      ->prefix('$'),
+                  ]),
+              ])
+              ->grid(2)
+              ->columnSpanFull()
+              ->defaultItems(0)
+              ->createItemButtonLabel('إضافة باقة سعر جديدة'),
+
           ]),
 
-        // Auto create
+
+
         Forms\Components\Section::make('أدوات التوليد السريع')
           ->visible(fn($context) => $context === 'create')
           ->schema([
@@ -182,6 +208,7 @@ class ProductVariantResource extends Resource
                           'stock_quantity' => 1,
                           'price' => 0,
                           'discount' => 0,
+                          'packages' => [],
                         ];
                       }
                     }
@@ -205,35 +232,40 @@ class ProductVariantResource extends Resource
           ->schema([
             Forms\Components\Grid::make(4)
               ->schema([
-                Forms\Components\Select::make('color_id')
-                  ->label('اللون')
-                  ->options(\App\Models\Color::pluck('color', 'id'))->required(),
-                Forms\Components\Select::make('size_id')
-                  ->label('الحجم')
-                  ->options(\App\Models\Size::pluck('size', 'id'))->required(),
-                Forms\Components\Select::make('material_id')
-                  ->label('المادة')
-                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
-                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
-                    return [$item->id => $name];
-                  }))
-                  ->required(),
-                Forms\Components\TextInput::make('stock_quantity')
-                  ->label('الكمية')
-                  ->numeric()->required(),
-                Forms\Components\TextInput::make('price')->label('السعر')->numeric()
-                  ->required()
-                  ->minValue(0.01)
-                ,
+                Forms\Components\Select::make('color_id')->label('اللون')->options(\App\Models\Color::pluck('color', 'id'))->required(),
+                Forms\Components\Select::make('size_id')->label('الحجم')->options(\App\Models\Size::pluck('size', 'id'))->required(),
+                Forms\Components\Select::make('material_id')->label('المادة')->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                  $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                  return [$item->id => $name];
+                }))->required(),
+                Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
+                Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
                 Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
               ]),
-            FileUpload::make('images')
+
+            Forms\Components\Repeater::make('packages')
+              ->label('باقات الأسعار لهذا الخيار')
+              ->schema([
+                Forms\Components\Grid::make(2)
+                  ->schema([
+                    Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
+                    Forms\Components\TextInput::make('price')->label('السعر')->numeric()->required(),
+                  ]),
+              ])
+              ->collapsible()
+              ->collapsed()
+              ->itemLabel(fn(array $state): ?string => ($state['quantity'] ?? null) ? "باقة: {$state['quantity']} قطع" : "إضافة باقة جديدة")
+              ->default([])
+              ->columnSpanFull(),
+
+            Forms\Components\FileUpload::make('images')
               ->label('صور الخيار')
               ->multiple()
               ->image()
               ->directory('product_variants')
           ])
-          ->columnSpanFull(),
+          ->columnSpanFull()
+          ->collapsible(),
       ]);
   }
 
@@ -241,15 +273,19 @@ class ProductVariantResource extends Resource
   {
     return $table
       ->columns([
-        ImageColumn::make('images.image')
+        Tables\Columns\ImageColumn::make('images.image')
           ->label('الصورة')
           ->circular()
           ->stacked()
           ->limit(3)
           ->getStateUsing(function ($record) {
-            return $record->images->map(function ($img) {
-              $path = $img->image;
-              return str_contains($path, 'product_variants/') ? $path : 'product_variants/' . $path;
+            return $record->images->map(function ($img) use ($record) {
+              $imageName = $img->image;
+              $newPath = "product_variants/{$record->id}/{$imageName}";
+              if (str_contains($imageName, 'product_variants/')) {
+                return $imageName;
+              }
+              return $newPath;
             })->toArray();
           }),
 
@@ -276,8 +312,18 @@ class ProductVariantResource extends Resource
           ->searchable(),
 
         Tables\Columns\TextColumn::make('final_price')
-          ->label('السعر النهائي')
-          ->sortable(),
+          ->label('السعر النهائي'),
+
+        Tables\Columns\TextColumn::make('packages_count')
+          ->label('باقات الأسعار')
+          ->getStateUsing(function ($record) {
+            $count = $record->packages()->count();
+
+            return $count > 0 ? "{$count} باقات" : '-';
+          })
+          ->badge()
+          ->color(fn($state): string => $state !== '-' ? 'success' : 'gray')
+          ->alignCenter(),
       ])
       ->filters([
         Tables\Filters\SelectFilter::make('product')

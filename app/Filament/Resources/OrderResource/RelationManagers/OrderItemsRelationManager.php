@@ -32,21 +32,26 @@ class OrderItemsRelationManager extends RelationManager
     return $table
       ->columns([
         TextColumn::make('productVariant.product.name')
-          ->label('المنتج'),
+          ->label('المنتج')
+          ->getStateUsing(function ($record) {
+            $product = $record->productVariant?->product;
+
+            if (!$product) {
+              return '-';
+            }
+            $name = $product->name;
+            if (is_array($name)) {
+              return $name[app()->getLocale()] ?? $name['en'] ?? array_values($name)[0] ?? '-';
+            }
+            return $name ?? '-';
+          })
+          ->searchable()
+          ->sortable(),
 
         TextColumn::make('quantity')
           ->label('الكمية')
           ->formatStateUsing(fn($state) => $state),
 
-        TextColumn::make('price')
-          ->label('السعر')
-          ->formatStateUsing(fn($state) => number_format($state, 2, '.', ','))
-          ->money(),
-
-        TextColumn::make('total')
-          ->label('المجموع')
-          ->formatStateUsing(fn($state) => number_format($state, 2, '.', ','))
-          ->money(),
       ])
       ->actions([])
       ->headerActions([])

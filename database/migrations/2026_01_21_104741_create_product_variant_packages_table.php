@@ -13,12 +13,10 @@ return new class extends Migration {
   {
     Schema::create('product_variant_packages', function (Blueprint $table) {
       $table->id();
-      $table->foreignIdFor(ProductVariant::class)->constrained();
+      $table->foreignIdFor(ProductVariant::class)->constrained()->cascadeOnDelete();
       $table->integer('quantity');
       $table->decimal('price', 10, 2);
-
       $table->unique(['product_variant_id', 'quantity']);
-
       $table->timestamps();
     });
   }

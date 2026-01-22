@@ -33,9 +33,27 @@ class CreateProductVariant extends CreateRecord
         'image' => '',
       ]);
 
+      if (!empty($variantData['packages'])) {
+        foreach ($variantData['packages'] as $packageData) {
+          $variant->packages()->create([
+            'quantity' => $packageData['quantity'],
+            'price' => $packageData['price'],
+          ]);
+        }
+      }
+
       if (!empty($variantData['images'])) {
+
+        $variantDirectory = "product_variants/{$variant->id}";
+
         foreach ($variantData['images'] as $index => $tempPath) {
           $filename = Str::uuid() . '.webp';
+          $finalPath = "{$variantDirectory}/{$filename}";
+
+          if (!Storage::disk('public')->exists($variantDirectory)) {
+            Storage::disk('public')->makeDirectory($variantDirectory);
+          }
+
 
           $img = Image::make(Storage::disk('public')->path($tempPath))
             ->resize(1000, 1000, function ($constraint) {
@@ -44,7 +62,7 @@ class CreateProductVariant extends CreateRecord
             })
             ->encode('webp', 70);
 
-          Storage::disk('public')->put('product_variants/' . $filename, $img);
+          Storage::disk('public')->put($finalPath, $img);
 
           ProductVariantImage::create([
             'product_variant_id' => $variant->id,
