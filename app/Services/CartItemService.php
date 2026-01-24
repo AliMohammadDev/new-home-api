@@ -72,6 +72,12 @@ class CartItemService
     if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
+
+    $availableStock = $cart_item->productVariant->stock_quantity;
+
+    if ($cart_item->quantity + 1 > $availableStock) {
+      abort(422, "Sorry, only {$availableStock} items are available in stock.");
+    }
     $cart_item->quantity += 1;
     $cart_item->save();
     return $cart_item;

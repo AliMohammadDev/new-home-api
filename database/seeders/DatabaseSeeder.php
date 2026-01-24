@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
     foreach ($products as $product) {
       $combinations = [];
 
-      for ($i = 0; $i < 2; $i++) {
+      for ($i = 0; $i < 4; $i++) {
         $c_id = $colors->random()->id;
         $s_id = $sizes->random()->id;
         $m_id = $materials->random()->id;

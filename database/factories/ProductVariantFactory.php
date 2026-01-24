@@ -5,12 +5,12 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Models\ProductVariantImage;
 use App\Models\ProductVariant;
 use Illuminate\Support\Str;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\Color;
-use App\Models\ProductVariantImage;
 use App\Models\Size;
 
 /**
@@ -42,6 +42,14 @@ class ProductVariantFactory extends Factory
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/kitchenWare_vy9qnp.png',
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765358898/bakeWare_kbtsga.png',
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1765711324/Aoppliances_vlcdaz.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237893/prod5_hd4n3f.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237891/prod6_wbu8s2.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237891/prod7_spjpbl.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237891/prod8_usxyxj.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237891/prod9_w4plue.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod12_rfv19k.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod14_gjtfmo.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod111_utgcep.png',
   ];
 
   /**
@@ -57,10 +65,8 @@ class ProductVariantFactory extends Factory
       'color_id' => Color::factory(),
       'size_id' => Size::factory(),
       'material_id' => Material::factory(),
-
       'price' => $price,
       'discount' => $this->faker->numberBetween(0, 50),
-
       'stock_quantity' => $this->faker->numberBetween(0, 100),
       'sku' => 'PROD-' . strtoupper($this->faker->unique()->bothify('??###-??')),
     ];
@@ -68,37 +74,53 @@ class ProductVariantFactory extends Factory
 
   public function configure()
   {
+
+    // create 4 image for each variant
     return $this->afterCreating(function (ProductVariant $variant) {
-      try {
-        $remoteUrl = $this->faker->randomElement($this->imageUrls);
+      for ($i = 0; $i < 4; $i++) {
+        try {
+          $remoteUrl = $this->faker->randomElement($this->imageUrls);
 
-        $directory = "product_variants/{$variant->id}";
-        if (!Storage::disk('public')->exists($directory)) {
-          Storage::disk('public')->makeDirectory($directory);
+          $directory = "product_variants/{$variant->id}";
+          if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+          }
+
+          $filename = Str::uuid() . '.webp';
+          $path = "{$directory}/{$filename}";
+
+          $img = Image::make($remoteUrl)
+            ->resize(1000, 1000, function ($constraint) {
+              $constraint->aspectRatio();
+              $constraint->upsize();
+            })
+            ->encode('webp', 70);
+
+          Storage::disk('public')->put($path, (string) $img);
+
+          ProductVariantImage::create([
+            'product_variant_id' => $variant->id,
+            'image' => $filename,
+          ]);
+
+        } catch (\Exception $e) {
+          logger()->error("Failed to seed image $i for variant {$variant->id}: " . $e->getMessage());
         }
-
-        $filename = Str::uuid() . '.webp';
-        $path = "{$directory}/{$filename}";
-
-        $img = Image::make($remoteUrl)
-          ->resize(1000, 1000, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-          })
-          ->encode('webp', 70);
-
-        Storage::disk('public')->put($path, (string) $img);
-
-        ProductVariantImage::create([
-          'product_variant_id' => $variant->id,
-          'image' => $filename,
-        ]);
-
-        $variant->update(['image' => $filename]);
-
-      } catch (\Exception $e) {
-        logger()->error("Failed to seed image for variant {$variant->id}: " . $e->getMessage());
       }
+
+      // create packages
+      $quantities = [6, 12, 24];
+      foreach ($quantities as $index => $qty) {
+        $discountFactor = 0.90 - ($index * 0.05);
+        $packageUnitPrice = round($variant->price * $discountFactor, 2);
+
+        $variant->packages()->create([
+          'quantity' => $qty,
+          'price' => $packageUnitPrice,
+        ]);
+      }
+
+
     });
   }
 }
