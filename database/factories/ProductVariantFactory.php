@@ -108,15 +108,26 @@ class ProductVariantFactory extends Factory
         }
       }
 
-      // create packages
+      // create packages logic
       $quantities = [6, 12, 24];
-      foreach ($quantities as $index => $qty) {
-        $discountFactor = 0.90 - ($index * 0.05);
-        $packageUnitPrice = round($variant->price * $discountFactor, 2);
+
+      foreach ($quantities as $qty) {
+        $singleUnitFinalPrice = $variant->final_price;
+
+        $bulkDiscountPercentage = match ($qty) {
+          6 => 0.10,
+          12 => 0.15,
+          24 => 0.20,
+          default => 0.05
+        };
+
+        $pricePerUnitInPackage = $singleUnitFinalPrice * (1 - $bulkDiscountPercentage);
+
+        $totalPackagePrice = round($pricePerUnitInPackage * $qty, 2);
 
         $variant->packages()->create([
           'quantity' => $qty,
-          'price' => $packageUnitPrice,
+          'price' => $totalPackagePrice,
         ]);
       }
 

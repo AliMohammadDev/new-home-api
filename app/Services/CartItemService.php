@@ -18,11 +18,11 @@ class CartItemService
     $userId = null
   ): LengthAwarePaginator|Collection {
     $query = $query = CartItem::with([
-      'productVariant.product',
+      'productVariant.product.variants.color',
+      'productVariant.product.variants.size',
+      'productVariant.product.variants.material',
       'productVariant.images',
-      'productVariant.color',
-      'productVariant.size',
-      'productVariant.material',
+      'productVariantPackage',
       'cart'
     ])->whereHas('cart', function ($q) use ($userId) {
       $q->where('user_id', $userId);
@@ -36,7 +36,7 @@ class CartItemService
     }
     return $query->get($columns);
   }
-  public function addToCart($userId, $product_variant_id, $quantity = 1)
+  public function addToCart($userId, $product_variant_id, $quantity = 1, $package_id = null)
   {
     $cart = Cart::firstOrCreate([
       'user_id' => $userId,
@@ -44,6 +44,7 @@ class CartItemService
     ]);
     $cartItem = CartItem::where('cart_id', $cart->id)
       ->where('product_variant_id', $product_variant_id)
+      ->where('product_variant_package_id', $package_id)
       ->first();
     if ($cartItem) {
       $cartItem->quantity += $quantity;
@@ -53,18 +54,23 @@ class CartItemService
     return CartItem::create([
       'cart_id' => $cart->id,
       'product_variant_id' => $product_variant_id,
+      'product_variant_package_id' => $package_id,
       'quantity' => $quantity
     ]);
   }
 
-  public function updateQuantity(CartItem $cart_item, $quantity)
+  public function update(CartItem $cart_item, array $data)
   {
     if ($cart_item->cart->user_id !== Auth::id()) {
       abort(403, 'Unauthorized');
     }
-    $cart_item->update([
-      'quantity' => $quantity
-    ]);
+    $cart_item->fill($data);
+
+    if (isset($data['type']) && $data['type'] === 'Individual') {
+      $cart_item->product_variant_package_id = null;
+    }
+    $cart_item->save();
+
     return $cart_item;
   }
   public function increaseQuantity(CartItem $cart_item)

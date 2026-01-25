@@ -29,7 +29,7 @@ class ProductVariantResource extends JsonResource
 
       'product' => $this->whenLoaded('product', function () {
         // all images
-  
+
         return [
           'id' => $this->product->id,
           'name' => $this->product->translated_name,
@@ -67,6 +67,21 @@ class ProductVariantResource extends JsonResource
 
                       'reviews_avg' => $variant->reviews_avg_rating,
                       'reviews_count' => $variant->reviews_count,
+
+
+                      'images' => $variant->images->map(function ($img) use ($variant) {
+                        return asset('storage/product_variants/' . $variant->id . '/' . $img->image);
+                      })->values(),
+
+                      'available_packages' => $variant->packages->map(function ($package) {
+                        return [
+                          'id' => $package->id,
+                          'quantity' => $package->quantity,
+                          'price' => $package->price,
+                        ];
+                      })->values(),
+
+
                     ];
                   })->values(),
                 ];
@@ -76,6 +91,14 @@ class ProductVariantResource extends JsonResource
         ];
       }),
 
+      'packages' => $this->packages->map(function ($package) {
+        return [
+          'id' => $package->id,
+          'quantity' => $package->quantity,
+          'price' => $package->price,
+
+        ];
+      }),
       'price' => $this->price,
       'discount' => $this->discount,
       'final_price' => $this->final_price,

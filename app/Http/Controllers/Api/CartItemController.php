@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\CartItem\CreateCartItemRequest;
 use App\Http\Requests\CartItem\UpdateCartItemRequest;
 use App\Http\Resources\CartItemResource;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 use App\Services\CartItemService;
 use App\Models\CartItem;
 
@@ -25,11 +25,16 @@ class CartItemController extends Controller
 
     $cartTotal = round(
       $items->sum(function ($item) {
-        return $item->quantity * $item->productVariant->final_price;
+        if ($item->product_variant_package_id && $item->productVariantPackage) {
+          $price = $item->productVariantPackage->price;
+        } else {
+          $price = $item->productVariant->final_price;
+        }
+
+        return $item->quantity * $price;
       }),
       2
     );
-
     return response()->json([
       'data' => $cartItems,
       'cart_total' => $cartTotal,
@@ -42,7 +47,8 @@ class CartItemController extends Controller
     $cartItem = $this->cartItemService->addToCart(
       Auth::id(),
       $validated['product_variant_id'],
-      $validated['quantity'] ?? 1
+      $validated['quantity'] ?? 1,
+      $validated['product_variant_package_id'] ?? null
     );
     return new CartItemResource($cartItem);
   }
@@ -50,7 +56,7 @@ class CartItemController extends Controller
   public function update(CartItem $cart_item, UpdateCartItemRequest $request)
   {
     $validated = $request->validated();
-    $updatedItem = $this->cartItemService->updateQuantity($cart_item, $validated['quantity']);
+    $updatedItem = $this->cartItemService->update($cart_item, $validated);
     return new CartItemResource($updatedItem);
   }
   public function increase(CartItem $cart_item)

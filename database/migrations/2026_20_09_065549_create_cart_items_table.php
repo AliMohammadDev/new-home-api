@@ -1,10 +1,11 @@
 <?php
 
-use App\Models\Cart;
-use App\Models\ProductVariant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\ProductVariantPackage;
+use App\Models\ProductVariant;
+use App\Models\Cart;
 
 return new class extends Migration {
   /**
@@ -16,6 +17,10 @@ return new class extends Migration {
       $table->id();
       $table->foreignIdFor(Cart::class)->constrained()->cascadeOnDelete();
       $table->foreignIdFor(ProductVariant::class)->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(ProductVariantPackage::class)
+        ->nullable()
+        ->constrained('product_variant_packages')
+        ->nullOnDelete();
       $table->integer('quantity')->default(1);
       $table->timestamps();
     });
