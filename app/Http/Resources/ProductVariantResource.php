@@ -29,7 +29,7 @@ class ProductVariantResource extends JsonResource
 
       'product' => $this->whenLoaded('product', function () {
         // all images
-
+  
         return [
           'id' => $this->product->id,
           'name' => $this->product->translated_name,
@@ -62,6 +62,7 @@ class ProductVariantResource extends JsonResource
                       'stock' => $variant->stock_quantity,
                       'variant_id' => $variant->id,
                       'price' => $variant->price,
+                      'discount' => $variant->discount,
                       'final_price' => $variant->final_price,
                       'sku' => $variant->sku,
 

@@ -62,14 +62,21 @@ class ProductVariantResource extends Resource
             // edit image
             Forms\Components\Repeater::make('images')
               ->relationship('images')
+              ->key('variant_images_list')
               ->label('صور الخيار')
               ->schema([
                 Forms\Components\FileUpload::make('image')
                   ->label('الصورة')
                   ->image()
-                  ->multiple()
+                  // ->multiple()
                   ->maxFiles(1)
-                  ->directory(fn($record) => "product_variants/{$record->product_variant_id}")
+                  // ->directory(fn($record) => "product_variants/{$record->product_variant_id}")
+                  ->live()
+                  ->directory(function ($get) {
+                    $variantId = $get('../../id');
+                    return "product_variants/{$variantId}";
+                  })
+
                   ->visibility('public')
                   ->required()
                   ->getUploadedFileNameForStorageUsing(function ($file) {
@@ -92,35 +99,71 @@ class ProductVariantResource extends Resource
                     return $path ? basename((string) $path) : null;
                   }),
               ])
-              ->saveRelationshipsUsing(function ($record, $state) {
-                $existingImages = $record->images()->pluck('image', 'id')->toArray();
-                $newItems = collect($state);
-                $newIds = $newItems->pluck('id')->filter()->toArray();
-                $deletedIds = array_diff(array_keys($existingImages), $newIds);
+              // ->saveRelationshipsUsing(function ($record, $state) {
+              //   $existingImages = $record->images()->pluck('image', 'id')->toArray();
+              //   $newItems = collect($state);
+              //   $newIds = $newItems->pluck('id')->filter()->toArray();
+              //   $deletedIds = array_diff(array_keys($existingImages), $newIds);
 
-                foreach ($deletedIds as $id) {
-                  $imageName = $existingImages[$id];
-                  if ($imageName) {
-                    $path = 'product_variants/' . $imageName;
-                    if (Storage::disk('public')->exists($path)) {
-                      Storage::disk('public')->delete($path);
+              //   foreach ($deletedIds as $id) {
+              //     $imageName = $existingImages[$id];
+              //     if ($imageName) {
+              //       $path = 'product_variants/' . $imageName;
+              //       if (Storage::disk('public')->exists($path)) {
+              //         Storage::disk('public')->delete($path);
+              //       }
+              //     }
+              //     \App\Models\ProductVariantImage::where('id', $id)->delete();
+              //   }
+
+              //   foreach ($state as $item) {
+              //     $imageValue = $item['image'] ?? null;
+              //     if (is_array($imageValue)) {
+              //       $imageValue = array_values($imageValue)[0] ?? null;
+              //     }
+              //     if ($imageValue) {
+              //       $imageValue = basename((string) $imageValue);
+              //     }
+              //     if (isset($item['id']) && $item['id']) {
+              //       \App\Models\ProductVariantImage::where('id', $item['id'])->update(['image' => $imageValue]);
+              //     } else {
+              //       $record->images()->create(['image' => $imageValue]);
+              //     }
+              //   }
+              // })
+
+              ->saveRelationshipsUsing(function ($record, $state) {
+                $existingImages = $record->images; // مجموعة الصور الحالية
+                $newItems = collect($state);
+
+                // 1. حذف الصور التي لم تعد موجودة في الـ State
+                foreach ($existingImages as $existingImage) {
+                  $stillExists = $newItems->contains(fn($item) => ($item['id'] ?? null) == $existingImage->id);
+
+                  if (!$stillExists) {
+                    // حذف الملف الفيزيائي
+                    $filePath = "product_variants/{$record->id}/{$existingImage->image}";
+                    if (Storage::disk('public')->exists($filePath)) {
+                      Storage::disk('public')->delete($filePath);
                     }
+                    // حذف السجل
+                    $existingImage->delete();
                   }
-                  \App\Models\ProductVariantImage::where('id', $id)->delete();
                 }
 
+                // 2. تحديث أو إضافة الصور الجديدة
                 foreach ($state as $item) {
                   $imageValue = $item['image'] ?? null;
-                  if (is_array($imageValue)) {
-                    $imageValue = array_values($imageValue)[0] ?? null;
-                  }
-                  if ($imageValue) {
-                    $imageValue = basename((string) $imageValue);
-                  }
-                  if (isset($item['id']) && $item['id']) {
-                    \App\Models\ProductVariantImage::where('id', $item['id'])->update(['image' => $imageValue]);
+                  if (!$imageValue)
+                    continue;
+
+                  // تنظيف الاسم (نأخذ اسم الملف فقط بدون المسار الكامل)
+                  $cleanName = is_array($imageValue) ? basename(array_values($imageValue)[0]) : basename($imageValue);
+
+                  if (isset($item['id'])) {
+                    $record->images()->where('id', $item['id'])->update(['image' => $cleanName]);
                   } else {
-                    $record->images()->create(['image' => $imageValue]);
+                    $record->images()->create(['image' => $cleanName]);
                   }
                 }
               })

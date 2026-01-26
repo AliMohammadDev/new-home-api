@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->alias([
       'idempotency' => IdempotencyMiddleware::class,
       'setLocale' => SetLocalMiddleware::class,
-      'admin' => AdminMiddleware::class
+      'admin' => AdminMiddleware::class,
     ]);
   })
   ->withExceptions(function (Exceptions $exceptions): void {

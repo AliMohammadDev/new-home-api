@@ -84,6 +84,7 @@ class CreateProductVariant extends CreateRecord
 
   protected function getRedirectUrl(): string
   {
+    $this->dispatch('refresh-form');
     return $this->getResource()::getUrl('index');
   }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ProductVariantResource\Pages;
 
 use App\Filament\Resources\ProductVariantResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditProductVariant extends EditRecord
@@ -13,7 +14,19 @@ class EditProductVariant extends EditRecord
   protected function getHeaderActions(): array
   {
     return [
-      // Actions\DeleteAction::make(),
+      Actions\DeleteAction::make(),
     ];
+  }
+
+  protected function afterSave(): void
+  {
+    $this->getRecord()->load('images');
+
+    $this->fillForm();
+
+    Notification::make()
+      ->title('تم التحديث بنجاح')
+      ->success()
+      ->send();
   }
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ProductVariantPackageController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\SizeController;
+use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
 
 
@@ -24,6 +25,10 @@ use App\Http\Controllers\Api\WishListController;
 |--------------------------------------------------------------------------
 */
 Route::middleware(['setLocale'])->group(function () {
+
+  // Social Auth
+  Route::get('/login-google', [socialAuthController::class, 'redirectToProvider']);
+  Route::get('/auth/google/callback', [socialAuthController::class, 'handleCallback']);
 
   // Auth
   Route::post('register', [AuthController::class, 'register']);
