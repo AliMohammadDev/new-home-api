@@ -18,7 +18,6 @@ class MaterialResource extends JsonResource
       'id' => $this->id,
       'material' => $this->translated_material,
       'productVariants' => ProductVariantResource::collection($this->whenLoaded('productVariants')),
-
     ];
   }
 }
