@@ -24,6 +24,8 @@ class CategoryService
           'size',
           'material',
           'images',
+          'packages',
+          'product.variants.color'
         ])
           ->withAvg('reviews', 'rating')
           ->withCount('reviews');
