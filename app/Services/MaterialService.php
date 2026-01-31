@@ -15,7 +15,7 @@ class MaterialService
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
     $query = Material::with([
-      'productVariants.product.media',
+      'productVariants.product',
       'productVariants.color',
       'productVariants.size',
       'productVariants.material',
