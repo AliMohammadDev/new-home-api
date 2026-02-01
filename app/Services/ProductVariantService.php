@@ -19,7 +19,12 @@ class ProductVariantService
     return ProductVariant::with([
       'product' => function ($query) use ($categoryName) {
         $query->select('id', 'name', 'category_id')
-          ->with(['category:id,name'])
+          ->with([
+            'category' => function ($q) {
+              $q->select('id', 'name', 'description')
+                ->with('media');
+            }
+          ])
           ->whereHas('category', function ($q) use ($categoryName) {
             $q->where('id', $categoryName);
           });
@@ -27,6 +32,7 @@ class ProductVariantService
       'color:id,color',
       'size:id,size',
       'material:id,material',
+      'images'
     ])
       ->withAvg('reviews', 'rating')
       ->withCount('reviews')

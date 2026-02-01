@@ -40,6 +40,10 @@ class ProductVariantResource extends JsonResource
             'name' => $this->product->category->translated_name,
             'description' => $this->product->category->translated_description,
             'image' => $this->product->category->getFirstMediaUrl('category_images', 'default'),
+
+            'all_images' => $this->product->category->getMedia('category_images')->map(function ($media) {
+              return $media->getUrl();
+            }),
           ] : null,
           'available_options' => $this->product->variants->groupBy('color_id')->map(function ($colorGroup) {
             $color = $colorGroup->first()->color;

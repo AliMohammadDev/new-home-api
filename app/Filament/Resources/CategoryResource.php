@@ -52,6 +52,7 @@ class CategoryResource extends Resource
         SpatieMediaLibraryFileUpload::make('image')
           ->label('الصورة')
           ->collection('category_images')
+          ->multiple()
           ->image()
           ->imageEditor()
           ->maxSize(10240),
@@ -65,6 +66,7 @@ class CategoryResource extends Resource
       ->columns([
         Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
           ->collection('category_images')
+          ->limit(3)
           ->conversion('default')
           ->label('الصورة')
           ->circular(),
