@@ -13,13 +13,7 @@ class SizeService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = Size::with([
-      'productVariants.product',
-      'productVariants.color',
-      'productVariants.size',
-      'productVariants.material',
-      'productVariants.reviews'
-    ]);
+    $query = Size::query();
 
     if ($paginate) {
       return $query->paginate(

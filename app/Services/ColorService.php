@@ -13,13 +13,7 @@ class ColorService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = Color::with([
-      'productVariants.product',
-      'productVariants.color',
-      'productVariants.size',
-      'productVariants.material',
-      'productVariants.reviews'
-    ]);
+    $query = Color::query();
 
     if ($paginate) {
       return $query->paginate(
