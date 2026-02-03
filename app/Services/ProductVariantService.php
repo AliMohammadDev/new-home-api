@@ -45,25 +45,6 @@ class ProductVariantService
       ->filter(fn($variant) => $variant->product !== null);
   }
 
-  public function getAllProductVariantsByLimit(int $limit = 10)
-  {
-    return ProductVariant::with([
-      'product' => fn($q) => $q->select('id', 'name', 'category_id')
-        ->with(['category:id,name']),
-      'color:id,color',
-      'size:id,size',
-      'material:id,material',
-    ])->withAvg('reviews', 'rating')
-      ->withCount('reviews')
-      ->whereIn('id', function ($q) {
-        $q->select(DB::raw('MIN(id)'))
-          ->from('product_variants')
-          ->groupBy('product_id');
-      })
-      ->take($limit)
-      ->get();
-  }
-
 
   public function getSlidersProductsVariants(int $limit = 10)
   {
@@ -96,9 +77,14 @@ class ProductVariantService
         ->whereHas('product', fn($q) => $q->where('discount', '>', 0))
         ->take($limit)
         ->get(),
+
+      'top_rated' => (clone $baseQuery)
+        ->having('reviews_avg_rating', '>', 0)
+        ->orderByRaw('reviews_avg_rating DESC')
+        ->take($limit)
+        ->get(),
     ];
   }
-
 
   public function findAll(
     $paginate = false,

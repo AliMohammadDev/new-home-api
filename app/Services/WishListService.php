@@ -47,6 +47,11 @@ class WishListService
     return $wishlist->delete();
   }
 
+  public function deleteAll($userId)
+  {
+    return WishList::where('user_id', $userId)->delete();
+  }
+
   public function toggle($userId, $productVariantId)
   {
     $exists = WishList::where('user_id', $userId)

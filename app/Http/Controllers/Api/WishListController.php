@@ -58,4 +58,9 @@ class WishListController extends Controller
     $this->wishListService->delete($wishlist);
     return response()->json(['message' => 'Wishlist item removed']);
   }
+  public function destroyAll()
+  {
+    $this->wishListService->deleteAll(Auth::id());
+    return response()->json(['message' => 'All wishlist items removed successfully']);
+  }
 }

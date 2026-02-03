@@ -51,7 +51,6 @@ Route::middleware(['setLocale'])->group(function () {
   // Product Variants
   Route::get('product-variants', [ProductVariantController::class, 'index']);
   Route::get('product-variants/{product_variant}', [ProductVariantController::class, 'show']);
-  Route::get('variants-all/{limit?}', [ProductVariantController::class, 'allVariantsByLimit']);
   Route::get('variants-sliders', [ProductVariantController::class, 'slidersVariants']);
   Route::get('variants-category/{name}', [ProductVariantController::class, 'byVariantsCategoryName']);
 
@@ -94,6 +93,8 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
   // Wishlist
   Route::apiResource('wishlists', WishListController::class)
     ->only(['index', 'store', 'destroy']);
+
+  Route::delete('wishlist/clear-all', [WishListController::class, 'destroyAll']);
 
   // Reviews
   Route::apiResource('reviews', ReviewsController::class)
