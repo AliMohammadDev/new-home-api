@@ -8,6 +8,7 @@ use App\Http\Resources\ProductVariantResource;
 use App\Services\ProductVariantService;
 use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
+use Illuminate\Http\Request;
 
 class ProductVariantController extends Controller
 {
@@ -16,18 +17,26 @@ class ProductVariantController extends Controller
   ) {
   }
 
-  public function byVariantsCategoryName($name)
+  // public function byVariantsCategoryName($name)
+  // {
+  //   $products = $this->productVariantService->findVariantsByCategoryName($name);
+  //   return ProductVariantResource::collection($products);
+  // }
+
+  public function byVariantsCategoryName(Request $request, $name)
   {
-    $products = $this->productVariantService->findVariantsByCategoryName($name);
+    $filters = [
+      'sizes' => $request->query('sizes'),
+      'colors' => $request->query('colors'),
+      'materials' => $request->query('materials'),
+      'min_price' => $request->query('min_price'),
+      'max_price' => $request->query('max_price'),
+    ];
+
+    $products = $this->productVariantService->findVariantsByCategoryName($name, $filters);
+
     return ProductVariantResource::collection($products);
   }
-
-  public function allVariantsByLimit($limit = 20)
-  {
-    $variants = $this->productVariantService->getAllProductVariantsByLimit($limit);
-    return ProductVariantResource::collection($variants);
-  }
-
 
   public function slidersVariants()
   {
@@ -36,6 +45,7 @@ class ProductVariantController extends Controller
       'featured' => ProductVariantResource::collection($sliders['featured']),
       'new' => ProductVariantResource::collection($sliders['new']),
       'discounted' => ProductVariantResource::collection($sliders['discounted']),
+      'top_rated' => ProductVariantResource::collection($sliders['top_rated']),
     ]);
   }
 
