@@ -111,6 +111,7 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
   Route::patch('cart-items/{cart_item}/decrease', [CartItemController::class, 'decrease']);
 
   // Checkout & Orders
+  Route::post('create-new-checkout', [CheckoutController::class,'createNewCheckout']);
   Route::apiResource('checkouts', CheckoutController::class);
   Route::apiResource('orders', OrderController::class);
 

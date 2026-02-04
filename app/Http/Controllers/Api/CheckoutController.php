@@ -22,6 +22,16 @@ class CheckoutController extends Controller
     return CheckoutResource::collection($checkouts);
   }
 
+  public function createNewCheckout(CreateCheckoutRequest $request)
+  {
+    $checkout = $this->checkoutService->createNewCheckout(
+      $request->validated(),
+      Auth::id()
+    );
+    return new CheckoutResource($checkout);
+  }
+
+
   public function store(CreateCheckoutRequest $request)
   {
     $checkout = $this->checkoutService->createCheckout(
