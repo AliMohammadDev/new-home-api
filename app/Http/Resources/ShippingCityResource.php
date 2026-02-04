@@ -16,7 +16,7 @@ class ShippingCityResource extends JsonResource
   {
     return [
       'id' => $this->id,
-      'city_name' => $this->city_name,
+      'city_name' => $this->translated_city_name,
       'estimated_delivery' => $this->estimated_delivery,
       'shipping_fee' => $this->shipping_fee,
       'is_free_shipping' => (bool) $this->is_free_shipping,
