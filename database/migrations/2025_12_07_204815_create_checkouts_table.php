@@ -1,10 +1,13 @@
 <?php
 
 use App\Models\Cart;
+use App\Models\ShippingCity;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+
+use function Symfony\Component\String\s;
 
 return new class extends Migration {
   /**
@@ -24,8 +27,10 @@ return new class extends Migration {
       $table->string('floor')->nullable();
       $table->string('postal_code')->nullable();
       $table->text('additional_information')->nullable();
-      $table->foreignIdFor(Cart::class)->constrained();
+      $table->foreignIdFor(Cart::class)->nullable()->constrained();
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(ShippingCity::class)->nullable()
+        ->constrained()->onDelete('set null');
       $table->enum('status', ['pending', 'completed'])->default('pending');
       $table->timestamps();
     });

@@ -36,4 +36,9 @@ class Checkout extends Model
   {
     return $this->hasOne(Order::class);
   }
+
+  public function shippingCity()
+  {
+    return $this->belongsTo(ShippingCity::class, 'shipping_city_id');
+  }
 }

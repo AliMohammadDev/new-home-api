@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProfileRequest extends FormRequest
@@ -25,7 +24,17 @@ class UpdateProfileRequest extends FormRequest
     return [
       'name' => ['sometimes', 'string', 'max:255'],
       'email' => ['sometimes', 'email', 'unique:users,email,' . auth()->id()],
-      'password' => ['sometimes', 'confirmed', 'min:6'],
+      'password' => ['nullable', 'confirmed', 'min:6'],
+
+      // for checkouts
+      'first_name' => ['sometimes', 'string', 'max:150'],
+      'last_name' => ['sometimes', 'string', 'max:150'],
+      'phone' => ['sometimes', 'string', 'max:20'],
+      'country' => ['sometimes', 'string', 'max:150'],
+      'city' => ['sometimes', 'string', 'max:150'],
+      'street' => ['nullable', 'string', 'max:150'],
+      'postal_code' => ['nullable', 'string', 'max:20'],
+      'additional_information' => ['nullable', 'string', 'max:500'],
     ];
   }
 }

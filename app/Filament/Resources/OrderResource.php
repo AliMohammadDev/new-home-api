@@ -167,7 +167,7 @@ class OrderResource extends Resource
                 return '-';
 
               return "{$record->checkout->first_name} {$record->checkout->last_name}";
-            }) ,
+            }),
           TextEntry::make('checkout.phone')->label('رقم الهاتف'),
           TextEntry::make('checkout.city')->label('المدينة'),
           TextEntry::make('checkout.floor')->label('الطابق'),

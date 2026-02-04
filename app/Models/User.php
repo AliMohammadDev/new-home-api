@@ -38,6 +38,8 @@ class User extends Authenticatable implements FilamentUser
   protected $hidden = [
     'password',
     'remember_token',
+    'google_token',
+    'google_id',
   ];
 
   /**
@@ -52,6 +54,10 @@ class User extends Authenticatable implements FilamentUser
       'password' => 'hashed',
     ];
   }
+  public function checkout()
+  {
+    return $this->hasOne(Checkout::class);
+  }
   public function wishlist()
   {
     return $this->hasMany(WishList::class);
@@ -63,7 +69,8 @@ class User extends Authenticatable implements FilamentUser
 
   public function activeCart()
   {
-    return $this->hasOne(Cart::class)->where('status', 'active');
+    return $this->hasOne(Cart::class)
+      ->where('status', 'active');
   }
 
   public function canAccessPanel(Panel $panel): bool

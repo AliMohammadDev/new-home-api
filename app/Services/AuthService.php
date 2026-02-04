@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Cart;
+use App\Models\Checkout;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -29,12 +31,37 @@ class AuthService
     return $token;
   }
 
+  // public function updateProfile(User $user, array $data): User
+  // {
+  //   if (isset($data['password'])) {
+  //     $data['password'] = Hash::make($data['password']);
+  //   }
+  //   $user->update($data);
+  //   return $user;
+  // }
+
   public function updateProfile(User $user, array $data): User
   {
-    if (isset($data['password'])) {
-      $data['password'] = Hash::make($data['password']);
-    }
-    $user->update($data);
+    $user->update(collect($data)->only(['name', 'email', 'password'])->filter()->toArray());
+
+    $activeCart = $user->activeCart;
+
+    Checkout::updateOrCreate(
+      ['user_id' => $user->id],
+      [
+        'first_name' => $data['first_name'],
+        'last_name' => $data['last_name'],
+        'email' => $data['email'],
+        'phone' => $data['phone'],
+        'country' => $data['country'],
+        'city' => $data['city'],
+        'street' => $data['street'] ?? '',
+        'postal_code' => $data['postal_code'] ?? null,
+        'additional_information' => $data['additional_information'] ?? null,
+        'cart_id' => $activeCart ? $activeCart->id : null,
+      ]
+    );
     return $user;
   }
+
 }

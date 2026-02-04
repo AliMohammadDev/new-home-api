@@ -35,7 +35,7 @@ class AuthController extends Controller
 
   public function me()
   {
-    $user = Auth::user()->load('activeCart');
+    $user = Auth::user()->load(['activeCart', 'checkout']);
     return response()->json([
       'user' => $user,
     ], 200);

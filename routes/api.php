@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ProductVariantPackageController;
 use App\Http\Controllers\Api\ReviewsController;
+use App\Http\Controllers\Api\ShippingCityController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
@@ -76,6 +77,9 @@ Route::middleware(['setLocale'])->group(function () {
     [ProductVariantPackageController::class, 'byVariant']
   );
 
+
+
+
 });
 
 
@@ -109,6 +113,9 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
   // Checkout & Orders
   Route::apiResource('checkouts', CheckoutController::class);
   Route::apiResource('orders', OrderController::class);
+
+  Route::get('shipping-cities', [ShippingCityController::class, 'index']);
+  Route::get('shipping-cities/{shippingCity}', [ShippingCityController::class, 'show']);
 });
 
 
@@ -141,4 +148,8 @@ Route::middleware(['setLocale', 'auth:sanctum', 'admin'])->group(function () {
     'product-variant-packages',
     ProductVariantPackageController::class
   )->except(['index', 'show']);
+
+  Route::post('shipping-cities', [ShippingCityController::class, 'store']);
+  Route::put('shipping-cities/{shippingCity}', [ShippingCityController::class, 'update']);
+  Route::delete('shipping-cities/{shippingCity}', [ShippingCityController::class, 'destroy']);
 });
