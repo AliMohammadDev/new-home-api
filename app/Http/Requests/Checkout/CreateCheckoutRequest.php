@@ -28,6 +28,9 @@ class CreateCheckoutRequest extends FormRequest
       'phone' => ['required', 'string', 'max:20'],
       'country' => ['required', 'string', 'max:150'],
       'city' => ['required', 'string', 'max:150'],
+
+      'shipping_city_id' => ['nullable', 'exists:shipping_cities,id'],
+
       'street' => ['nullable', 'string', 'max:150'],
       'floor' => ['nullable', 'string', 'max:50'],
       'postal_code' => ['nullable', 'string', 'max:20'],

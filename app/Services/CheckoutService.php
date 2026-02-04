@@ -47,6 +47,7 @@ class CheckoutService
         'phone' => $data['phone'],
         'country' => $data['country'],
         'city' => $data['city'],
+        'shipping_city_id' => $data['shipping_city_id'] ?? null,
         'street' => $data['street'] ?? '',
         'floor' => $data['floor'] ?? null,
         'postal_code' => $data['postal_code'] ?? null,

@@ -28,6 +28,7 @@ class UpdateCheckoutRequest extends FormRequest
       'phone' => ['sometimes', 'string', 'max:20'],
       'country' => ['sometimes', 'string', 'max:150'],
       'city' => ['sometimes', 'string', 'max:150'],
+      'shipping_city_id' => ['nullable', 'exists:shipping_cities,id'],
       'street' => ['sometimes', 'string', 'max:150'],
       'floor' => ['sometimes', 'nullable', 'string', 'max:50'],
       'postal_code' => ['sometimes', 'nullable', 'string', 'max:20'],

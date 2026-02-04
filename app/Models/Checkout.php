@@ -19,6 +19,7 @@ class Checkout extends Model
     'additional_information',
     'cart_id',
     'user_id',
+    'shipping_city_id',
     'status',
   ];
 

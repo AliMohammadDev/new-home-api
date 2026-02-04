@@ -26,6 +26,7 @@ class UpdateProfileRequest extends FormRequest
       'email' => ['sometimes', 'email', 'unique:users,email,' . auth()->id()],
       'password' => ['nullable', 'confirmed', 'min:6'],
 
+      'shipping_city_id' => ['nullable', 'exists:shipping_cities,id'],
       // for checkouts
       'first_name' => ['sometimes', 'string', 'max:150'],
       'last_name' => ['sometimes', 'string', 'max:150'],
@@ -33,6 +34,7 @@ class UpdateProfileRequest extends FormRequest
       'country' => ['sometimes', 'string', 'max:150'],
       'city' => ['sometimes', 'string', 'max:150'],
       'street' => ['nullable', 'string', 'max:150'],
+      'floor' => ['nullable', 'string', 'max:50'],
       'postal_code' => ['nullable', 'string', 'max:20'],
       'additional_information' => ['nullable', 'string', 'max:500'],
     ];
