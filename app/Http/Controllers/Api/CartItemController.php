@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Services\CartItemService;
 use App\Models\CartItem;
+use App\Models\Checkout;
+use Illuminate\Http\Request;
 
 class CartItemController extends Controller
 {
@@ -17,27 +19,45 @@ class CartItemController extends Controller
   ) {
   }
 
-  public function index()
+  public function index(Request $request)
   {
-    $items = $this->cartItemService->findAll(userId: Auth::id());
+    $userId = Auth::id();
+    $checkoutId = $request->query('checkout_id');
 
+    $items = $this->cartItemService->findAll(userId: $userId);
     $cartItems = CartItemResource::collection($items);
 
-    $cartTotal = round(
+    $subtotal = round(
       $items->sum(function ($item) {
-        if ($item->product_variant_package_id && $item->productVariantPackage) {
-          $price = $item->productVariantPackage->price;
-        } else {
-          $price = $item->productVariant->final_price;
-        }
-
+        $price = ($item->product_variant_package_id && $item->productVariantPackage)
+          ? $item->productVariantPackage->price
+          : $item->productVariant->final_price;
         return $item->quantity * $price;
       }),
       2
     );
+
+    $shippingFee = 0;
+    if ($checkoutId) {
+      $checkout = Checkout::with('shippingCity')
+        ->where('id', $checkoutId)
+        ->where('user_id', $userId)
+        ->first();
+
+      if ($checkout && $checkout->shippingCity) {
+        if (!$checkout->shippingCity->is_free_shipping) {
+          $shippingFee = $checkout->shippingCity->shipping_fee;
+        }
+      }
+    }
+
+    $grandTotal = round($subtotal + $shippingFee, 2);
+
     return response()->json([
       'data' => $cartItems,
-      'cart_total' => $cartTotal,
+      'subtotal' => $subtotal,
+      'shipping_fee' => $shippingFee,
+      'cart_total' => $grandTotal,
     ]);
   }
 

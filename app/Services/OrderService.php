@@ -35,7 +35,7 @@ class OrderService
   {
     return DB::transaction(function () use ($data) {
 
-      $checkout = Checkout::with('cart.cartItems.productVariant.product')
+      $checkout = Checkout::with('cart.cartItems.productVariant.product', 'shippingCity')
         ->where('id', $data['checkout_id'])
         ->where('user_id', $data['user_id'])
         ->firstOrFail();
@@ -46,11 +46,21 @@ class OrderService
         $total += $item->productVariant->final_price * $item->quantity;
       }
 
+      $shippingCost = 0;
+      if ($checkout->shipping_city_id && $checkout->shippingCity) {
+        if (!$checkout->shippingCity->is_free_shipping) {
+          $shippingCost = $checkout->shippingCity->shipping_fee;
+        }
+      }
+
+      $grandTotal = $total + $shippingCost;
+
       $order = Order::create([
         'user_id' => $checkout->user_id,
         'cart_id' => $checkout->cart_id,
         'checkout_id' => $checkout->id,
-        'total_amount' => $total,
+        'total_amount' => $grandTotal,
+        'shipping_fee' => $shippingCost,
         'payment_method' => $data['payment_method'],
         'status' => 'pending',
       ]);

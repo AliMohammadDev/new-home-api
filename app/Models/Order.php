@@ -11,6 +11,7 @@ class Order extends Model
     'cart_id',
     'checkout_id',
     'total_amount',
+    'shipping_fee',
     'payment_method',
     'status'
   ];
