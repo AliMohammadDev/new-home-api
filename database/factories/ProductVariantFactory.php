@@ -50,6 +50,12 @@ class ProductVariantFactory extends Factory
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod12_rfv19k.png',
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod14_gjtfmo.png',
     'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1769237890/prod111_utgcep.png',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451377/product_hirp67.jpg',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451350/products_mygwll.jpg',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451273/productssss_p1smps.jpg',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451272/productsss_uvmqgj.jpg',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451263/productsssss_ctdyzm.jpg',
+    'https://res.cloudinary.com/dzvrf9xe3/image/upload/v1770451349/product2_bdkmhy.jpg'
   ];
 
   /**
