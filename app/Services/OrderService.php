@@ -35,6 +35,13 @@ class OrderService
   {
     return DB::transaction(function () use ($data) {
 
+
+      $existingOrder = Order::where('checkout_id', $data['checkout_id'])->first();
+
+      if ($existingOrder) {
+        return $existingOrder->load(['orderItems.productVariant.product', 'checkout']);
+      }
+
       $checkout = Checkout::with('cart.cartItems.productVariant.product', 'shippingCity')
         ->where('id', $data['checkout_id'])
         ->where('user_id', $data['user_id'])
