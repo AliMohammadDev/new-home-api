@@ -73,12 +73,15 @@ class OrderService
       ]);
 
       foreach ($cart->cartItems as $item) {
+
+        $actualPrice = $item->productVariant->final_price;
+
         OrderItem::create([
           'order_id' => $order->id,
           'product_variant_id' => $item->product_variant_id,
           'quantity' => $item->quantity,
-          'price' => $item->productVariant->price,
-          'total' => $item->productVariant->final_price * $item->quantity,
+          'price' => $actualPrice,
+          'total' => $actualPrice * $item->quantity,
         ]);
         $item->productVariant->decrement('stock_quantity', $item->quantity);
       }

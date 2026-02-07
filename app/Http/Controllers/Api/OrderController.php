@@ -11,6 +11,11 @@ use App\Notifications\NewOrderNotification;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Mpdf\Mpdf;
+
+
+
 
 class OrderController extends Controller
 {
@@ -71,5 +76,52 @@ class OrderController extends Controller
   {
     $order = $this->orderService->cancelOrder($order);
     return new OrderResource($order);
+  }
+
+
+
+  public function print(Order $order)
+  {
+    if (ob_get_contents())
+      ob_end_clean();
+
+    $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+    $fontDirs = $defaultConfig['fontDir'];
+
+    $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+    $fontData = $defaultFontConfig['fontdata'];
+
+    try {
+      $fontFolders = array_merge($fontDirs, [
+        storage_path('fonts'),
+      ]);
+
+      $mpdf = new \Mpdf\Mpdf([
+        'fontDir' => $fontFolders,
+        'fontdata' => $fontData + [
+          'cairo' => [
+            'R' => 'Cairo-Bold-2.ttf',
+            'useOTL' => 0xFF,
+          ]
+        ],
+        'default_font' => 'cairo',
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'autoArabic' => true,
+        'autoScriptToLang' => true,
+        'autoLangToFont' => true,
+        'img_dpi' => 96,
+        'showImageErrors' => true
+      ]);
+
+      $mpdf->SetDirectionality('rtl');
+      $html = view('orders.print-invoice', compact('order'))->render();
+
+      $mpdf->WriteHTML($html);
+      return $mpdf->Output("invoice-{$order->id}.pdf", 'I');
+
+    } catch (\Mpdf\MpdfException $e) {
+      return $e->getMessage();
+    }
   }
 }

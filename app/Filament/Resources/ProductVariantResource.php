@@ -99,65 +99,28 @@ class ProductVariantResource extends Resource
                     return $path ? basename((string) $path) : null;
                   }),
               ])
-              // ->saveRelationshipsUsing(function ($record, $state) {
-              //   $existingImages = $record->images()->pluck('image', 'id')->toArray();
-              //   $newItems = collect($state);
-              //   $newIds = $newItems->pluck('id')->filter()->toArray();
-              //   $deletedIds = array_diff(array_keys($existingImages), $newIds);
-
-              //   foreach ($deletedIds as $id) {
-              //     $imageName = $existingImages[$id];
-              //     if ($imageName) {
-              //       $path = 'product_variants/' . $imageName;
-              //       if (Storage::disk('public')->exists($path)) {
-              //         Storage::disk('public')->delete($path);
-              //       }
-              //     }
-              //     \App\Models\ProductVariantImage::where('id', $id)->delete();
-              //   }
-
-              //   foreach ($state as $item) {
-              //     $imageValue = $item['image'] ?? null;
-              //     if (is_array($imageValue)) {
-              //       $imageValue = array_values($imageValue)[0] ?? null;
-              //     }
-              //     if ($imageValue) {
-              //       $imageValue = basename((string) $imageValue);
-              //     }
-              //     if (isset($item['id']) && $item['id']) {
-              //       \App\Models\ProductVariantImage::where('id', $item['id'])->update(['image' => $imageValue]);
-              //     } else {
-              //       $record->images()->create(['image' => $imageValue]);
-              //     }
-              //   }
-              // })
 
               ->saveRelationshipsUsing(function ($record, $state) {
-                $existingImages = $record->images; // مجموعة الصور الحالية
+                $existingImages = $record->images;
                 $newItems = collect($state);
 
-                // 1. حذف الصور التي لم تعد موجودة في الـ State
                 foreach ($existingImages as $existingImage) {
                   $stillExists = $newItems->contains(fn($item) => ($item['id'] ?? null) == $existingImage->id);
 
                   if (!$stillExists) {
-                    // حذف الملف الفيزيائي
                     $filePath = "product_variants/{$record->id}/{$existingImage->image}";
                     if (Storage::disk('public')->exists($filePath)) {
                       Storage::disk('public')->delete($filePath);
                     }
-                    // حذف السجل
                     $existingImage->delete();
                   }
                 }
 
-                // 2. تحديث أو إضافة الصور الجديدة
                 foreach ($state as $item) {
                   $imageValue = $item['image'] ?? null;
                   if (!$imageValue)
                     continue;
 
-                  // تنظيف الاسم (نأخذ اسم الملف فقط بدون المسار الكامل)
                   $cleanName = is_array($imageValue) ? basename(array_values($imageValue)[0]) : basename($imageValue);
 
                   if (isset($item['id'])) {
@@ -320,17 +283,24 @@ class ProductVariantResource extends Resource
           ->label('الصورة')
           ->circular()
           ->stacked()
-          ->limit(3)
           ->getStateUsing(function ($record) {
+            if (!$record->images) {
+              return [];
+            }
+
             return $record->images->map(function ($img) use ($record) {
               $imageName = $img->image;
+
               $newPath = "product_variants/{$record->id}/{$imageName}";
+
               if (str_contains($imageName, 'product_variants/')) {
                 return $imageName;
               }
+
               return $newPath;
             })->toArray();
-          }),
+          })
+          ->disk('public'),
 
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
