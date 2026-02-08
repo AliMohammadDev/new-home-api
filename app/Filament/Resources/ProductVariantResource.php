@@ -17,6 +17,7 @@ use Filament\Forms;
 class ProductVariantResource extends Resource
 {
   protected static ?string $model = ProductVariant::class;
+  protected static ?int $navigationSort = 5;
   protected static ?string $navigationIcon = 'heroicon-o-tag';
   protected static ?string $navigationLabel = 'خيارات المنتج';
   protected static ?string $navigationGroup = 'إدارة المنتجات';

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\App;
 class CategoryResource extends Resource
 {
   protected static ?string $model = Category::class;
+  protected static ?int $navigationSort = 6;
   protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
   protected static ?string $navigationLabel = 'أصناف';
   protected static ?string $pluralModelLabel = 'أصناف';

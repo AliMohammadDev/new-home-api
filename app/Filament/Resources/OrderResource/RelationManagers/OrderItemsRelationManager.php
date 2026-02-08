@@ -7,10 +7,11 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 
 class OrderItemsRelationManager extends RelationManager
 {
-  protected static string $relationship = 'OrderItems';
+  protected static string $relationship = 'orderItems';
   protected static ?string $title = 'محتويات السلة (المنتجات)';
 
   public function table(Table $table): Table
@@ -26,30 +27,32 @@ class OrderItemsRelationManager extends RelationManager
             $variant = $record->productVariant;
             if (!$variant || !$variant->images)
               return null;
-
-            return $variant->images->map(function ($img) use ($variant) {
-              $imageName = $img->image;
-              return str_contains($imageName, 'product_variants/')
-                ? $imageName
-                : "product_variants/{$variant->id}/{$imageName}";
-            })->toArray();
+            return $variant->images->map(fn($img) => str_contains($img->image, 'product_variants/') ? $img->image : "product_variants/{$variant->id}/{$img->image}")->toArray();
           })
-          ->disk('public')
-          ->grow(false),
+          ->disk('public'),
 
         TextColumn::make('productVariant.product.name')
           ->label('المنتج')
-          ->description(fn($record) => "SKU: " . ($record->productVariant->sku ?? '-'))
           ->getStateUsing(function ($record) {
             $name = $record->productVariant?->product?->name;
             return is_array($name) ? ($name[app()->getLocale()] ?? $name['ar'] ?? array_values($name)[0]) : $name;
-          })
-          ->searchable(),
+          }),
 
-        TextColumn::make('price')
-          ->label('السعر الإفرادي')
+        TextColumn::make('productVariant.discount')
+          ->label('الخصم')
+          ->formatStateUsing(function ($state) {
+            return fmod($state, 1) == 0 ? (int) $state : $state;
+          })
+          ->suffix('%')
+          ->badge()
+          ->color('danger')
+          ->alignCenter(),
+
+
+        TextColumn::make('unit_price')
+          ->label('السعر (بعد الخصم)')
+          ->getStateUsing(fn($record) => $record->productVariant?->final_price)
           ->money('USD', locale: 'en_US')
-          ->sortable()
           ->alignCenter(),
 
         TextColumn::make('quantity')
@@ -60,40 +63,48 @@ class OrderItemsRelationManager extends RelationManager
 
         TextColumn::make('total')
           ->label('المجموع الفرعي')
-          ->getStateUsing(fn($record) => $record->quantity * $record->price)
+          ->getStateUsing(fn($record) => $record->quantity * ($record->productVariant?->final_price ?? 0))
           ->money('USD', locale: 'en_US')
           ->color('success')
           ->weight('bold')
-          ->summarize(
-            Sum::make()->label('إجمالي الفاتورة')
-              ->money('USD', locale: 'en_US')
-          ),
+          ->summarize([
+            Summarizer::make()
+              ->using(function ($livewire) {
+                $records = $livewire->getRelationship()->get();
+
+                $productsTotal = $records->sum(
+                  fn($item) =>
+                  (float) ($item->quantity * ($item->productVariant?->final_price ?? 0))
+                );
+
+                $shipping = (float) ($this->getOwnerRecord()->shipping_fee ?? 0);
+                $total = $productsTotal + $shipping;
+
+                return "الشحن: {$shipping}$  |  الإجمالي: {$total}$";
+              })
+              ->extraAttributes([
+                'class' => 'text-3xl font-bold text-success-600 dark:text-success-400',
+              ]),
+          ])
+
+
+
       ])
       ->headerActions([
-        // زر طباعة الفاتورة في سطر العنوان
         Tables\Actions\Action::make('print_invoice')
           ->label('طباعة الفاتورة')
           ->icon('heroicon-m-printer')
           ->color('success')
-          // هنا نضع الرابط الذي يولد الفاتورة، نمرر له معرف الطلب (Order ID)
           ->url(fn() => route('orders.print', $this->getOwnerRecord()->id))
           ->openUrlInNewTab(),
       ])
       ->actions([
         Tables\Actions\Action::make('view_variant')
-          ->label('عرض خيارات المنتج')
+          ->label('خيارات المنتج')
           ->icon('heroicon-m-adjustments-horizontal')
           ->color('info')
           ->url(fn($record): string => "/admin/product-variants/{$record->product_variant_id}/edit")
           ->openUrlInNewTab(),
-
-        Tables\Actions\Action::make('view_product')
-          ->label('عرض المنتج')
-          ->icon('heroicon-m-eye')
-          ->color('gray')
-          ->url(fn($record): string => "/admin/products/{$record->productVariant?->product_id}/edit")
-          ->openUrlInNewTab(),
-      ])
-      ->bulkActions([]);
+      ]);
   }
 }

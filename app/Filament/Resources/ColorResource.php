@@ -18,6 +18,7 @@ use Filament\Notifications\Notification;
 class ColorResource extends Resource
 {
   protected static ?string $model = Color::class;
+  protected static ?int $navigationSort = 2;
   protected static ?string $navigationIcon = 'heroicon-o-swatch';
   protected static ?string $navigationLabel = 'الألوان';
   protected static ?string $pluralModelLabel = 'الألوان';

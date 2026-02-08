@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SizeResource extends Resource
 {
   protected static ?string $model = Size::class;
+  protected static ?int $navigationSort = 3;
   protected static ?string $navigationIcon = 'heroicon-o-arrows-pointing-out';
   protected static ?string $navigationLabel = 'الأحجام';
   protected static ?string $pluralModelLabel = 'الأحجام';

@@ -29,6 +29,11 @@ class AdminPanelProvider extends PanelProvider
       ->default()
       ->id('admin')
       ->path('admin')
+      ->navigationGroups([
+        'إدارة المنتجات',
+        'إدارة المستخدمين',
+        'الإعدادات',
+      ])
       ->login()
       ->brandName('المنزل الحديث')
       ->brandLogo(asset('images/home-logo-black_dicco2.svg'))

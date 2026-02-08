@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\App;
 class ProductResource extends Resource
 {
   protected static ?string $model = Product::class;
-  protected static ?string $navigationIcon = 'heroicon-o-cube';
   protected static ?int $navigationSort = 1;
+  protected static ?string $navigationIcon = 'heroicon-o-cube';
   protected static ?string $navigationLabel = 'منتجات';
   protected static ?string $pluralModelLabel = 'منتجات';
   protected static ?string $modelLabel = 'منتج';
@@ -96,7 +96,7 @@ class ProductResource extends Resource
           ->label('الصنف')
           ->getStateUsing(fn($record) => $record->category->name[App::getLocale()] ?? $record->category->name['en'] ?? '')
           ->sortable(),
-          
+
         Tables\Columns\IconColumn::make('is_featured')
           ->label('مميز')
           ->boolean()

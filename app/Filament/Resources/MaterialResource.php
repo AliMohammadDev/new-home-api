@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\App;
 class MaterialResource extends Resource
 {
   protected static ?string $model = Material::class;
-
+  protected static ?int $navigationSort = 4;
   protected static ?string $navigationIcon = 'heroicon-o-cube';
   protected static ?string $navigationLabel = 'المواد';
   protected static ?string $pluralModelLabel = 'المواد';
