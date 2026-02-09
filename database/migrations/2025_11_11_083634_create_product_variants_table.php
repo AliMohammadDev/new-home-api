@@ -24,6 +24,7 @@ return new class extends Migration {
       $table->decimal('discount', 10, 2)->default(0);
       $table->integer('stock_quantity')->default(0);
       $table->string('sku')->unique();
+      $table->softDeletes();
       $table->timestamps();
 
       $table->unique(['product_id', 'color_id', 'size_id', 'material_id'], 'product_variant_unique');

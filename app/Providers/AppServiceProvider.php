@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\ShippingWarehouse;
+use App\Observers\ShippingWarehouseObserver;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +29,6 @@ class AppServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
-    //
+    ShippingWarehouse::observe(ShippingWarehouseObserver::class);
   }
 }

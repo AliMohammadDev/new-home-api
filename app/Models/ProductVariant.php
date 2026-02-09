@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class ProductVariant extends Model
 {
-  use HasFactory;
+  use HasFactory, SoftDeletes;
   protected $fillable = [
     'product_id',
     'color_id',
@@ -100,6 +101,13 @@ class ProductVariant extends Model
   public function reviews()
   {
     return $this->hasMany(Reviews::class);
+  }
+
+  public function warehouses()
+  {
+    return $this->belongsToMany(Warehouse::class, 'shipping_warehouses')
+      ->withPivot('arrival_time', 'amount')
+      ->withTimestamps();
   }
 
 }

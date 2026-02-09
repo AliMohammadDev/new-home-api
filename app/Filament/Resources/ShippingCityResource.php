@@ -18,7 +18,7 @@ class ShippingCityResource extends Resource
   protected static ?string $navigationLabel = 'مناطق الشحن';
   protected static ?string $pluralModelLabel = 'مناطق الشحن';
   protected static ?string $modelLabel = 'منطقة شحن';
-  protected static ?string $navigationGroup = 'الإعدادات';
+  protected static ?string $navigationGroup = 'شحن و استيراد';
 
   public static function form(Form $form): Form
   {
@@ -80,7 +80,7 @@ class ShippingCityResource extends Resource
 
         Tables\Columns\TextColumn::make('shipping_fee')
           ->label('الرسوم')
-          ->money('USD', locale: 'en_US') 
+          ->money('USD', locale: 'en_US')
           ->sortable(),
 
         Tables\Columns\IconColumn::make('is_free_shipping')

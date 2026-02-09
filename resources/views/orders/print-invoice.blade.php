@@ -19,12 +19,7 @@
             padding-bottom: 10px;
         }
 
-        .logo {
-            width: 150px;
-            height: auto;
-        }
-
-        .invoice-title h1 {
+        .document-title h1 {
             font-size: 32pt;
             margin: 0;
             color: #025043;
@@ -88,7 +83,7 @@
 
     <table class="header-table">
         <tr>
-            <td class="invoice-title" style="width: 50%; vertical-align: middle;">
+            <td class="document-title" style="width: 50%; vertical-align: middle;">
                 <h1>فاتورة مبيعات</h1>
                 <p style="font-size: 18pt; margin: 0; text-align: right;">رقم الطلب: #{{ $order->id }}</p>
             </td>
@@ -114,17 +109,17 @@
                 <span>العنوان: {{ $order->checkout?->address ?? 'غير محدد' }}</span>
             </td>
             <td class="info-box" style="text-align: left; vertical-align: top;">
-                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;"></h4>
-                <span> {{ $order->user?->email ?? 'N/A' }}</span><br>
-                <span>التاريخ: {{ $order->created_at->format('Y/m/d') }}</span><br>
-                <span>الحالة: <span style="color: green; font-weight: bold;">مدفوع</span></span>
+                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">تفاصيل الوقت:</h4>
+                <span>تاريخ الطلب: {{ $order->created_at->format('Y/m/d') }}</span><br>
+                <span>الحالة: <span style="color: #025043; font-weight: bold;">مدفوع</span></span>
             </td>
         </tr>
     </table>
+
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 40%;">المنتج</th>
+                <th style="width: 40%;">المنتج والنوع</th>
                 <th style="text-align: center;">الكمية</th>
                 <th style="text-align: center;">السعر</th>
                 <th style="text-align: center;">الخصم</th>
@@ -135,22 +130,40 @@
             @foreach ($order->orderItems as $item)
                 @php
                     $variant = $item->productVariant;
-                    $discount = (float) ($variant->discount ?? 0);
+                    $hasDiscount = $variant->discount > 0;
                 @endphp
                 <tr>
                     <td>
-                        <strong style="color: #025043;">{{ $variant->product->translated_name }}</strong>
+                        <strong style="color: #025043;">
+                            {{ $variant->product->name['ar'] ?? 'منتج غير معروف' }}
+                        </strong>
                         <br>
                         <small style="color: #666;">
-                            {{ $variant->color->color ?? '' }} | {{ $variant->size->size ?? '' }}
+                            SKU: {{ $variant->sku }}
                         </small>
                     </td>
                     <td style="text-align: center;">{{ $item->quantity }}</td>
-                    <td style="text-align: center;">{{ number_format($item->price, 2) }} $</td>
-                    <td style="text-align: center; color: #222;">
-                        {{ $discount > 0 ? $discount . '%' : '-' }}
+
+                    <td style="text-align: center; vertical-align: middle;">
+                        @if ($hasDiscount)
+                            <span style="text-decoration: line-through; color: #999; font-size: 11pt; display: block;">
+                                {{ number_format($variant->price, 2) }} $
+                            </span>
+                            <span style="color: #025043; font-weight: bold; font-size: 14pt; display: block;">
+                                {{ number_format($variant->final_price, 2) }} $
+                            </span>
+                        @else
+                            <span style="font-weight: bold; font-size: 14pt;">
+                                {{ number_format($variant->price, 2) }} $
+                            </span>
+                        @endif
                     </td>
-                    <td style="text-align: left; font-weight: bold;">
+
+                    <td style="text-align: center; color: #e53e3e; font-weight: bold;">
+                        {{ $hasDiscount ? floatval($variant->discount) . '%' : '-' }}
+                    </td>
+
+                    <td style="text-align: left; font-weight: bold; color: #025043;">
                         {{ number_format($item->total, 2) }} $
                     </td>
                 </tr>
@@ -162,10 +175,10 @@
         <table class="totals-table" align="left">
             <tr>
                 <td style="color: #666;">المجموع الفرعي:</td>
-                <td style="text-align: left;">{{ number_format($order->total_amount - $order->shipping_fee, 2) }} $
-                </td>
+                <td style="text-align: left;">
+                    {{ number_format($order->total_amount - ($order->shipping_fee ?? 0), 2) }} $</td>
             </tr>
-            @if ($order->shipping_fee > 0)
+            @if ($order->shipping_fee)
                 <tr>
                     <td style="color: #666;">رسوم الشحن:</td>
                     <td style="text-align: left;">{{ number_format($order->shipping_fee, 2) }} $</td>

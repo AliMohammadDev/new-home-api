@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
       ->navigationGroups([
         'إدارة المنتجات',
         'إدارة المستخدمين',
-        'الإعدادات',
+        'شحن واستيراد',
       ])
       ->login()
       ->brandName('المنزل الحديث')
