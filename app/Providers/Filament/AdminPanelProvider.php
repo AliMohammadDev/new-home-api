@@ -6,6 +6,7 @@ use App\Filament\Resources\CategoryResource\Widgets\CategoriesCountWidget;
 use App\Filament\Resources\OrderResource\Widgets\OrdersCountWidget;
 use App\Filament\Resources\ProductResource\Widgets\ProductsCountWidget;
 use App\Filament\Resources\UserResource\Widgets\UsersCountWidget;
+use App\Filament\Widgets\LatestOrdersStats;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -66,6 +67,7 @@ class AdminPanelProvider extends PanelProvider
         CategoriesCountWidget::class,
         OrdersCountWidget::class,
         ProductsCountWidget::class,
+        LatestOrdersStats::class
       ])
       ->middleware([
         EncryptCookies::class,

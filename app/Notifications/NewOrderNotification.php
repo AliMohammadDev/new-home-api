@@ -2,33 +2,26 @@
 
 namespace App\Notifications;
 
+use App\Filament\Resources\OrderResource; // تأكد من عمل import للـ Resource
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use Filament\Notifications\Notification as FilamentNotification;
+use Filament\Notifications\Actions\Action;
+
 class NewOrderNotification extends Notification implements ShouldBroadcast
 {
   use Queueable;
 
-  /**
-   * Create a new notification instance.
-   */
   public function __construct(public $order)
   {
   }
 
-  /**
-   * Get the notification's delivery channels.
-   *
-   * @return array<int, string>
-   */
   public function via(object $notifiable): array
   {
     return ['database', 'broadcast'];
   }
-
-
 
   public function toDatabase(object $notifiable): array
   {
@@ -37,6 +30,12 @@ class NewOrderNotification extends Notification implements ShouldBroadcast
       ->body('تم إنشاء طلب جديد برقم: ' . $this->order->id)
       ->icon('heroicon-o-shopping-cart')
       ->color('success')
+      ->actions([
+        Action::make('view')
+          ->label('عرض الطلب')
+          ->url(OrderResource::getUrl('view', ['record' => $this->order->id]))
+          ->button(),
+      ])
       ->getDatabaseMessage();
   }
 
@@ -47,19 +46,18 @@ class NewOrderNotification extends Notification implements ShouldBroadcast
       ->body('تم إنشاء طلب جديد برقم: ' . $this->order->id)
       ->icon('heroicon-o-shopping-cart')
       ->color('success')
+      ->actions([
+        Action::make('view')
+          ->label('عرض الطلب')
+          ->url(OrderResource::getUrl('view', ['record' => $this->order->id])),
+      ])
       ->getBroadcastMessage();
   }
 
-  /**
-   * Get the array representation of the notification.
-   *
-   * @return array<string, mixed>
-   */
   public function toArray(object $notifiable): array
   {
     return [
-      'title' => 'طلب جديد 📦',
-      'body' => 'تم إنشاء طلب جديد',
+      'order_id' => $this->order->id,
     ];
   }
 }
