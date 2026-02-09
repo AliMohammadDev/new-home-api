@@ -8,5 +8,14 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateMaterial extends CreateRecord
 {
-    protected static string $resource = MaterialResource::class;
+  protected static string $resource = MaterialResource::class;
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+    ];
+  }
 }

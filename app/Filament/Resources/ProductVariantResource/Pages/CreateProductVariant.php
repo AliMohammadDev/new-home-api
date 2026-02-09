@@ -11,10 +11,22 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Filament\Actions;
+
 
 class CreateProductVariant extends CreateRecord
 {
   protected static string $resource = ProductVariantResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+    ];
+  }
 
   protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
   {

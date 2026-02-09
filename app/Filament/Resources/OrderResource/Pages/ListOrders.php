@@ -13,6 +13,10 @@ class ListOrders extends ListRecords
   protected function getHeaderActions(): array
   {
     return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url('/admin'),
       Actions\CreateAction::make(),
     ];
   }

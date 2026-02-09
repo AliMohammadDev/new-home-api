@@ -8,12 +8,16 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListCarts extends ListRecords
 {
-    protected static string $resource = CartResource::class;
+  protected static string $resource = CartResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url('/admin'),
+      Actions\CreateAction::make(),
+    ];
+  }
 }

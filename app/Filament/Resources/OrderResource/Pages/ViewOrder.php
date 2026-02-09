@@ -14,6 +14,10 @@ class ViewOrder extends ViewRecord
   protected function getHeaderActions(): array
   {
     return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
       Actions\EditAction::make(),
     ];
   }

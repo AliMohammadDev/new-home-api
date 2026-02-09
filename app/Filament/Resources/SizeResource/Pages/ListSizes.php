@@ -8,12 +8,16 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListSizes extends ListRecords
 {
-    protected static string $resource = SizeResource::class;
+  protected static string $resource = SizeResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url('/admin'),
+      Actions\CreateAction::make(),
+    ];
+  }
 }

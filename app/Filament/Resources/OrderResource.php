@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -100,6 +99,9 @@ class OrderResource extends Resource
         Tables\Actions\ViewAction::make(),
         Tables\Actions\EditAction::make(),
       ])
+      ->recordUrl(
+        fn(Order $record): string => Pages\ViewOrder::getUrl([$record->id]),
+      )
       ->bulkActions([
         Tables\Actions\DeleteBulkAction::make(),
       ]);
@@ -128,6 +130,7 @@ class OrderResource extends Resource
       Section::make('معلومات الطلب')
         ->schema([
           TextEntry::make('id')->label('رقم الطلب'),
+
           TextEntry::make('status')
             ->label('الحالة')
             ->badge()
@@ -142,7 +145,27 @@ class OrderResource extends Resource
               'completed' => 'مكتمل',
               'cancelled' => 'ملغي',
               default => $state,
-            }),
+            })
+            ->hintAction(
+              \Filament\Infolists\Components\Actions\Action::make('updateStatus')
+                ->label('تغيير الحالة')
+                ->icon('heroicon-m-pencil-square')
+                ->color('info')
+                ->form([
+                  Forms\Components\Select::make('status')
+                    ->label('اختر الحالة الجديدة')
+                    ->options([
+                      'pending' => 'قيد الانتظار',
+                      'completed' => 'مكتمل',
+                      'cancelled' => 'ملغي',
+                    ])
+                    ->required(),
+                ])
+                ->action(function (Order $record, array $data) {
+                  $record->update($data);
+                })
+            ),
+
           TextEntry::make('payment_method')->label('طريقة الدفع'),
           TextEntry::make('total_amount')
             ->label('المبلغ الكلي')

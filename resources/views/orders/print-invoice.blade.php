@@ -121,29 +121,38 @@
             </td>
         </tr>
     </table>
-
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 45%;">المنتج</th>
+                <th style="width: 40%;">المنتج</th>
                 <th style="text-align: center;">الكمية</th>
                 <th style="text-align: center;">السعر</th>
+                <th style="text-align: center;">الخصم</th>
                 <th style="text-align: left;">المجموع</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($order->orderItems as $item)
+                @php
+                    $variant = $item->productVariant;
+                    $discount = (float) ($variant->discount ?? 0);
+                @endphp
                 <tr>
                     <td>
-                        <strong style="color: #025043;">{{ $item->productVariant->product->translated_name }}</strong>
+                        <strong style="color: #025043;">{{ $variant->product->translated_name }}</strong>
                         <br>
                         <small style="color: #666;">
-                            {{ $item->productVariant->color->color }} | {{ $item->productVariant->size->size }}
+                            {{ $variant->color->color ?? '' }} | {{ $variant->size->size ?? '' }}
                         </small>
                     </td>
                     <td style="text-align: center;">{{ $item->quantity }}</td>
                     <td style="text-align: center;">{{ number_format($item->price, 2) }} $</td>
-                    <td style="text-align: left; font-weight: bold;">{{ number_format($item->total, 2) }} $</td>
+                    <td style="text-align: center; color: #222;">
+                        {{ $discount > 0 ? $discount . '%' : '-' }}
+                    </td>
+                    <td style="text-align: left; font-weight: bold;">
+                        {{ number_format($item->total, 2) }} $
+                    </td>
                 </tr>
             @endforeach
         </tbody>

@@ -6,7 +6,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 
 class OrderItemsRelationManager extends RelationManager
@@ -63,6 +62,7 @@ class OrderItemsRelationManager extends RelationManager
 
         TextColumn::make('total')
           ->label('المجموع الفرعي')
+          ->alignCenter()
           ->getStateUsing(fn($record) => $record->quantity * ($record->productVariant?->final_price ?? 0))
           ->money('USD', locale: 'en_US')
           ->color('success')
@@ -82,9 +82,7 @@ class OrderItemsRelationManager extends RelationManager
 
                 return "الشحن: {$shipping}$  |  الإجمالي: {$total}$";
               })
-              ->extraAttributes([
-                'class' => 'text-3xl font-bold text-success-600 dark:text-success-400',
-              ]),
+
           ])
 
 

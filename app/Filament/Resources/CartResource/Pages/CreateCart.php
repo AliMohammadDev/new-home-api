@@ -8,5 +8,6 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateCart extends CreateRecord
 {
-    protected static string $resource = CartResource::class;
+  protected static string $resource = CartResource::class;
+
 }
