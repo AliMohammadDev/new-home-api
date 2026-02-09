@@ -73,7 +73,8 @@ class ProductVariantFactory extends Factory
       'material_id' => Material::factory(),
       'price' => $price,
       'discount' => $this->faker->numberBetween(0, 50),
-      'stock_quantity' => $this->faker->numberBetween(0, 100),
+      'product_import_id' => null,
+      'stock_quantity' => 0,
       'sku' => 'PROD-' . strtoupper($this->faker->unique()->bothify('??###-??')),
     ];
   }
@@ -136,8 +137,6 @@ class ProductVariantFactory extends Factory
           'price' => $totalPackagePrice,
         ]);
       }
-
-
     });
   }
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
+use App\Models\ProductImport;
 use App\Models\ProductVariant;
 use App\Models\Size;
 use App\Models\User;
@@ -26,6 +27,8 @@ class DatabaseSeeder extends Seeder
     $this->call(ProductSeeder::class);
     $this->call(ShippingCitySeeder::class);
 
+    $allImports = ProductImport::factory(5)->create();
+
     $colors = Color::factory(6)->create();
     $sizes = Size::factory(4)->create();
     $materials = Material::factory(3)->create();
@@ -46,11 +49,16 @@ class DatabaseSeeder extends Seeder
         }
         $combinations[] = $key;
 
+        $randomImport = $allImports->random();
+
         ProductVariant::factory()->create([
           'product_id' => $product->id,
           'color_id' => $c_id,
           'size_id' => $s_id,
           'material_id' => $m_id,
+          'product_import_id' => $randomImport->id,
+          'stock_quantity' => $randomImport->quantity,
+
         ]);
       }
     }

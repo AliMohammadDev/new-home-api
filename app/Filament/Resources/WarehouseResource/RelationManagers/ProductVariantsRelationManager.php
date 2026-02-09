@@ -29,7 +29,6 @@ class ProductVariantsRelationManager extends RelationManager
     return $table
       ->recordTitleAttribute('sku')
       ->columns([
-        // عمود الصور الاحترافي
         Tables\Columns\ImageColumn::make('variant_images')
           ->label('صور المنتج')
           ->circular()
@@ -68,31 +67,7 @@ class ProductVariantsRelationManager extends RelationManager
       ])
       ->filters([])
       ->headerActions([
-        // إضافة منتج جديد مع التحقق من المخزن الرئيسي
-        Tables\Actions\AttachAction::make()
-          ->label('إضافة منتج للمستودع')
-          ->form(fn(Tables\Actions\AttachAction $action) => [
-            $action->getRecordSelect(),
-            Forms\Components\TextInput::make('amount')
-              ->label('الكمية المنقولة')
-              ->numeric()
-              ->required()
-              ->minValue(1)
-              ->rules([
-                fn($get) => function (string $attribute, $value, $fail) use ($get) {
-                  $variantId = $get('recordId');
-                  if ($variantId) {
-                    $stock = \App\Models\ProductVariant::find($variantId)?->stock_quantity ?? 0;
-                    if ($value > $stock) {
-                      $fail("الكمية المطلوبة غير متوفرة في المخزن الرئيسي (المتوفر حالياً: {$stock})");
-                    }
-                  }
-                },
-              ]),
-            Forms\Components\DateTimePicker::make('arrival_time')
-              ->label('وقت الوصول')
-              ->default(now()),
-          ])
+
       ])
       ->actions([
 

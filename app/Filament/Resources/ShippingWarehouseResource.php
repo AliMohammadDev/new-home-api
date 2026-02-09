@@ -125,8 +125,43 @@ class ShippingWarehouseResource extends Resource
           ->url(fn(ShippingWarehouse $record) =>
             route('shipping.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
+
+        Tables\Actions\Action::make('return_to_warehouse')
+          ->label('إرجاع')
+          ->icon('heroicon-o-arrow-uturn-left')
+          ->color('warning')
+          ->requiresConfirmation()
+          ->modalHeading('إرجاع الشحنة للمخزن الرئيسي')
+          ->modalDescription('سيتم حذف هذه الشحنة وإعادة الكمية للمخزن الرئيسي. هل أنت متأكد؟')
+          ->modalSubmitActionLabel('تأكيد الإرجاع')
+          ->form([
+            Forms\Components\Textarea::make('reason')
+              ->label('سبب الإرجاع')
+              ->required()
+              ->placeholder('اكتب سبب الإرجاع هنا...'),
+          ])
+          ->action(function (ShippingWarehouse $record, array $data): void {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($record, $data) {
+
+              \App\Models\WarehouseReturn::create([
+                'warehouse_id' => $record->warehouse_id,
+                'product_variant_id' => $record->product_variant_id,
+                'amount' => $record->amount,
+                'reason' => $data['reason'],
+                'arrival_time' => 'Returned',
+              ]);
+
+              $record->delete();
+            });
+
+            \Filament\Notifications\Notification::make()
+              ->title('تمت عملية الإرجاع بنجاح')
+              ->body('تم تحديث المخزن الرئيسي عبر النظام التلقائي.')
+              ->success()
+              ->send();
+          }),
+
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -143,8 +178,6 @@ class ShippingWarehouseResource extends Resource
               ]);
             }),
         ]),
-
-
       ]);
   }
 

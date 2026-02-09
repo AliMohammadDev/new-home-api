@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\ProductVariant;
-use App\Models\Warehouse;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,12 +11,15 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('warehouse_returns', function (Blueprint $table) {
+    Schema::create('product_imports', function (Blueprint $table) {
       $table->id();
-      $table->foreignIdFor(ProductVariant::class)->constrained();
-      $table->foreignIdFor(Warehouse::class)->constrained();
-      $table->integer('amount');
-      $table->text('reason')->nullable();
+
+      $table->integer('quantity')->nullable();
+      $table->string('supplier_name');
+      $table->string('address');
+      $table->date('import_date');
+      $table->text('notes')->nullable();
+
       $table->timestamps();
     });
   }
@@ -27,6 +29,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('warehouse_returns');
+    Schema::dropIfExists('product_imports');
   }
 };

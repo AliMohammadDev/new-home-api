@@ -8,12 +8,16 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListWarehouseReturns extends ListRecords
 {
-    protected static string $resource = WarehouseReturnResource::class;
+  protected static string $resource = WarehouseReturnResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      \Filament\Actions\Action::make('back')
+        ->label('رجوع ')
+        ->url(url('/admin'))
+        ->color('gray'),
+      Actions\CreateAction::make(),
+    ];
+  }
 }

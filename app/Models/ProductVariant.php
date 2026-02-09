@@ -103,6 +103,11 @@ class ProductVariant extends Model
     return $this->hasMany(Reviews::class);
   }
 
+  public function productImport()
+  {
+    return $this->belongsTo(ProductImport::class);
+  }
+
   public function warehouses()
   {
     return $this->belongsToMany(Warehouse::class, 'shipping_warehouses')

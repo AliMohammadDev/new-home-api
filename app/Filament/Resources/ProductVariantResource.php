@@ -143,6 +143,14 @@ class ProductVariantResource extends Resource
                 in_array($context, ['edit', 'view']) && $record && $record->packages()->count() === 0
               ),
 
+            Forms\Components\Select::make('product_import_id')
+              ->label('شحنة المورد')
+              ->relationship('productImport', 'supplier_name')
+              ->searchable()
+              ->preload()
+              ->required()
+              ->helperText('اختر شحنة الاستيراد المرتبطة بهذا الخيار'),
+
             Forms\Components\Repeater::make('packages')
               ->relationship('packages')
               ->label(fn($record) => $record && $record->packages()->count() > 0 ? 'باقات الكميات (Packages)' : '')
@@ -166,6 +174,8 @@ class ProductVariantResource extends Resource
               ->columnSpanFull()
               ->defaultItems(0)
               ->createItemButtonLabel('إضافة باقة سعر جديدة'),
+
+
 
           ]),
 
@@ -248,6 +258,15 @@ class ProductVariantResource extends Resource
                 Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
                 Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
+              ]),
+
+            Forms\Components\Grid::make(3)
+              ->schema([
+                Forms\Components\Select::make('product_import_id')
+                  ->label('المورد المستورد')
+                  ->relationship('productImport', 'supplier_name')
+                  ->preload()
+                  ->required(),
               ]),
 
             Forms\Components\Repeater::make('packages')
@@ -338,6 +357,14 @@ class ProductVariantResource extends Resource
           ->badge()
           ->color(fn($state): string => $state !== '-' ? 'success' : 'gray')
           ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('productImport.supplier_name')
+          ->label('المورد')
+          ->description(fn($record) => $record->productImport?->address)
+          ->badge()
+          ->color('info')
+          ->sortable()
+          ->searchable(),
       ])
       ->filters([
         Tables\Filters\SelectFilter::make('product')
