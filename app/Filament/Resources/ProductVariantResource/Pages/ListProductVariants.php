@@ -20,4 +20,5 @@ class ListProductVariants extends ListRecords
       Actions\CreateAction::make(),
     ];
   }
+
 }

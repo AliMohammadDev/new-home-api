@@ -6,7 +6,10 @@ use App\Filament\Resources\CategoryResource\Widgets\CategoriesCountWidget;
 use App\Filament\Resources\OrderResource\Widgets\OrdersCountWidget;
 use App\Filament\Resources\ProductResource\Widgets\ProductsCountWidget;
 use App\Filament\Resources\UserResource\Widgets\UsersCountWidget;
+use App\Filament\Widgets\GeneralStatsWidget;
 use App\Filament\Widgets\LatestOrdersStats;
+use App\Filament\Widgets\WarehouseInventoryChart;
+use App\Filament\Widgets\WarehouseStatsWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -63,11 +66,12 @@ class AdminPanelProvider extends PanelProvider
       ])
       ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
       ->widgets([
-        UsersCountWidget::class,
-        CategoriesCountWidget::class,
+
+        LatestOrdersStats::class,
+        WarehouseStatsWidget::class,
+        WarehouseInventoryChart::class,
+        GeneralStatsWidget::class,
         OrdersCountWidget::class,
-        ProductsCountWidget::class,
-        LatestOrdersStats::class
       ])
       ->middleware([
         EncryptCookies::class,

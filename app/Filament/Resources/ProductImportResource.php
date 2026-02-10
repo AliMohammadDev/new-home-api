@@ -36,8 +36,12 @@ class ProductImportResource extends Resource
             Forms\Components\TextInput::make('address')
               ->label('عنوان المورد / بلد المنشأ')
               ->required()
-              ->placeholder('مثال: الصين - كوانزو')
               ->maxLength(255),
+
+            Forms\Components\DatePicker::make('import_date')
+              ->label('تاريخ الاستيراد')
+              ->default(now())
+              ->required(),
 
             Forms\Components\Textarea::make('notes')
               ->label('ملاحظات إضافية')

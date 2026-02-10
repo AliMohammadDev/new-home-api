@@ -24,6 +24,8 @@ class ProductVariantResource extends Resource
   protected static ?string $modelLabel = 'خيار المنتج';
   protected static ?string $pluralModelLabel = 'خيارات المنتج';
 
+
+
   public static function form(Form $form): Form
   {
     return $form
@@ -298,6 +300,15 @@ class ProductVariantResource extends Resource
   public static function table(Table $table): Table
   {
     return $table
+      ->query(ProductVariant::query()->with([
+        'product',
+        'color',
+        'size',
+        'material',
+        'images',
+        'packages',
+        'productImport'
+      ]))
       ->columns([
         Tables\Columns\ImageColumn::make('images.image')
           ->label('الصورة')
@@ -344,8 +355,36 @@ class ProductVariantResource extends Resource
           ->sortable()
           ->searchable(),
 
-        Tables\Columns\TextColumn::make('final_price')
-          ->label('السعر النهائي'),
+        Tables\Columns\TextColumn::make('price')
+          ->label('السعر')
+          ->sortable()
+          ->searchable(),
+
+        Tables\Columns\TextColumn::make('discount')
+          ->label('الخصم')
+          ->formatStateUsing(function ($state) {
+            if (is_null($state) || $state === '') {
+              return '0%';
+            }
+
+            $number = floatval($state);
+
+            $formatted = rtrim(rtrim(number_format($number, 2), '0'), '.');
+
+            if (intval($number) == $number) {
+              $formatted = intval($number);
+            }
+
+            return $formatted . '%';
+          })
+          ->sortable()
+          ->toggleable(isToggledHiddenByDefault: true)
+
+          ->searchable(),
+
+        Tables\Columns\TextColumn::make('sku')
+          ->label(' SKU')
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('packages_count')
           ->label('باقات الأسعار')
@@ -364,6 +403,7 @@ class ProductVariantResource extends Resource
           ->badge()
           ->color('info')
           ->sortable()
+          ->toggleable(isToggledHiddenByDefault: true)
           ->searchable(),
       ])
       ->filters([
@@ -381,6 +421,24 @@ class ProductVariantResource extends Resource
           ->relationship('material', 'material'),
       ])
       ->actions([
+
+        Tables\Actions\Action::make('archive')
+          ->label('أرشفة')
+          ->icon('heroicon-o-archive-box')
+          ->color('warning')
+          ->requiresConfirmation()
+          ->modalHeading('أرشفة الصنف')
+          ->modalDescription('هل أنت متأكد أنك تريد أرشفة هذا الصنف؟ لن يظهر في القوائم النشطة.')
+          ->modalSubmitActionLabel('نعم، قم بالأرشفة')
+          ->action(function (ProductVariant $record) {
+            $record->update(['deleted_at' => true]);
+
+            \Filament\Notifications\Notification::make()
+              ->title('تمت الأرشفة بنجاح')
+              ->success()
+              ->send();
+          }),
+
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
       ])
