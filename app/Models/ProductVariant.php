@@ -18,7 +18,8 @@ class ProductVariant extends Model
     'price',
     'discount',
     'stock_quantity',
-    'sku'
+    'sku',
+    'barcode'
   ];
 
   protected static function boot()
@@ -29,11 +30,22 @@ class ProductVariant extends Model
       if (empty($variant->sku)) {
         $variant->sku = self::generateUniqueSku();
       }
+      if (empty($variant->barcode)) {
+        $variant->barcode = self::generateUniqueBarcode();
+      }
     });
   }
 
+  public static function generateUniqueBarcode()
+  {
+    do {
+      $barcode = mt_rand(100000000000, 999999999999);
+    } while (self::where('barcode', $barcode)->exists());
 
-  private static function generateUniqueSku()
+    return $barcode;
+  }
+
+  public static function generateUniqueSku()
   {
     do {
       $sku = 'PROD-' . strtoupper(Str::random(8));

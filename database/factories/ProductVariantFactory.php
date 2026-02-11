@@ -75,7 +75,8 @@ class ProductVariantFactory extends Factory
       'discount' => $this->faker->numberBetween(0, 50),
       'product_import_id' => null,
       'stock_quantity' => 0,
-      'sku' => 'PROD-' . strtoupper($this->faker->unique()->bothify('??###-??')),
+      'sku' => ProductVariant::generateUniqueSku(),
+      'barcode' => ProductVariant::generateUniqueBarcode(),
     ];
   }
 

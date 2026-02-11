@@ -33,7 +33,7 @@ class ProductVariantResource extends Resource
         Forms\Components\Section::make('تعديل بيانات الخيار')
           ->visible(fn($context) => in_array($context, ['edit', 'view']))
           ->schema([
-            Forms\Components\Grid::make(3)
+            Forms\Components\Grid::make(4)
               ->schema([
                 Forms\Components\Select::make('color_id')
                   ->label('اللون')
@@ -50,16 +50,33 @@ class ProductVariantResource extends Resource
                     return [$item->id => $name];
                   }))
                   ->required(),
-                Forms\Components\Grid::make(2)
+
+                Forms\Components\TextInput::make('sku')
+                  ->label('رمز الـ SKU / الباركود')
+                  ->placeholder('مثال: SHIRT-RED-L')
+                  ->unique(ignoreRecord: true)
+                  ->required()
+                  ->helperText('هذا الكود سيُستخدم لتوليد الباركود البصري'),
+
+                Forms\Components\Grid::make(4)
                   ->schema([
                     Forms\Components\TextInput::make('price')->label('السعر'),
                     Forms\Components\TextInput::make('discount')->label('الخصم %'),
+                    Forms\Components\TextInput::make('stock_quantity')
+                      ->label('الكمية الحالية')
+                      ->numeric()
+                      ->required(),
+
+                    Forms\Components\Select::make('product_import_id')
+                      ->label('شحنة المورد')
+                      ->relationship('productImport', 'supplier_name')
+                      ->searchable()
+                      ->preload()
+                      ->required()
+                      ->helperText('اختر شحنة الاستيراد المرتبطة بهذا الخيار'),
+
                   ]),
               ]),
-            Forms\Components\TextInput::make('stock_quantity')
-              ->label('الكمية الحالية')
-              ->numeric()
-              ->required(),
 
 
             // edit image
@@ -145,14 +162,6 @@ class ProductVariantResource extends Resource
                 in_array($context, ['edit', 'view']) && $record && $record->packages()->count() === 0
               ),
 
-            Forms\Components\Select::make('product_import_id')
-              ->label('شحنة المورد')
-              ->relationship('productImport', 'supplier_name')
-              ->searchable()
-              ->preload()
-              ->required()
-              ->helperText('اختر شحنة الاستيراد المرتبطة بهذا الخيار'),
-
             Forms\Components\Repeater::make('packages')
               ->relationship('packages')
               ->label(fn($record) => $record && $record->packages()->count() > 0 ? 'باقات الكميات (Packages)' : '')
@@ -176,9 +185,6 @@ class ProductVariantResource extends Resource
               ->columnSpanFull()
               ->defaultItems(0)
               ->createItemButtonLabel('إضافة باقة سعر جديدة'),
-
-
-
           ]),
 
 
@@ -249,7 +255,7 @@ class ProductVariantResource extends Resource
           ->label('قائمة الخيارات الناتجة')
           ->visible(fn($context) => $context === 'create')
           ->schema([
-            Forms\Components\Grid::make(4)
+            Forms\Components\Grid::make(3)
               ->schema([
                 Forms\Components\Select::make('color_id')->label('اللون')->options(\App\Models\Color::pluck('color', 'id'))->required(),
                 Forms\Components\Select::make('size_id')->label('الحجم')->options(\App\Models\Size::pluck('size', 'id'))->required(),
@@ -257,9 +263,12 @@ class ProductVariantResource extends Resource
                   $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                   return [$item->id => $name];
                 }))->required(),
+                Forms\Components\TextInput::make('sku')
+                  ->label('SKU')
+                  ->required()
+                  ->unique(table: 'product_variants', column: 'sku'),
                 Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
-                Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
               ]),
 
             Forms\Components\Grid::make(3)
@@ -269,6 +278,8 @@ class ProductVariantResource extends Resource
                   ->relationship('productImport', 'supplier_name')
                   ->preload()
                   ->required(),
+                Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
+
               ]),
 
             Forms\Components\Repeater::make('packages')
@@ -351,12 +362,9 @@ class ProductVariantResource extends Resource
         TextColumn::make('material.material')->label('المادة')->sortable()->searchable(),
         TextColumn::make('stock_quantity')->label('الكمية')->sortable()->searchable(),
         Tables\Columns\TextColumn::make('price')
-          ->label('السعر')
-          ->sortable()
-          ->searchable(),
-
-        Tables\Columns\TextColumn::make('price')
-          ->label('السعر')
+          ->label('السعر')BadMethodCallException
+vendor/filament/support/src/Concerns/Macroable.php:77
+Method Filament\Tables\Filters\SelectFilter::toggleable does not exist.
           ->sortable()
           ->searchable(),
 
@@ -381,10 +389,14 @@ class ProductVariantResource extends Resource
           ->toggleable(isToggledHiddenByDefault: true)
 
           ->searchable(),
-
         Tables\Columns\TextColumn::make('sku')
-          ->label(' SKU')
-          ->searchable(),
+          ->label('الباركود البصري')
+          ->formatStateUsing(fn($state) => $state ? new \Illuminate\Support\HtmlString(
+            \DNS1D::getBarcodeHTML($state, 'C128', 1.5, 33)
+          ) : '-')
+          ->html()
+          ->alignCenter()
+          ->description(fn($record) => $record->sku),
 
         Tables\Columns\TextColumn::make('packages_count')
           ->label('باقات الأسعار')

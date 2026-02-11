@@ -25,6 +25,7 @@ return new class extends Migration {
       $table->decimal('discount', 10, 2)->default(0);
       $table->integer('stock_quantity')->default(0);
       $table->string('sku')->unique();
+      $table->string('barcode')->nullable()->unique();
       $table->softDeletes();
       $table->timestamps();
 
