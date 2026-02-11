@@ -162,6 +162,7 @@ class ProductVariantResource extends Resource
                 in_array($context, ['edit', 'view']) && $record && $record->packages()->count() === 0
               ),
 
+
             Forms\Components\Repeater::make('packages')
               ->relationship('packages')
               ->label(fn($record) => $record && $record->packages()->count() > 0 ? 'باقات الكميات (Packages)' : '')
@@ -362,9 +363,7 @@ class ProductVariantResource extends Resource
         TextColumn::make('material.material')->label('المادة')->sortable()->searchable(),
         TextColumn::make('stock_quantity')->label('الكمية')->sortable()->searchable(),
         Tables\Columns\TextColumn::make('price')
-          ->label('السعر')BadMethodCallException
-vendor/filament/support/src/Concerns/Macroable.php:77
-Method Filament\Tables\Filters\SelectFilter::toggleable does not exist.
+          ->label('السعر')
           ->sortable()
           ->searchable(),
 
