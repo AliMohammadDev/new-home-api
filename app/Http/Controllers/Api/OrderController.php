@@ -48,7 +48,7 @@ class OrderController extends Controller
     // fire event OrderProcessed
     broadcast(new OrderProcessed($order));
 
-    $admins = User::where('role', 'admin')->get();
+    $admins = User::role('super_admin')->get();
 
     foreach ($admins as $admin) {
       $admin->notify(new NewOrderNotification($order));
