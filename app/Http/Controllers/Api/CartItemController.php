@@ -19,6 +19,50 @@ class CartItemController extends Controller
   ) {
   }
 
+  // with shipping fee
+  // public function index(Request $request)
+  // {
+  //   $userId = Auth::id();
+  //   $checkoutId = $request->query('checkout_id');
+
+  //   $items = $this->cartItemService->findAll(userId: $userId);
+  //   $cartItems = CartItemResource::collection($items);
+
+  //   $subtotal = round(
+  //     $items->sum(function ($item) {
+  //       $price = ($item->product_variant_package_id && $item->productVariantPackage)
+  //         ? $item->productVariantPackage->price
+  //         : $item->productVariant->final_price;
+  //       return $item->quantity * $price;
+  //     }),
+  //     2
+  //   );
+
+  //   $shippingFee = 0;
+  //   if ($checkoutId) {
+  //     $checkout = Checkout::with('shippingCity')
+  //       ->where('id', $checkoutId)
+  //       ->where('user_id', $userId)
+  //       ->first();
+
+  //     if ($checkout && $checkout->shippingCity) {
+  //       if (!$checkout->shippingCity->is_free_shipping) {
+  //         $shippingFee = $checkout->shippingCity->shipping_fee;
+  //       }
+  //     }
+  //   }
+
+  //   $grandTotal = round($subtotal + $shippingFee, 2);
+
+  //   return response()->json([
+  //     'data' => $cartItems,
+  //     'subtotal' => $subtotal,
+  //     'shipping_fee' => $shippingFee,
+  //     'cart_total' => $grandTotal,
+  //   ]);
+  // }
+
+
   public function index(Request $request)
   {
     $userId = Auth::id();
@@ -51,7 +95,7 @@ class CartItemController extends Controller
       }
     }
 
-    $grandTotal = round($subtotal + $shippingFee, 2);
+    $grandTotal = round($subtotal, 2);
 
     return response()->json([
       'data' => $cartItems,

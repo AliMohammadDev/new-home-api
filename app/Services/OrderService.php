@@ -53,21 +53,22 @@ class OrderService
         $total += $item->productVariant->final_price * $item->quantity;
       }
 
-      $shippingCost = 0;
-      if ($checkout->shipping_city_id && $checkout->shippingCity) {
-        if (!$checkout->shippingCity->is_free_shipping) {
-          $shippingCost = $checkout->shippingCity->shipping_fee;
-        }
-      }
+      // $shippingCost = 0;
+      // if ($checkout->shipping_city_id && $checkout->shippingCity) {
+      //   if (!$checkout->shippingCity->is_free_shipping) {
+      //     $shippingCost = $checkout->shippingCity->shipping_fee;
+      //   }
+      // }
 
-      $grandTotal = $total + $shippingCost;
+      // $grandTotal = $total + $shippingCost;
+      $grandTotal = $total;
 
       $order = Order::create([
         'user_id' => $checkout->user_id,
         'cart_id' => $checkout->cart_id,
         'checkout_id' => $checkout->id,
         'total_amount' => $grandTotal,
-        'shipping_fee' => $shippingCost,
+        // 'shipping_fee' => $shippingCost,
         'payment_method' => $data['payment_method'],
         'status' => 'pending',
       ]);

@@ -17,7 +17,7 @@ class OrderResource extends JsonResource
     return [
       'id' => $this->id,
       'total_amount' => $this->total_amount,
-      'shipping_fee' => $this->shipping_fee,
+      // 'shipping_fee' => $this->shipping_fee,
       'subtotal' => $this->total_amount - $this->shipping_fee,
       'payment_method' => $this->payment_method,
       'status' => $this->status,

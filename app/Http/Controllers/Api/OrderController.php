@@ -11,7 +11,6 @@ use App\Notifications\NewOrderNotification;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Mpdf\Mpdf;
 
 
@@ -77,8 +76,6 @@ class OrderController extends Controller
     $order = $this->orderService->cancelOrder($order);
     return new OrderResource($order);
   }
-
-
 
   public function print(Order $order)
   {
