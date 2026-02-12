@@ -10,6 +10,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.2",
+    "bezhansalleh/filament-shield": "^3.9",
     "cloudinary-labs/cloudinary-laravel": "^3.0",
     "filament/filament": "^3.3",
     "filament/notifications": "^3.3",
@@ -22,7 +23,8 @@
     "laravel/tinker": "^2.10.1",
     "milon/barcode": "^12.1",
     "mpdf/mpdf": "^8.2",
-    "spatie/laravel-medialibrary": "^11.17"
+    "spatie/laravel-medialibrary": "^11.17",
+    "spatie/laravel-permission": "^6.24"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",

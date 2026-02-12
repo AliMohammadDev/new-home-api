@@ -7,9 +7,11 @@ use App\Models\Category;
 use App\Models\ProductVariant;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class GeneralStatsWidget extends BaseWidget
 {
+  use HasWidgetShield;
   protected static ?int $sort = -9;
 
   protected function getStats(): array

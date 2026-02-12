@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\OrderResource\Widgets;
+namespace App\Filament\Widgets;
 
 use App\Models\Order;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class OrdersCountWidget extends ChartWidget
 {
+  use HasWidgetShield;
+
   protected int|string|array $columnSpan = 1;
   protected static ?string $heading = 'عدد الطلبات حسب اليوم';
 

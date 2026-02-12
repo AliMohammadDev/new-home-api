@@ -4,9 +4,11 @@ namespace App\Filament\Widgets;
 
 use App\Models\Warehouse;
 use Filament\Widgets\ChartWidget;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class WarehouseInventoryChart extends ChartWidget
 {
+  use HasWidgetShield;
 
   protected static ?string $heading = 'توزيع كميات المنتجات في المستودعات';
   protected static ?int $sort = -6;

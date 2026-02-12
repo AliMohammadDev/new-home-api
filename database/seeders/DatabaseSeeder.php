@@ -9,6 +9,7 @@ use App\Models\ProductImport;
 use App\Models\ProductVariant;
 use App\Models\Size;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,10 +23,16 @@ class DatabaseSeeder extends Seeder
 
   public function run(): void
   {
+
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+
     $users = User::factory(10)->create();
+    Warehouse::factory(6)->create();
     $this->call(CategorySeeder::class);
     $this->call(ProductSeeder::class);
     $this->call(ShippingCitySeeder::class);
+
 
     $allImports = ProductImport::factory(5)->create();
 

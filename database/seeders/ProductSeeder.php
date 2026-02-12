@@ -80,7 +80,7 @@ class ProductSeeder extends Seeder
           'en' => 'Heat-resistant silicone utensils.',
           'ar' => 'أدوات طبخ سيليكون مقاومة للحرارة.'
         ],
-        'category' => 'Kitchenware',
+        'category' => 'Kitchen Tools',
         'is_featured' => true,
       ],
       [
@@ -89,7 +89,7 @@ class ProductSeeder extends Seeder
           'en' => 'Natural wooden cutting board.',
           'ar' => 'لوح تقطيع خشبي طبيعي.'
         ],
-        'category' => 'Kitchenware',
+        'category' => 'Kitchen Tools',
         'is_featured' => false,
       ],
       [
@@ -98,7 +98,7 @@ class ProductSeeder extends Seeder
           'en' => 'Glass jars for kitchen storage.',
           'ar' => 'برطمانات زجاجية لتخزين المطبخ.'
         ],
-        'category' => 'Kitchenware',
+        'category' => 'Kitchen Tools',
         'is_featured' => false,
       ],
 
@@ -138,7 +138,7 @@ class ProductSeeder extends Seeder
           'en' => 'Fast boiling electric kettle.',
           'ar' => 'غلاية كهربائية سريعة.'
         ],
-        'category' => 'Appliances',
+        'category' => 'Kitchen Appliances',
         'is_featured' => true,
       ],
       [
@@ -147,7 +147,7 @@ class ProductSeeder extends Seeder
           'en' => 'Powerful hand blender.',
           'ar' => 'خلاط يدوي قوي.'
         ],
-        'category' => 'Appliances',
+        'category' => 'Kitchen Appliances',
         'is_featured' => false,
       ],
       [
@@ -156,7 +156,7 @@ class ProductSeeder extends Seeder
           'en' => 'Compact toaster for daily use.',
           'ar' => 'محمصة خبز مدمجة.'
         ],
-        'category' => 'Appliances',
+        'category' => 'Kitchen Appliances',
         'is_featured' => false,
       ],
 
@@ -196,7 +196,7 @@ class ProductSeeder extends Seeder
           'en' => 'Organize your home.',
           'ar' => 'تنظيم أنيق للمنزل.'
         ],
-        'category' => 'For Home',
+        'category' => 'Home Essentials',
         'is_featured' => true,
       ],
       [
@@ -205,7 +205,7 @@ class ProductSeeder extends Seeder
           'en' => 'Decorative serving tray.',
           'ar' => 'صينية تقديم ديكورية.'
         ],
-        'category' => 'For Home',
+        'category' => 'Home Essentials',
         'is_featured' => false,
       ],
       [
@@ -214,7 +214,7 @@ class ProductSeeder extends Seeder
           'en' => 'Relaxing scented candle.',
           'ar' => 'شمعة معطرة للاسترخاء.'
         ],
-        'category' => 'For Home',
+        'category' => 'Home Essentials',
         'is_featured' => true,
       ],
     ];

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
+use App\Models\Product;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\App;
@@ -25,6 +26,13 @@ class ProductVariantResource extends Resource
   protected static ?string $pluralModelLabel = 'خيارات المنتج';
 
 
+  public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+  {
+    return parent::getEloquentQuery()
+      ->withoutGlobalScopes([
+        \Illuminate\Database\Eloquent\SoftDeletingScope::class,
+      ]);
+  }
 
   public static function form(Form $form): Form
   {
@@ -418,44 +426,58 @@ class ProductVariantResource extends Resource
           ->searchable(),
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('product')
+        Tables\Filters\SelectFilter::make('product_id')
           ->label('المنتج')
-          ->relationship('product', 'name'),
+          ->relationship('product', 'id')
+          ->getOptionLabelFromRecordUsing(fn(Product $record) => $record->name[app()->getLocale()] ?? $record->name['en'] ?? '')
+          ->searchable()
+          ->preload(),
+
+
         Tables\Filters\SelectFilter::make('color')
           ->label('اللون')
           ->relationship('color', 'color'),
         Tables\Filters\SelectFilter::make('size')
           ->label('الحجم')
           ->relationship('size', 'size'),
-        Tables\Filters\SelectFilter::make('material')
+        Tables\Filters\SelectFilter::make('material_id')
           ->label('المادة')
-          ->relationship('material', 'material'),
+          ->relationship('material', 'id')
+          ->getOptionLabelFromRecordUsing(function ($record) {
+            return $record->material[app()->getLocale()]
+              ?? $record->material['en']
+              ?? 'N/A';
+          })
+          ->searchable()
+          ->preload(),
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة الأرشفة')
+          ->native(false),
       ])
       ->actions([
-
-        Tables\Actions\Action::make('archive')
-          ->label('أرشفة')
-          ->icon('heroicon-o-archive-box')
-          ->color('warning')
-          ->requiresConfirmation()
-          ->modalHeading('أرشفة الصنف')
-          ->modalDescription('هل أنت متأكد أنك تريد أرشفة هذا الصنف؟ لن يظهر في القوائم النشطة.')
-          ->modalSubmitActionLabel('نعم، قم بالأرشفة')
-          ->action(function (ProductVariant $record) {
-            $record->update(['deleted_at' => true]);
-
-            \Filament\Notifications\Notification::make()
-              ->title('تمت الأرشفة بنجاح')
-              ->success()
-              ->send();
-          }),
-
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
+
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي'),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد'),
         ]),
       ]);
   }

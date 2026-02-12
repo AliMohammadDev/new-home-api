@@ -16,12 +16,38 @@ class ProductImportFactory extends Factory
    */
   public function definition(): array
   {
+    $suppliers = [
+      'شركة المجد للتجارة والاستيراد',
+      'مجموعة الفارس اللوجستية',
+      'مؤسسة النور للتوريدات العمومية',
+      'شركة الشام الدولية للاستيراد',
+      'مكتب الهلال للتجارة الخارجية',
+      'شركة الراية للخدمات اللوجستية',
+      'مؤسسة دبي العالمية للمنسوجات',
+      'شركة الأمانة للمفروشات والمنزل'
+    ];
+
+    $addresses = [
+      'سوريا، دمشق، المنطقة الحرة',
+      'الإمارات، دبي، ميناء جبل علي',
+      'مصر، القاهرة، مدينة نصر',
+      'السعودية، الرياض، حي الملز',
+      'لبنان، بيروت، كورنيش المزرعة',
+      'الأردن، عمان، شارع مكة'
+    ];
+
     return [
-      'supplier_name' => $this->faker->company,
-      'address' => $this->faker->country,
+      'supplier_name' => $this->faker->randomElement($suppliers),
+      'address' => $this->faker->randomElement($addresses),
       'import_date' => $this->faker->date(),
       'quantity' => $this->faker->numberBetween(100, 500),
-      'notes' => $this->faker->sentence,
+      'notes' => $this->faker->randomElement([
+        'شحنة ممتازة الجودة',
+        'تم الفحص والاستلام',
+        'تحتاج إلى تغليف إضافي',
+        'شحنة عاجلة لموسم الأعياد',
+        null
+      ]),
     ];
   }
 }

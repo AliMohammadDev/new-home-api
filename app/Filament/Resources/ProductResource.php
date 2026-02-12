@@ -25,6 +25,13 @@ class ProductResource extends Resource
   protected static ?string $navigationGroup = 'إدارة المنتجات';
 
 
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->withoutGlobalScopes([
+        \Illuminate\Database\Eloquent\SoftDeletingScope::class,
+      ]);
+  }
 
   public static function form(Form $form): Form
   {
@@ -83,14 +90,20 @@ class ProductResource extends Resource
           ->label('الاسم')
           ->getStateUsing(fn(Product $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->sortable()
-          ->searchable(),
+          ->searchable(query: function ($query, string $search) {
+            $query->where('name->' . App::getLocale(), 'like', "%{$search}%")
+              ->orWhere('name->en', 'like', "%{$search}%");
+          }),
 
         Tables\Columns\TextColumn::make('body')
           ->label('الوصف')
           ->getStateUsing(fn(Product $record) => $record->body[App::getLocale()] ?? $record->body['en'] ?? '')
           ->limit(50)
           ->sortable()
-          ->searchable(),
+          ->searchable(query: function ($query, string $search) {
+            $query->where('body->' . App::getLocale(), 'like', "%{$search}%")
+              ->orWhere('body->en', 'like', "%{$search}%");
+          }),
 
         Tables\Columns\TextColumn::make('category.name')
           ->label('الصنف')
@@ -107,16 +120,32 @@ class ProductResource extends Resource
         Tables\Filters\Filter::make('name')
           ->label('بحث بالاسم')
           ->form([
-            Forms\Components\TextInput::make('name'),
+            Forms\Components\TextInput::make('name_search')->label('اسم المنتج'),
           ])
-          ->query(
-            fn(Builder $query, array $data) =>
-            $query->when($data['name'] ?? null, fn($q, $name) => $q->where('name', 'like', "%$name%"))
-          ),
+          ->query(function ($query, array $data) {
+            return $query->when($data['name_search'], function ($q, $name) {
+              $locale = App::getLocale();
+              return $q->where("name->{$locale}", 'like', "%{$name}%")
+                ->orWhere("name->en", 'like', "%{$name}%");
+            });
+          }),
+
+        Tables\Filters\SelectFilter::make('category_id')
+          ->label('الصنف')
+          ->relationship('category', 'id')
+          ->getOptionLabelFromRecordUsing(fn($record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
+          ->searchable()
+          ->preload(),
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة الأرشفة')
+          ->native(false),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
+        Tables\Actions\DeleteAction::make()->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()->label('استعادة'),
 
       ])
       ->bulkActions([

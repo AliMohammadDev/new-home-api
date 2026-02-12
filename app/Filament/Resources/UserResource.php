@@ -36,14 +36,11 @@ class UserResource extends Resource
           ->email()
           ->required()
           ->unique(ignoreRecord: true),
-
-        Select::make('role')
-          ->label('الدور')
-          ->required()
-          ->options([
-            'admin' => 'مدير',
-            'customer' => 'مستخدم',
-          ]),
+        Select::make('roles')
+          ->label('الأدوار')
+          ->multiple()
+          ->relationship('roles', 'name')
+          ->preload(),
 
         TextInput::make('password')
           ->label('كلمة المرور')
@@ -75,12 +72,13 @@ class UserResource extends Resource
           ->sortable()
           ->searchable(),
 
-        TextColumn::make('role')
-          ->label('الدور')
+        TextColumn::make('roles.name')
+          ->label('الأدوار')
           ->badge()
-          ->color(fn(string $state) => match ($state) {
-            'admin' => 'danger',
-            'user' => 'success',
+          ->color(fn(string $state): string => match ($state) {
+            'super_admin' => 'danger',
+            'admin' => 'warning',
+            'customer' => 'success',
             default => 'gray',
           }),
 

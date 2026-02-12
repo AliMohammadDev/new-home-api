@@ -2,11 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\CategoryResource\Widgets\CategoriesCountWidget;
-use App\Filament\Resources\OrderResource\Widgets\OrdersCountWidget;
-use App\Filament\Resources\ProductResource\Widgets\ProductsCountWidget;
-use App\Filament\Resources\UserResource\Widgets\UsersCountWidget;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Widgets\GeneralStatsWidget;
+use App\Filament\Widgets\OrdersCountWidget;
 use App\Filament\Widgets\LatestOrdersStats;
 use App\Filament\Widgets\WarehouseInventoryChart;
 use App\Filament\Widgets\WarehouseStatsWidget;
@@ -83,6 +81,9 @@ class AdminPanelProvider extends PanelProvider
         SubstituteBindings::class,
         DisableBladeIconComponents::class,
         DispatchServingFilamentEvent::class,
+      ])
+      ->plugins([
+        FilamentShieldPlugin::make(),
       ])
       ->authMiddleware([
         Authenticate::class,

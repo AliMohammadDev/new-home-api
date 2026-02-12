@@ -111,7 +111,7 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
   Route::patch('cart-items/{cart_item}/decrease', [CartItemController::class, 'decrease']);
 
   // Checkout & Orders
-  Route::post('create-new-checkout', [CheckoutController::class,'createNewCheckout']);
+  Route::post('create-new-checkout', [CheckoutController::class, 'createNewCheckout']);
   Route::apiResource('checkouts', CheckoutController::class);
   Route::apiResource('orders', OrderController::class);
 
@@ -125,7 +125,7 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
 | Admin API (AUTH + ADMIN)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['setLocale', 'auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['setLocale', 'auth:sanctum', 'role:admin'])->group(function () {
 
   Route::apiResource('categories', CategoryController::class)
     ->except(['index', 'show']);

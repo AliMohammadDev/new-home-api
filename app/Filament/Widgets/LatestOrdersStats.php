@@ -5,9 +5,12 @@ namespace App\Filament\Widgets;
 use App\Models\Order;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class LatestOrdersStats extends BaseWidget
 {
+  use HasWidgetShield;
+
   protected static ?int $sort = -10;
   protected static ?string $pollingInterval = '30s';
 
