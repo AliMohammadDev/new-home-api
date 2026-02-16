@@ -56,6 +56,12 @@ class AdminPanelProvider extends PanelProvider
 
         <link rel="manifest" href="/build/manifest.webmanifest">
 
+        <link rel="apple-touch-icon" href="/logo-192.png">
+
+        <meta name="theme-color" content="#0d6efd">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
         <style>
             html, body { font-size: 1.05rem !important; }
             .fi-main { font-size: 1.05rem !important; }
