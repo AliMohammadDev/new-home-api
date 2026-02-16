@@ -15,7 +15,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: {
         name: 'almanzel-alhadith',
-        short_name: 'Store',
+        short_name: 'almanzel-alhadith',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
