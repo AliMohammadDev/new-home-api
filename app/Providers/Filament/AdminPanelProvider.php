@@ -20,6 +20,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 
@@ -50,12 +51,16 @@ class AdminPanelProvider extends PanelProvider
       ->font('Cairo')
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
-        fn(): string => \Illuminate\Support\Facades\Blade::render('
-                    <style>
-                        html, body { font-size: 1.05rem !important; }
-                        .fi-main { font-size: 1.05rem !important; }
-                    </style>
-                '),
+        fn(): string => Blade::render('
+        @vite([\'resources/js/app.js\'])
+
+        <link rel="manifest" href="/build/manifest.webmanifest">
+
+        <style>
+            html, body { font-size: 1.05rem !important; }
+            .fi-main { font-size: 1.05rem !important; }
+        </style>
+    '),
       )
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
