@@ -352,7 +352,6 @@ class ProductVariantResource extends Resource
             })->toArray();
           })
           ->disk('public'),
-
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
           ->getStateUsing(function (ProductVariant $record) {
