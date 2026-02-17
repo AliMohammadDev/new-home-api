@@ -13,7 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mpdf\Mpdf;
 
-
+use Minishlink\WebPush\WebPush;
+use Minishlink\WebPush\Subscription;
+use App\Models\PushSubscription;
 
 
 class OrderController extends Controller
@@ -34,6 +36,31 @@ class OrderController extends Controller
   }
 
 
+  // public function store(Request $request)
+  // {
+  //   $data = $request->validate([
+  //     'checkout_id' => ['required', 'exists:checkouts,id'],
+  //     'payment_method' => ['required', 'string'],
+  //   ]);
+
+  //   $data['user_id'] = Auth::id();
+
+  //   $order = $this->orderService->placeOrder($data);
+
+  //   // fire event OrderProcessed
+  //   broadcast(new OrderProcessed($order));
+
+  //   $admins = User::role('super_admin')->get();
+
+  //   foreach ($admins as $admin) {
+  //     $admin->notify(new NewOrderNotification($order));
+
+  //   }
+  //   return new OrderResource($order);
+  // }
+
+
+
   public function store(Request $request)
   {
     $data = $request->validate([
@@ -45,7 +72,6 @@ class OrderController extends Controller
 
     $order = $this->orderService->placeOrder($data);
 
-    // fire event OrderProcessed
     broadcast(new OrderProcessed($order));
 
     $admins = User::role('super_admin')->get();
@@ -53,6 +79,35 @@ class OrderController extends Controller
     foreach ($admins as $admin) {
       $admin->notify(new NewOrderNotification($order));
     }
+
+    $subs = PushSubscription::whereIn('user_id', $admins->pluck('id'))->get();
+
+    if ($subs->isNotEmpty()) {
+      $webPush = new WebPush([
+        'VAPID' => [
+          'subject' => 'mailto:aloshmohammad2001@gmail.com',
+          'publicKey' => config('services.vapid.public_key'),
+          'privateKey' => config('services.vapid.private_key'),
+        ],
+      ]);
+
+      foreach ($subs as $sub) {
+        $subscription = Subscription::create([
+          'endpoint' => $sub->endpoint,
+          'publicKey' => $sub->public_key,
+          'authToken' => $sub->auth_token,
+        ]);
+
+        $webPush->sendOneNotification(
+          $subscription,
+          json_encode([
+            'title' => 'طلب جديد 📦',
+            'body' => 'تم إنشاء طلب جديد رقم ' . $order->id,
+          ])
+        );
+      }
+    }
+
     return new OrderResource($order);
   }
 

@@ -20,7 +20,8 @@ class ShippingWarehouseResource extends Resource
 {
   protected static ?string $model = ShippingWarehouse::class;
 
-  protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+  protected static ?string $navigationIcon = 'heroicon-o-truck';
+
   protected static ?string $navigationLabel = ' شحنة مستودع مصغر';
   protected static ?string $pluralModelLabel = 'مخزون المستودعات';
   protected static ?string $modelLabel = 'شحنة مستودع';

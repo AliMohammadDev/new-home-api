@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
   public function run(): void
   {
 
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
     \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
 
@@ -32,6 +33,9 @@ class DatabaseSeeder extends Seeder
     $this->call(CategorySeeder::class);
     $this->call(ProductSeeder::class);
     $this->call(ShippingCitySeeder::class);
+    $this->call(
+      AdminUserSeeder::class,
+    );
 
 
     $allImports = ProductImport::factory(5)->create();

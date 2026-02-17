@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ProductVariantPackageController;
+use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\ReviewsController;
 use App\Http\Controllers\Api\ShippingCityController;
 use App\Http\Controllers\Api\SizeController;
@@ -26,6 +27,8 @@ use App\Http\Controllers\Api\WishListController;
 |--------------------------------------------------------------------------
 */
 Route::middleware(['setLocale'])->group(function () {
+
+
 
   // Social Auth
   Route::get('/login-google', [socialAuthController::class, 'redirectToProvider']);
@@ -90,6 +93,8 @@ Route::middleware(['setLocale'])->group(function () {
 */
 Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
 
+  Route::post('/push-subscription', [PushSubscriptionController::class, 'store']);
+
   // User
   Route::get('me', [AuthController::class, 'me']);
   Route::put('profile', [AuthController::class, 'updateProfile']);
@@ -125,7 +130,7 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
 | Admin API (AUTH + ADMIN)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['setLocale', 'auth:sanctum', 'role:admin'])->group(function () {
+Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->group(function () {
 
   Route::apiResource('categories', CategoryController::class)
     ->except(['index', 'show']);

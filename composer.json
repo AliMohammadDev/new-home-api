@@ -22,6 +22,7 @@
     "laravel/socialite": "^5.24",
     "laravel/tinker": "^2.10.1",
     "milon/barcode": "^12.1",
+    "minishlink/web-push": "^10.0",
     "mpdf/mpdf": "^8.2",
     "spatie/laravel-medialibrary": "^11.17",
     "spatie/laravel-permission": "^6.24"
