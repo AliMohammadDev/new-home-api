@@ -90,12 +90,10 @@ class UserResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
-        SelectFilter::make('role')
+        Tables\Filters\SelectFilter::make('roles')
           ->label('الدور')
-          ->options([
-            'admin' => 'مدير',
-            'customer' => 'مستخدم',
-          ]),
+          ->relationship('roles', 'name')
+          ->preload(),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
