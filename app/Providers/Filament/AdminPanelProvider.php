@@ -49,13 +49,31 @@ class AdminPanelProvider extends PanelProvider
       ->databaseNotifications()
       ->databaseNotificationsPolling('30s')
       ->font('Cairo')
+      //   ->renderHook(
+      //     \Filament\View\PanelsRenderHook::HEAD_END,
+      //     fn(): string => Blade::render('
+      //     @vite([\'resources/js/app.js\'])
+
+      //     <link rel="manifest" href="/build/manifest.webmanifest">
+
+      //     <link rel="apple-touch-icon" href="/logo-192.png">
+
+      //     <meta name="theme-color" content="#0d6efd">
+      //     <meta name="apple-mobile-web-app-capable" content="yes">
+      //     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+      //     <style>
+      //         html, body { font-size: 1.05rem !important; }
+      //         .fi-main { font-size: 1.05rem !important; }
+      //     </style>
+      // '),
+
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
         fn(): string => Blade::render('
-        @vite([\'resources/js/app.js\'])
+        @vite([\'resources/js/app.js\', \'resources/js/filament-fcm.js\'])
 
         <link rel="manifest" href="/build/manifest.webmanifest">
-
         <link rel="apple-touch-icon" href="/logo-192.png">
 
         <meta name="theme-color" content="#0d6efd">

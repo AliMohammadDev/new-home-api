@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\ShippingCityController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
-
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -158,4 +158,17 @@ Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->grou
   Route::post('shipping-cities', [ShippingCityController::class, 'store']);
   Route::put('shipping-cities/{shippingCity}', [ShippingCityController::class, 'update']);
   Route::delete('shipping-cities/{shippingCity}', [ShippingCityController::class, 'destroy']);
+});
+
+Route::post('/save-fcm-token', function (Request $request) {
+  $token = $request->input('token');
+
+  $admin = \App\Models\User::role('super_admin')->first();
+
+  if ($admin && $token) {
+    $admin->update(['fcm_token' => $token]);
+    return response()->json(['success' => true, 'admin' => $admin->name]);
+  }
+
+  return response()->json(['success' => false], 400);
 });

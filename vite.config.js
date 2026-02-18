@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
     laravel({
-      input: ['resources/css/app.css', 'resources/js/app.js'],
+      input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/filament-fcm.js',],
       refresh: true,
     }),
     tailwindcss(),
@@ -34,9 +34,11 @@ export default defineConfig({
         ]
       },
       workbox: {
+        importScripts: ['/firebase-messaging-sw.js'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.almanzel-alhadith\.com\/.*$/,
+            // urlPattern: /^https:\/\/api\.almanzel-alhadith\.com\/.*$/,
+            urlPattern: /\/api\/.*$/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'product-images-cache',

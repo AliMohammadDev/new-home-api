@@ -13,9 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mpdf\Mpdf;
 
-use Minishlink\WebPush\WebPush;
-use Minishlink\WebPush\Subscription;
-use App\Models\PushSubscription;
+use App\Services\FcmService;
 
 
 class OrderController extends Controller
@@ -78,38 +76,22 @@ class OrderController extends Controller
 
     foreach ($admins as $admin) {
       $admin->notify(new NewOrderNotification($order));
-    }
 
-    $subs = PushSubscription::whereIn('user_id', $admins->pluck('id'))->get();
-
-    if ($subs->isNotEmpty()) {
-      $webPush = new WebPush([
-        'VAPID' => [
-          'subject' => 'mailto:aloshmohammad2001@gmail.com',
-          'publicKey' => config('services.vapid.public_key'),
-          'privateKey' => config('services.vapid.private_key'),
-        ],
-      ]);
-
-      foreach ($subs as $sub) {
-        $subscription = Subscription::create([
-          'endpoint' => $sub->endpoint,
-          'publicKey' => $sub->public_key,
-          'authToken' => $sub->auth_token,
-        ]);
-
-        $webPush->sendOneNotification(
-          $subscription,
-          json_encode([
-            'title' => 'طلب جديد 📦',
-            'body' => 'تم إنشاء طلب جديد رقم ' . $order->id,
-          ])
+      if ($admin->fcm_token) {
+        FcmService::sendNotification(
+          $admin->fcm_token,
+          "طلب جديد 📦",
+          "تم إنشاء طلب جديد برقم: {$order->id}",
+          [
+            'order_id' => (string) $order->id,
+          ]
         );
       }
-    }
 
+    }
     return new OrderResource($order);
   }
+
 
   public function show($id)
   {

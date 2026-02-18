@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
       'setLocale' => SetLocalMiddleware::class,
       'admin' => AdminMiddleware::class,
     ]);
+
+    $middleware->validateCsrfTokens(except: [
+      'api/save-fcm-token',
+    ]);
   })
   ->withExceptions(function (Exceptions $exceptions): void {
     //
