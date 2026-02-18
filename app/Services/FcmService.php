@@ -32,7 +32,7 @@ class FcmService
       'notification' => [
         'title' => $title,
         'body' => $body,
-        'image' => asset('logo.png'),
+        'image' => asset('images/notification-banner.png'),
       ],
       'webpush' => [
         'notification' => [
