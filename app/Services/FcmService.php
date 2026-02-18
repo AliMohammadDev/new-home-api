@@ -12,46 +12,37 @@ class FcmService
   public static function sendNotification($token, $title, $body, $data = [])
   {
     $file = storage_path('app/firebase-auth.json');
+    if (!file_exists($file))
+      return ['error' => 'File not found'];
 
-    if (!file_exists($file)) {
-      return ['error' => 'File not found at ' . $file];
-    }
-
-    $credentials = new ServiceAccountCredentials(
-      'https://www.googleapis.com/auth/cloud-platform',
-      $file
-    );
-
+    $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/cloud-platform', $file);
     $tokenArray = $credentials->fetchAuthToken(HttpHandlerFactory::build());
     $accessToken = $tokenArray['access_token'];
-
     $projectId = json_decode(file_get_contents($file))->project_id;
+
+    $notificationData = array_merge([
+      'title' => $title,
+      'body' => $body,
+      'icon' => asset('logo.png'),
+    ], array_map('strval', $data));
 
     $payload = [
       'token' => $token,
-      'notification' => [
-        'title' => $title,
-        'body' => $body,
-        'image' => asset('images/notification-banner.png'),
-      ],
+      'data' => $notificationData,
       'webpush' => [
+        'headers' => [
+          'Urgency' => 'high'
+        ],
         'notification' => [
           'icon' => asset('logo.png'),
           'badge' => asset('logo.png'),
-          'vibrate' => [200, 100, 200],
         ],
       ],
     ];
 
-    if (!empty($data)) {
-      $payload['data'] = array_map('strval', $data);
-    }
-
     $response = Http::withToken($accessToken)->post(
       "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send",
-      [
-        'message' => $payload
-      ]
+      ['message' => $payload]
     );
 
     return $response->json();
