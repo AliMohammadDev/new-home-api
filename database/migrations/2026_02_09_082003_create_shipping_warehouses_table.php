@@ -18,6 +18,9 @@ return new class extends Migration {
       $table->foreignIdFor(Warehouse::class)->constrained();
       $table->string('arrival_time');
       $table->integer('amount');
+
+      $table->string('unit_name')->nullable();
+      $table->integer('unit_capacity')->default(1);
       $table->timestamps();
     });
   }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,11 +25,14 @@ class DatabaseSeeder extends Seeder
   public function run(): void
   {
 
-    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+    $this->command->call('shield:generate', ['--all' => true]);
 
-    $users = User::factory(10)->create();
+    Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+
+    User::factory(10)->create();
+
     Warehouse::factory(6)->create();
     $this->call(CategorySeeder::class);
     $this->call(ProductSeeder::class);
@@ -69,7 +73,6 @@ class DatabaseSeeder extends Seeder
           'material_id' => $m_id,
           'product_import_id' => $randomImport->id,
           'stock_quantity' => $randomImport->quantity,
-
         ]);
       }
     }

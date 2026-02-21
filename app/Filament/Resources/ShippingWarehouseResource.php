@@ -21,7 +21,6 @@ class ShippingWarehouseResource extends Resource
   protected static ?string $model = ShippingWarehouse::class;
 
   protected static ?string $navigationIcon = 'heroicon-o-truck';
-
   protected static ?string $navigationLabel = ' شحنة مستودع مصغر';
   protected static ?string $pluralModelLabel = 'مخزون المستودعات';
   protected static ?string $modelLabel = 'شحنة مستودع';
@@ -31,64 +30,98 @@ class ShippingWarehouseResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('تفاصيل الشحن والمخزون')
-          ->description('إدارة توزيع كميات المنتجات على المستودعات المصغرة')
+        Forms\Components\Section::make('تعديل بيانات الشحنة')
+          ->visible(fn($context) => in_array($context, ['edit', 'view']))
           ->schema([
-            Forms\Components\Select::make('warehouse_id')
-              ->label('المستودع')
-              ->relationship('warehouse', 'name')
-              ->searchable()
-              ->preload()
-              ->required(),
+            ...static::getCommonFields(),
+          ]),
 
-            Forms\Components\Select::make('product_variant_id')
-              ->label('المنتج (النوع)')
-              ->relationship(
-                name: 'productVariant',
-                titleAttribute: 'id',
-                modifyQueryUsing: fn($query) => $query->with('product')
-              )
-              ->getOptionLabelFromRecordUsing(function ($record) {
-                $productName = $record->product?->name['ar'] ?? 'منتج غير معروف';
-                return "{$productName} - {$record->sku} (المتوفر: {$record->stock_quantity})";
-              })
-              ->live()
-              ->afterStateUpdated(function (Set $set, $state) {
-                $set('amount', 0);
-              })
-              ->searchable()
-              ->preload()
-              ->required(),
-
-            Forms\Components\TextInput::make('amount')
-              ->label('الكمية التي سيتم شحنها')
-              ->numeric()
-              ->required()
-              ->prefix('QTY')
-              ->live(onBlur: true)
-              ->hint(function (Get $get) {
-                $variantId = $get('product_variant_id');
-                if ($variantId) {
-                  $stock = ProductVariant::find($variantId)?->stock_quantity ?? 0;
-                  return "الحد الأقصى المتاح: " . $stock;
-                }
-                return null;
-              })
-              ->maxValue(function (Get $get) {
-                $variantId = $get('product_variant_id');
-                return $variantId ? ProductVariant::find($variantId)?->stock_quantity : 0;
-              })
-              ->validationMessages([
-                'max' => 'الكمية المطلوبة أكبر من المتوفر في المخزن الرئيسي!',
-              ]),
-
-            Forms\Components\TextInput::make('arrival_time')
-              ->label('وقت الوصول المتوقع')
-              ->placeholder('مثلاً: 3-5 أيام')
-              ->required(),
-          ])->columns(2),
-      ]);
+        Forms\Components\Repeater::make('shipping_items')
+          ->label('إضافة شحنات متعددة')
+          ->visible(fn($context) => $context === 'create')
+          ->schema([
+            ...static::getCommonFields(),
+          ])
+          ->addActionLabel('إضافة شحنة أخرى')
+          ->collapsible()
+          ->defaultItems(1)
+          ->columnSpanFull(),
+      ])->columns(1);
   }
+
+
+  public static function getCommonFields(): array
+  {
+    return [
+      Forms\Components\Grid::make(3)
+        ->schema([
+          Forms\Components\Select::make('warehouse_id')
+            ->label('المستودع')
+            ->relationship('warehouse', 'name')
+            ->searchable()
+            ->preload()
+            ->required(),
+
+          Forms\Components\Select::make('product_variant_id')
+            ->label('المنتج (النوع)')
+            ->relationship(
+              name: 'productVariant',
+              titleAttribute: 'id',
+              modifyQueryUsing: fn($query) => $query->with('product')
+            )
+            ->getOptionLabelFromRecordUsing(function ($record) {
+              $productName = $record->product?->name['ar'] ?? 'منتج غير معروف';
+              return "{$productName} - {$record->sku} (المتوفر: {$record->stock_quantity})";
+            })
+            ->live()
+            ->required(),
+
+          Forms\Components\TextInput::make('unit_name')
+            ->label('اسم الوحدة')
+            ->placeholder('مثلاً: كرتونة')
+            ->datalist(['كرتونة', 'طرد', 'صندوق']),
+
+          Forms\Components\TextInput::make('unit_capacity')
+            ->label('سعة الوحدة')
+            ->numeric()
+            ->default(1)
+            ->live()
+            ->afterStateUpdated(function (Get $get, Set $set, $state) {
+              $unitsCount = (int) $get('units_count') ?: 0;
+              $set('amount', $unitsCount * (int) $state);
+            }),
+
+          Forms\Components\TextInput::make('units_count')
+            ->label('عدد الوحدات')
+            ->numeric()
+            ->live()
+            ->dehydrated(false)
+            // --- السحر هنا ---
+            ->afterStateHydrated(function (Set $set, Get $get, $record) {
+              if ($record && $record->unit_capacity > 0) {
+                // حساب عدد الوحدات: الإجمالي تقسيم السعة
+                $set('units_count', (int) ($record->amount / $record->unit_capacity));
+              }
+            })
+            ->afterStateUpdated(function (Get $get, Set $set, $state) {
+              $capacity = (int) $get('unit_capacity') ?: 1;
+              $set('amount', (int) $state * $capacity);
+            }),
+
+          Forms\Components\TextInput::make('amount')
+            ->label('إجمالي الكمية (قطع)')
+            ->numeric()
+            ->required()
+            ->helperText('يتم حسابه تلقائياً')
+            ->maxValue(fn(Get $get) => ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 99999),
+
+          Forms\Components\DateTimePicker::make('arrival_time')
+            ->label('وقت الوصول المتوقع')
+            ->required(),
+        ]),
+    ];
+  }
+
 
   public static function table(Table $table): Table
   {
@@ -96,88 +129,48 @@ class ShippingWarehouseResource extends Resource
       ->columns([
         Tables\Columns\TextColumn::make('warehouse.name')
           ->label('المستودع')
+          ->searchable()
           ->sortable(),
 
         Tables\Columns\TextColumn::make('productVariant.product.name')
           ->label('المنتج')
           ->getStateUsing(fn($record) => $record->productVariant->product->name['ar'] ?? '')
-          ->sortable(),
+          ->description(fn($record) => "SKU: " . ($record->productVariant->sku ?? '-')),
+
+        Tables\Columns\TextColumn::make('unit_info')
+          ->label('تفاصيل التعبئة')
+          ->getStateUsing(function ($record) {
+            if (!$record->unit_name)
+              return 'قطع منفصلة';
+            return "{$record->unit_name} (سعة {$record->unit_capacity})";
+          })
+          ->icon('heroicon-m-cube')
+          ->color('gray'),
 
         Tables\Columns\TextColumn::make('amount')
-          ->label('الكمية')
+          ->label('الكمية الإجمالية')
           ->badge()
-          ->color(fn(int $state): string => $state < 10 ? 'danger' : 'success')
+          ->color('success')
+          ->suffix(' قطعة')
           ->sortable(),
 
         Tables\Columns\TextColumn::make('arrival_time')
           ->label('وقت الوصول')
-          ->icon('heroicon-m-clock'),
+          ->dateTime('Y-m-d H:i')
+          ->sortable(),
       ])
       ->filters([
         Tables\Filters\SelectFilter::make('warehouse_id')
-          ->label('فلترة حسب المستودع')
+          ->label('تصفية حسب المستودع')
           ->relationship('warehouse', 'name'),
       ])
       ->actions([
-        Tables\Actions\Action::make('print_single')
-          ->label('طباعة')
-          ->icon('heroicon-s-printer')
-          ->color('gray')
-          ->url(fn(ShippingWarehouse $record) =>
-            route('shipping.print', ['ids' => [$record->id]]))
-          ->openUrlInNewTab(),
-
-        Tables\Actions\Action::make('return_to_warehouse')
-          ->label('إرجاع')
-          ->icon('heroicon-o-arrow-uturn-left')
-          ->color('warning')
-          ->requiresConfirmation()
-          ->modalHeading('إرجاع الشحنة للمخزن الرئيسي')
-          ->modalDescription('سيتم حذف هذه الشحنة وإعادة الكمية للمخزن الرئيسي. هل أنت متأكد؟')
-          ->modalSubmitActionLabel('تأكيد الإرجاع')
-          ->form([
-            Forms\Components\Textarea::make('reason')
-              ->label('سبب الإرجاع')
-              ->required()
-              ->placeholder('اكتب سبب الإرجاع هنا...'),
-          ])
-          ->action(function (ShippingWarehouse $record, array $data): void {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($record, $data) {
-
-              \App\Models\WarehouseReturn::create([
-                'warehouse_id' => $record->warehouse_id,
-                'product_variant_id' => $record->product_variant_id,
-                'amount' => $record->amount,
-                'reason' => $data['reason'],
-                'arrival_time' => 'Returned',
-              ]);
-
-              $record->delete();
-            });
-
-            \Filament\Notifications\Notification::make()
-              ->title('تمت عملية الإرجاع بنجاح')
-              ->body('تم تحديث المخزن الرئيسي عبر النظام التلقائي.')
-              ->success()
-              ->send();
-          }),
-
         Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make(),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-
           Tables\Actions\DeleteBulkAction::make(),
-
-          Tables\Actions\BulkAction::make('print_pdf')
-            ->label('طباعة PDF للمحدد')
-            ->icon('heroicon-m-printer')
-            ->color('success')
-            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('shipping.print', [
-                'ids' => $records->pluck('id')->toArray()
-              ]);
-            }),
         ]),
       ]);
   }
