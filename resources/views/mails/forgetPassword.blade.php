@@ -41,7 +41,7 @@
                             </p>
 
                             <div style="text-align: center; margin-bottom: 35px;">
-                                <a href="http://localhost:5173/reset-password?token={{ $token }}&email={{ $email }}"
+                                <a href="https://almanzel-alhadith.com/reset-password?token={{ $token }}&email={{ $email }}"
                                     style="background-color: #025043; color: #ffffff; padding: 16px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(2, 80, 67, 0.2);">
                                     Reset Password
                                 </a>
