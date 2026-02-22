@@ -115,9 +115,11 @@ class ProductVariant extends Model
     return $this->hasMany(Reviews::class);
   }
 
-  public function productImport()
+  public function imports()
   {
-    return $this->belongsTo(ProductImport::class);
+    return $this->belongsToMany(ProductImport::class, 'product_import_items')
+      ->withPivot(['quantity', 'price', 'shipping_price', 'discount', 'expected_arrival'])
+      ->withTimestamps();
   }
 
   public function warehouses()

@@ -82,6 +82,7 @@ class ShippingCityResource extends Resource
         Tables\Columns\TextColumn::make('shipping_fee')
           ->label('الرسوم')
           ->money('USD', locale: 'en_US')
+          ->color('success')
           ->sortable(),
 
         Tables\Columns\IconColumn::make('is_free_shipping')

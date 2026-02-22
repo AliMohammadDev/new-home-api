@@ -38,10 +38,9 @@ class ProductImportResource extends Resource
               ->required()
               ->maxLength(255),
 
-            Forms\Components\DatePicker::make('import_date')
-              ->label('تاريخ الاستيراد')
-              ->default(now())
-              ->required(),
+            Forms\Components\TextInput::make('supplier_phone')
+              ->label('رقم الهاتف')
+              ->tel(),
 
             Forms\Components\Textarea::make('notes')
               ->label('ملاحظات إضافية')
@@ -49,7 +48,6 @@ class ProductImportResource extends Resource
           ])->columns(3),
       ]);
   }
-
   public static function table(Table $table): Table
   {
     return $table
@@ -65,10 +63,9 @@ class ProductImportResource extends Resource
           ->icon('heroicon-m-map-pin')
           ->color('gray'),
 
-        Tables\Columns\TextColumn::make('import_date')
-          ->label('تاريخ الاستيراد')
-          ->date('Y-m-d')
-          ->sortable(),
+        Tables\Columns\TextColumn::make('supplier_phone')
+          ->label('الهاتف')
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('product_variants_count')
           ->label('عدد الأصناف')

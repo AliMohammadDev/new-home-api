@@ -75,13 +75,7 @@ class ProductVariantResource extends Resource
                       ->numeric()
                       ->required(),
 
-                    Forms\Components\Select::make('product_import_id')
-                      ->label('شحنة المورد')
-                      ->relationship('productImport', 'supplier_name')
-                      ->searchable()
-                      ->preload()
-                      ->required()
-                      ->helperText('اختر شحنة الاستيراد المرتبطة بهذا الخيار'),
+
 
                   ]),
               ]),
@@ -280,17 +274,6 @@ class ProductVariantResource extends Resource
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
               ]),
 
-            Forms\Components\Grid::make(3)
-              ->schema([
-                Forms\Components\Select::make('product_import_id')
-                  ->label('المورد المستورد')
-                  ->relationship('productImport', 'supplier_name')
-                  ->preload()
-                  ->required(),
-                Forms\Components\TextInput::make('discount')->label('الخصم %')->numeric()->default(0),
-
-              ]),
-
             Forms\Components\Repeater::make('packages')
               ->label('باقات الأسعار لهذا الخيار')
               ->schema([
@@ -327,7 +310,6 @@ class ProductVariantResource extends Resource
         'material',
         'images',
         'packages',
-        'productImport'
       ]))
       ->columns([
         Tables\Columns\ImageColumn::make('images.image')
@@ -393,7 +375,6 @@ class ProductVariantResource extends Resource
           })
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true)
-
           ->searchable(),
         Tables\Columns\TextColumn::make('sku')
           ->label('الباركود البصري')
@@ -415,14 +396,7 @@ class ProductVariantResource extends Resource
           ->color(fn($state): string => $state !== '-' ? 'success' : 'gray')
           ->alignCenter(),
 
-        Tables\Columns\TextColumn::make('productImport.supplier_name')
-          ->label('المورد')
-          ->description(fn($record) => $record->productImport?->address)
-          ->badge()
-          ->color('info')
-          ->sortable()
-          ->toggleable(isToggledHiddenByDefault: true)
-          ->searchable(),
+
       ])
       ->filters([
         Tables\Filters\SelectFilter::make('product_id')

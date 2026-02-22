@@ -73,7 +73,6 @@ class ProductVariantFactory extends Factory
       'material_id' => Material::factory(),
       'price' => $price,
       'discount' => $this->faker->numberBetween(0, 50),
-      'product_import_id' => null,
       'stock_quantity' => 0,
       'sku' => ProductVariant::generateUniqueSku(),
       'barcode' => ProductVariant::generateUniqueBarcode(),

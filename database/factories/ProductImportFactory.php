@@ -38,9 +38,8 @@ class ProductImportFactory extends Factory
 
     return [
       'supplier_name' => $this->faker->randomElement($suppliers),
+      'supplier_phone' => $this->faker->phoneNumber(),
       'address' => $this->faker->randomElement($addresses),
-      'import_date' => $this->faker->date(),
-      'quantity' => $this->faker->numberBetween(100, 500),
       'notes' => $this->faker->randomElement([
         'شحنة ممتازة الجودة',
         'تم الفحص والاستلام',

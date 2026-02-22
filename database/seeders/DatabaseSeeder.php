@@ -64,15 +64,14 @@ class DatabaseSeeder extends Seeder
         }
         $combinations[] = $key;
 
-        $randomImport = $allImports->random();
+        $randomQuantity = rand(50, 200);
 
         ProductVariant::factory()->create([
           'product_id' => $product->id,
           'color_id' => $c_id,
           'size_id' => $s_id,
           'material_id' => $m_id,
-          'product_import_id' => $randomImport->id,
-          'stock_quantity' => $randomImport->quantity,
+          'stock_quantity' => $randomQuantity,
         ]);
       }
     }

@@ -43,7 +43,4 @@ class ColorController extends Controller
     $color = $this->colorService->delete($color);
     return response()->json(['message' => 'Color deleted successfully']);
   }
-
-
-
 }

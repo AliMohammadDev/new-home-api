@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\ProductImportResource\RelationManagers;
 
-use App\Models\ProductVariant;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use App\Models\ProductVariant;
 use Filament\Tables\Table;
+use Filament\Tables;
 
 class ProductVariantsRelationManager extends RelationManager
 {
@@ -15,12 +15,20 @@ class ProductVariantsRelationManager extends RelationManager
   public function table(Table $table): Table
   {
     return $table
-      ->recordTitleAttribute('sku')
       ->columns([
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
           ->getStateUsing(fn($record) => $record->product?->name[app()->getLocale()] ?? $record->product?->name['en'] ?? '')
           ->searchable(),
+
+        Tables\Columns\TextColumn::make('sku')
+          ->label('الباركود البصري')
+          ->formatStateUsing(fn($state) => $state ? new \Illuminate\Support\HtmlString(
+            \DNS1D::getBarcodeHTML($state, 'C128', 1.5, 33)
+          ) : '-')
+          ->html()
+          ->alignCenter()
+          ->description(fn($record) => $record->sku),
 
 
         Tables\Columns\ColorColumn::make('color.hex_code')
@@ -44,10 +52,13 @@ class ProductVariantsRelationManager extends RelationManager
         Tables\Actions\Action::make('print_single')
           ->label('طباعة')
           ->icon('heroicon-s-printer')
-          ->color('gray')
+          ->color('info')
           ->url(fn(ProductVariant $record) => route('supplier.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
       ])
+
+
+
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\BulkAction::make('print_selected')

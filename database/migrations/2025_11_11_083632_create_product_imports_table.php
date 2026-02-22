@@ -13,11 +13,9 @@ return new class extends Migration {
   {
     Schema::create('product_imports', function (Blueprint $table) {
       $table->id();
-
-      $table->integer('quantity')->nullable();
       $table->string('supplier_name');
-      $table->string('address');
-      $table->date('import_date');
+      $table->string('supplier_phone')->nullable();
+      $table->string('address')->nullable();
       $table->text('notes')->nullable();
 
       $table->timestamps();

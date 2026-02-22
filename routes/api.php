@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartItemController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\Api\ShippingCityController;
 use App\Http\Controllers\Api\SizeController;
 use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
+use App\Http\Controllers\Dashboard\ProductImportController;
+use App\Http\Controllers\Dashboard\ProductImportItemController;
 use Illuminate\Http\Request;
 
 /*
@@ -132,6 +135,11 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
 */
 Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->group(function () {
 
+  Route::apiResource('users', UserController::class);
+
+  Route::apiResource('product-imports', ProductImportController::class);
+  Route::apiResource('product-import-items', ProductImportItemController::class);
+
   Route::apiResource('categories', CategoryController::class)
     ->except(['index', 'show']);
 
@@ -160,6 +168,7 @@ Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->grou
   Route::delete('shipping-cities/{shippingCity}', [ShippingCityController::class, 'destroy']);
 });
 
+// notifications
 Route::post('/save-fcm-token', function (Request $request) {
   $token = $request->input('token');
 

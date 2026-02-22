@@ -52,7 +52,7 @@
                                 <p style="margin: 0 0 10px 0; font-size: 13px; color: #999;">If the button above doesn't
                                     work, copy and paste this URL into your browser:</p>
                                 <p style="margin: 0; font-size: 13px; word-break: break-all; color: #025043;">
-                                    http://localhost:5173/reset-password?token={{ $token }}&email={{ $email }}
+                                    https://almanzel-alhadith.com/reset-password?token={{ $token }}&email={{ $email }}
                                 </p>
                             </div>
 

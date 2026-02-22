@@ -20,7 +20,6 @@ return new class extends Migration {
       $table->foreignIdFor(Color::class)->nullable()->constrained();
       $table->foreignIdFor(Size::class)->nullable()->constrained();
       $table->foreignIdFor(Material::class)->nullable()->constrained();
-      $table->foreignId('product_import_id')->nullable()->constrained('product_imports')->nullOnDelete();
       $table->decimal('price', 10, 2);
       $table->decimal('discount', 10, 2)->default(0);
       $table->integer('stock_quantity')->default(0);

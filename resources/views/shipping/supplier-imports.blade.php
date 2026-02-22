@@ -107,20 +107,24 @@
             </tr>
         </thead>
         <tbody>
-            @php $totalAmount = 0; @endphp
+            @php $totalQuantity = 0; @endphp
             @foreach ($records as $record)
-                @php $totalAmount += $record->stock_quantity; @endphp
+                @php $totalQuantity += $record->quantity; @endphp
                 <tr>
                     <td>
-                        <strong
-                            style="color: #025043;">{{ $record->product->name['ar'] ?? ($record->product->name['en'] ?? 'منتج غير معروف') }}</strong>
+                        <strong style="color: #025043;">
+                            {{ $record->productVariant->product->name['ar'] ?? ($record->productVariant->product->name['en'] ?? 'منتج غير معروف') }}
+                        </strong>
                         <br>
-                        <small style="color: #666;">SKU: {{ $record->sku }}</small>
+                        <small style="color: #666;">SKU: {{ $record->productVariant->sku }}</small>
                     </td>
                     <td style="text-align: center;">
-                        {{ $record->color->color ?? '' }} / {{ $record->size->size ?? '' }}
+                        {{ $record->productVariant->color->color ?? '' }} /
+                        {{ $record->productVariant->size->size ?? '' }}
                     </td>
-                    <td style="text-align: center;">{{ $record->stock_quantity }}</td>
+                    <td style="text-align: center;">
+                        {{ $record->quantity }}
+                    </td>
                     <td style="text-align: left; font-weight: bold;">
                         {{ number_format($record->price, 2) }} $
                     </td>
@@ -131,12 +135,12 @@
 
     <table class="totals-table" align="left">
         <tr>
-            <td style="color: #666;">عدد الأصناف:</td>
+            <td style="color: #666;">عدد الأصناف المختلفة:</td>
             <td style="text-align: left;">{{ $records->count() }} صنف</td>
         </tr>
         <tr class="total-row final">
-            <td style="padding-top: 15px;">إجمالي الوحدات:</td>
-            <td style="text-align: left; padding-top: 15px;">{{ number_format($totalAmount) }}</td>
+            <td style="padding-top: 15px;">إجمالي كمية الشحنة (قطع):</td>
+            <td style="text-align: left; padding-top: 15px;">{{ number_format($totalQuantity) }}</td>
         </tr>
     </table>
 

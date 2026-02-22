@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
+use App\Models\ProductImportItem; // أضف هذا
 use Illuminate\Http\Request;
 use Mpdf\Mpdf;
 
@@ -15,8 +16,14 @@ class SupplierImportController extends Controller
     if (!$ids)
       return redirect()->back();
 
-    $records = ProductVariant::whereIn('id', $ids)
-      ->with(['product', 'color', 'size', 'material', 'productImport'])
+    $records = ProductImportItem::whereIn('id', $ids)
+      ->with([
+        'productVariant.product',
+        'productVariant.color',
+        'productVariant.size',
+        'productVariant.material',
+        'productImport'
+      ])
       ->get();
 
     if (ob_get_contents())

@@ -10,16 +10,16 @@ class ProductImport extends Model
   use HasFactory;
 
   protected $fillable = [
-    'product_variant_id',
-    'quantity',
-    'address',
     'supplier_name',
-    'import_date',
+    'supplier_phone',
+    'address',
     'notes'
   ];
 
   public function productVariants()
   {
-    return $this->hasMany(ProductVariant::class);
+    return $this->belongsToMany(ProductVariant::class, 'product_import_items')
+      ->withPivot(['quantity', 'price', 'shipping_price', 'discount', 'expected_arrival'])
+      ->withTimestamps();
   }
 }
