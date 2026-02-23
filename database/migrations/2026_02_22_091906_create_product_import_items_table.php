@@ -15,7 +15,8 @@ return new class extends Migration {
     Schema::create('product_import_items', function (Blueprint $table) {
       $table->id();
       $table->foreignIdFor(ProductImport::class)->constrained();
-      $table->foreignIdFor(ProductVariant::class)->constrained();
+      $table->foreignIdFor(ProductVariant::class)->constrained()
+        ->nullOnDelete();
 
       $table->integer('quantity');
       $table->decimal('price', 10, 2);

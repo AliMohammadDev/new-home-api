@@ -59,22 +59,32 @@ class ProductVariantResource extends Resource
                   }))
                   ->required(),
 
+
                 Forms\Components\TextInput::make('sku')
-                  ->label('رمز الـ SKU / الباركود')
+                  ->label('رمز الـ SKU')
                   ->placeholder('مثال: SHIRT-RED-L')
                   ->unique(ignoreRecord: true)
                   ->required()
-                  ->helperText('هذا الكود سيُستخدم لتوليد الباركود البصري'),
+                  ->live()
+                  ->helperText('هذا الرمز الإداري الخاص بالخيار'),
+
+
 
                 Forms\Components\Grid::make(4)
                   ->schema([
                     Forms\Components\TextInput::make('price')->label('السعر'),
                     Forms\Components\TextInput::make('discount')->label('الخصم %'),
+
                     Forms\Components\TextInput::make('stock_quantity')
                       ->label('الكمية الحالية')
                       ->numeric()
                       ->required(),
 
+                    Forms\Components\ViewField::make('barcode_visual')
+                      ->label('الباركود الحالي (للمسح)')
+                      ->view('filament.forms.components.barcode-display')
+                      ->columnSpan(1)
+                      ->visible(fn($record) => filled($record?->barcode)),
 
 
                   ]),
@@ -270,7 +280,7 @@ class ProductVariantResource extends Resource
                   ->label('SKU')
                   ->required()
                   ->unique(table: 'product_variants', column: 'sku'),
-                Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
+                // Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
               ]),
 
@@ -279,7 +289,7 @@ class ProductVariantResource extends Resource
               ->schema([
                 Forms\Components\Grid::make(2)
                   ->schema([
-                    Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
+                    // Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
                     Forms\Components\TextInput::make('price')->label('السعر')->numeric()->required(),
                   ]),
               ])
@@ -376,14 +386,26 @@ class ProductVariantResource extends Resource
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true)
           ->searchable(),
-        Tables\Columns\TextColumn::make('sku')
-          ->label('الباركود البصري')
+
+        Tables\Columns\TextColumn::make('visual_barcode')
+          ->label('الباركود والترميز')
+          ->getStateUsing(fn($record) => $record->barcode)
           ->formatStateUsing(fn($state) => $state ? new \Illuminate\Support\HtmlString(
-            \DNS1D::getBarcodeHTML($state, 'C128', 1.5, 33)
+            \DNS1D::getBarcodeHTML((string) $state, 'C128', 1.5, 33)
           ) : '-')
           ->html()
           ->alignCenter()
-          ->description(fn($record) => $record->sku),
+          ->description(fn($record) => "{$record->barcode}"),
+
+        Tables\Columns\TextColumn::make('sku')
+          ->label('رمز SKU')
+          ->searchable()
+          ->sortable()
+          ->copyable()
+          ->copyMessage('تم نسخ الرمز')
+          ->weight('bold')
+        ,
+
 
         Tables\Columns\TextColumn::make('packages_count')
           ->label('باقات الأسعار')
