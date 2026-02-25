@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Dashboard;
 
-use App\Models\ShippingCity;
+use App\Models\Warehouse;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-class ShippingCityService
+class WarehouseService
 {
   public function findAll(
     $paginate = false,
@@ -13,7 +13,7 @@ class ShippingCityService
     $page = 1,
     $columns = ["*"],
   ): LengthAwarePaginator|Collection {
-    $query = ShippingCity::query();
+    $query = Warehouse::query();
 
 
     if ($paginate) {
@@ -28,21 +28,21 @@ class ShippingCityService
 
   public function create(array $data)
   {
-    return ShippingCity::create($data);
+    return Warehouse::create($data);
   }
-  public function show(ShippingCity $shippingCity)
+  public function show(Warehouse $warehouse)
   {
-    return $shippingCity;
-  }
-
-  public function update(ShippingCity $shippingCity, array $data)
-  {
-    $shippingCity->update($data);
-    return $shippingCity;
+    return $warehouse;
   }
 
-  public function delete(ShippingCity $shippingCity)
+  public function update(Warehouse $warehouse, array $data)
   {
-    return $shippingCity->delete();
+    $warehouse->update($data);
+    return $warehouse;
+  }
+
+  public function delete(Warehouse $warehouse)
+  {
+    return $warehouse->delete();
   }
 }

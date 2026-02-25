@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
 use App\Http\Controllers\Dashboard\ProductImportController;
 use App\Http\Controllers\Dashboard\ProductImportItemController;
+use App\Http\Controllers\Dashboard\WarehouseController;
 use Illuminate\Http\Request;
 
 /*
@@ -139,6 +140,8 @@ Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->grou
 
   Route::apiResource('product-imports', ProductImportController::class);
   Route::apiResource('product-import-items', ProductImportItemController::class);
+
+  Route::apiResource('warehouses', WarehouseController::class);
 
   Route::apiResource('categories', CategoryController::class)
     ->except(['index', 'show']);
