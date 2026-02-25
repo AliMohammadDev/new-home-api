@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\socialAuthController;
 use App\Http\Controllers\Api\WishListController;
 use App\Http\Controllers\Dashboard\ProductImportController;
 use App\Http\Controllers\Dashboard\ProductImportItemController;
+use App\Http\Controllers\Dashboard\ShippingWarehouseController;
 use App\Http\Controllers\Dashboard\WarehouseController;
 use Illuminate\Http\Request;
 
@@ -31,8 +32,6 @@ use Illuminate\Http\Request;
 |--------------------------------------------------------------------------
 */
 Route::middleware(['setLocale'])->group(function () {
-
-
 
   // Social Auth
   Route::get('/login-google', [socialAuthController::class, 'redirectToProvider']);
@@ -67,7 +66,6 @@ Route::middleware(['setLocale'])->group(function () {
   Route::get('sizes', [SizeController::class, 'index']);
   Route::get('materials', [MaterialController::class, 'index']);
 
-
   // Product Variant Packages
   Route::get(
     'product-variant-packages',
@@ -83,10 +81,6 @@ Route::middleware(['setLocale'])->group(function () {
     'product-variants/{product_variant}/packages',
     [ProductVariantPackageController::class, 'byVariant']
   );
-
-
-
-
 });
 
 
@@ -142,6 +136,7 @@ Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->grou
   Route::apiResource('product-import-items', ProductImportItemController::class);
 
   Route::apiResource('warehouses', WarehouseController::class);
+  Route::apiResource('shipping-warehouses', ShippingWarehouseController::class);
 
   Route::apiResource('categories', CategoryController::class)
     ->except(['index', 'show']);
@@ -171,7 +166,7 @@ Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->grou
   Route::delete('shipping-cities/{shippingCity}', [ShippingCityController::class, 'destroy']);
 });
 
-// notifications
+// notifications for pwa
 Route::post('/save-fcm-token', function (Request $request) {
   $token = $request->input('token');
 

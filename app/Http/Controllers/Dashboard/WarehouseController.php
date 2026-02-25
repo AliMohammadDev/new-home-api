@@ -12,20 +12,20 @@ use App\Services\Dashboard\WarehouseService;
 class WarehouseController extends Controller
 {
   public function __construct(
-    private WarehouseService $warehouseServiceService
+    private WarehouseService $warehouseService
   ) {
   }
 
   public function index()
   {
-    $shipping = $this->warehouseServiceService->findAll();
+    $shipping = $this->warehouseService->findAll();
     return WarehouseResource::collection($shipping);
   }
 
   public function store(CreateWarehouseRequest $request)
   {
     $validated = $request->validated();
-    $warehouse = $this->warehouseServiceService->create(
+    $warehouse = $this->warehouseService->create(
       $validated,
     );
     return new WarehouseResource($warehouse);
@@ -40,7 +40,7 @@ class WarehouseController extends Controller
   public function update(Warehouse $shippingCity, UpdateWarehouseRequest $request)
   {
     $validated = $request->validated();
-    $newWarehouse = $this->warehouseServiceService->update(
+    $newWarehouse = $this->warehouseService->update(
       $shippingCity,
       $validated,
     );
@@ -48,7 +48,7 @@ class WarehouseController extends Controller
   }
   public function destroy(Warehouse $warehouse)
   {
-    $warehouse = $this->warehouseServiceService->delete($warehouse);
+    $warehouse = $this->warehouseService->delete($warehouse);
     return response()->json(['message' => 'Shipping deleted successfully']);
   }
 }
