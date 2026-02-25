@@ -6,6 +6,7 @@ use App\Filament\Resources\ShippingWarehouseResource\Pages;
 use App\Filament\Resources\ShippingWarehouseResource\RelationManagers;
 use App\Models\ProductVariant;
 use App\Models\ShippingWarehouse;
+use App\Models\WarehouseReturn;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -96,10 +97,9 @@ class ShippingWarehouseResource extends Resource
             ->numeric()
             ->live()
             ->dehydrated(false)
-            // --- السحر هنا ---
             ->afterStateHydrated(function (Set $set, Get $get, $record) {
               if ($record && $record->unit_capacity > 0) {
-                // حساب عدد الوحدات: الإجمالي تقسيم السعة
+
                 $set('units_count', (int) ($record->amount / $record->unit_capacity));
               }
             })
@@ -167,6 +167,43 @@ class ShippingWarehouseResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make(),
+
+        Tables\Actions\Action::make('return_items')
+          ->label('استرجاع مرتجع')
+          ->icon('heroicon-o-arrow-uturn-left')
+          ->color('warning')
+          ->modalHeading('تسجيل مرتجع من المستودع')
+          ->modalSubmitActionLabel('إتمام الإرجاع')
+          ->form([
+            Forms\Components\TextInput::make('return_amount')
+              ->label('الكمية المرتجعة')
+              ->numeric()
+              ->required()
+              ->maxValue(fn($record) => $record->amount)
+              ->hint(fn($record) => "الكمية المتاحة حالياً: {$record->amount}"),
+
+            Forms\Components\Textarea::make('reason')
+              ->label('سبب الإرجاع')
+              ->required(),
+          ])
+          ->action(function (ShippingWarehouse $record, array $data): void {
+            WarehouseReturn::create([
+              'product_variant_id' => $record->product_variant_id,
+              'warehouse_id' => $record->warehouse_id,
+              'amount' => $data['return_amount'],
+              'reason' => $data['reason'],
+            ]);
+
+            if ($record->amount <= $data['return_amount']) {
+              $record->delete();
+            } else {
+              $record->decrement('amount', $data['return_amount']);
+            }
+          })
+          ->requiresConfirmation()
+          ->successNotificationTitle('تم تسجيل المرتجع وتحديث المخزون بنجاح')
+
+
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
