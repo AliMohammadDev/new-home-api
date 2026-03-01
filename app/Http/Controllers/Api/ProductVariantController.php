@@ -51,11 +51,11 @@ class ProductVariantController extends Controller
 
 
 
-  public function index()
-  {
-    $variants = $this->productVariantService->findAll();
-    return ProductVariantResource::collection($variants);
-  }
+    public function index()
+    {
+      $variants = $this->productVariantService->findAll();
+      return ProductVariantResource::collection($variants);
+    }
 
   public function store(CreateProductVariantRequest $request)
   {
