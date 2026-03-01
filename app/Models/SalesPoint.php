@@ -15,4 +15,9 @@ class SalesPoint extends Model
   protected $casts = [
     'is_active' => 'boolean',
   ];
+
+  public function managers()
+  {
+    return $this->belongsToMany(User::class, 'sales_point_managers');
+  }
 }

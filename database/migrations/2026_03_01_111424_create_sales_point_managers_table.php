@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\ProductVariant;
+use App\Models\SalesPoint;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,13 +12,11 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('product_imports', function (Blueprint $table) {
+    Schema::create('sales_point_managers', function (Blueprint $table) {
       $table->id();
-      $table->string('supplier_name');
-      $table->string('supplier_phone')->nullable();
-      $table->string('address')->nullable();
-      $table->text('notes')->nullable();
-
+      $table->foreignIdFor(SalesPoint::class)->constrained();
+      $table->foreignIdFor(User::class)->constrained();
+      $table->string('phone');
       $table->timestamps();
     });
   }
@@ -27,6 +26,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('product_imports');
+    Schema::dropIfExists('sales_point_managers');
   }
 };

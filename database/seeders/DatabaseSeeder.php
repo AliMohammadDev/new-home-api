@@ -41,7 +41,10 @@ class DatabaseSeeder extends Seeder
       AdminUserSeeder::class,
     );
 
-
+    $this->call([
+      SalesPointSeeder::class,
+    ]);
+    $this->call(CashierSeeder::class);
     $allImports = ProductImport::factory(5)->create();
 
     $colors = Color::factory(6)->create();
