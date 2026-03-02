@@ -57,13 +57,10 @@ class SalesPointCashierResource extends Resource
           Forms\Components\TextInput::make('daily_limit')
             ->label('حد الصندوق اليومي')
             ->numeric()
-            ->prefix('SYP')
+            ->prefix('USD ')
             ->default(0),
 
-          Forms\Components\Toggle::make('is_active')
-            ->label('الحالة التشغيلية')
-            ->default(true)
-            ->onColor('success'),
+
         ])->columns(2),
     ]);
   }
@@ -101,7 +98,8 @@ class SalesPointCashierResource extends Resource
 
         Tables\Columns\TextColumn::make('daily_limit')
           ->label('حد الصندوق')
-          ->money('SYP'),
+          ->money('USD', locale: 'en_US')
+        ,
       ])
       ->filters([
         //
