@@ -54,11 +54,6 @@ class SalesPointCashierResource extends Resource
             ->native(false)
             ->required(),
 
-          Forms\Components\TextInput::make('daily_limit')
-            ->label('حد الصندوق اليومي')
-            ->numeric()
-            ->prefix('USD ')
-            ->default(0),
 
 
         ])->columns(2),

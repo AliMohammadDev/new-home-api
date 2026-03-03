@@ -22,8 +22,9 @@ class CashierSeeder extends Seeder
         'sales_point_id' => $salesPoints->random()->id,
         'user_id' => $user->id,
         'shift_type' => $index % 2 == 0 ? 'صباحي' : 'مسائي',
-        'daily_limit' => 500000,
+        'daily_limit' => 0,
       ]);
     }
   }
+  
 }
