@@ -8,12 +8,16 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListSalesPointManagers extends ListRecords
 {
-    protected static string $resource = SalesPointManagerResource::class;
+  protected static string $resource = SalesPointManagerResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+      Actions\CreateAction::make(),
+    ];
+  }
 }

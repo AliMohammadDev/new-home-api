@@ -8,12 +8,17 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditSalesPointCashier extends EditRecord
 {
-    protected static string $resource = SalesPointCashierResource::class;
+  protected static string $resource = SalesPointCashierResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+
+      Actions\DeleteAction::make(),
+    ];
+  }
 }

@@ -8,5 +8,15 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateSalesPointCashier extends CreateRecord
 {
-    protected static string $resource = SalesPointCashierResource::class;
+  protected static string $resource = SalesPointCashierResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+    ];
+  }
 }
