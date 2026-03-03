@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointCashierResource\Pages;
 use App\Filament\Resources\SalesPointCashierResource\RelationManagers;
+use App\Filament\Resources\SalesPointCashierResource\RelationManagers\FatoraRelationManager;
 use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -113,7 +114,7 @@ class SalesPointCashierResource extends Resource
   public static function getRelations(): array
   {
     return [
-      //
+      FatoraRelationManager::class,
     ];
   }
 

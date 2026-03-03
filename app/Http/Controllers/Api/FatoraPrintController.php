@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductVariant;
-use App\Models\ProductImportItem; 
+use App\Models\CashierSalesFatora;
 use Illuminate\Http\Request;
 use Mpdf\Mpdf;
 
-class SupplierImportController extends Controller
+class FatoraPrintController extends Controller
 {
   public function print(Request $request)
   {
@@ -16,20 +15,16 @@ class SupplierImportController extends Controller
     if (!$ids)
       return redirect()->back();
 
-    $records = ProductImportItem::whereIn('id', $ids)
-      ->with([
-        'productVariant.product',
-        'productVariant.color',
-        'productVariant.size',
-        'productVariant.material',
-        'productImport'
-      ])
+    $salesItems = \App\Models\CashierSale::whereIn('cashier_sales_fatora_id', $ids)
+      ->with(['variant.product', 'fatora.cashier.user'])
       ->get();
+
+    $totalAmount = $salesItems->sum('full_price');
 
     if (ob_get_contents())
       ob_end_clean();
 
-    $mpdf = new Mpdf([
+    $mpdf = new \Mpdf\Mpdf([
       'fontDir' => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], [storage_path('fonts')]),
       'fontdata' => (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'] + [
         'cairo' => [
@@ -43,9 +38,9 @@ class SupplierImportController extends Controller
       'direction' => 'rtl',
     ]);
 
-    $html = view('shipping.supplier-imports', compact('records'))->render();
+    $html = view('cashier.fatora-unified', compact('salesItems', 'totalAmount'))->render();
 
     $mpdf->WriteHTML($html);
-    return $mpdf->Output("supplier-items.pdf", 'I');
+    return $mpdf->Output("unified-sales-report.pdf", 'I');
   }
 }

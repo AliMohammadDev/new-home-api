@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FatoraPrintController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ShippingWarehouseController;
 use App\Http\Controllers\Api\SupplierImportController;
@@ -20,3 +21,7 @@ Route::get('/shipping/print', [ShippingWarehouseController::class, 'print'])->na
 
 Route::get('/print-supplier-imports', [SupplierImportController::class, 'print'])
   ->name('supplier.print');
+
+
+Route::get('/print-fatora', [FatoraPrintController::class, 'print'])
+  ->name('fatora.print');

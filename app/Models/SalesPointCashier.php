@@ -17,4 +17,9 @@ class SalesPointCashier extends Model
   {
     return $this->belongsTo(User::class);
   }
+
+  public function fatora()
+  {
+    return $this->hasMany(CashierSalesFatora::class, 'sales_point_cashier_id');
+  }
 }
