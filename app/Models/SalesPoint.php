@@ -11,6 +11,7 @@ class SalesPoint extends Model
     'name',
     'location',
     'phone',
+    'amount',
     'is_active',
   ];
   protected $casts = [

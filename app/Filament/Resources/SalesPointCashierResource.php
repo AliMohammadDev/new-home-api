@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointCashierResource\Pages;
-use App\Filament\Resources\SalesPointCashierResource\RelationManagers;
 use App\Filament\Resources\SalesPointCashierResource\RelationManagers\FatoraRelationManager;
 use App\Models\SalesPointCashier;
 use Filament\Forms;
@@ -11,13 +10,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SalesPointCashierResource extends Resource
 {
   protected static ?string $model = SalesPointCashier::class;
-  protected static ?string $navigationGroup = 'إدارة المبيعات';
+  protected static ?string $navigationGroup = 'نقاط البيع (POS)';
   protected static ?string $navigationLabel = 'الكاشيرات';
   protected static ?string $navigationIcon = 'heroicon-o-calculator';
 

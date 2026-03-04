@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\SalesPoint;
-use App\Models\User;
+use App\Models\SalesPointCashier;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,11 +12,16 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('sales_point_managers', function (Blueprint $table) {
+    Schema::create('cashier_return_fatoras', function (Blueprint $table) {
       $table->id();
-      $table->foreignIdFor(SalesPoint::class)->constrained();
-      $table->foreignIdFor(User::class)->constrained();
-      $table->string('phone');
+
+      $table->foreignIdFor(SalesPointCashier::class)
+        ->constrained()
+        ->cascadeOnDelete();
+
+      $table->date('date');
+      $table->double('full_price');
+
       $table->timestamps();
     });
   }
@@ -26,6 +31,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('sales_point_managers');
+    Schema::dropIfExists('cashier_return_fatoras');
   }
 };

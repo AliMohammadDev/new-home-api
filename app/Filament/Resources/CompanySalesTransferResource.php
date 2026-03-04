@@ -14,7 +14,8 @@ class CompanySalesTransferResource extends Resource
 {
   protected static ?string $model = CompanySalesTransfer::class;
 
-  protected static ?string $navigationGroup = 'إدارة المبيعات';
+  protected static ?string $navigationGroup = 'نقاط البيع (POS)';
+
   protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
   protected static ?string $navigationLabel = 'تحويلات نقاط البيع';
   protected static ?string $modelLabel = 'تحويل مالي';
@@ -73,11 +74,21 @@ class CompanySalesTransferResource extends Resource
           ->sortable(),
 
         Tables\Columns\BadgeColumn::make('trans_type')
+          ->label('نوع العملية')
+          ->formatStateUsing(fn(string $state): string => match ($state) {
+            'deposit' => 'إيداع',
+            'withdraw' => 'سحب',
+            'withdrawal' => 'سحب',
+            default => $state,
+          })
           ->colors([
             'success' => 'deposit',
-            'danger' => 'withdraw',
+            'danger' => fn($state) => in_array($state, ['withdraw', 'withdrawal']),
           ])
-          ->label('نوع العملية'),
+          ->icons([
+            'heroicon-m-arrow-trending-up' => 'deposit',
+            'heroicon-m-arrow-trending-down' => fn($state) => in_array($state, ['withdraw', 'withdrawal']),
+          ]),
 
         Tables\Columns\TextColumn::make('quantity')
           ->numeric()

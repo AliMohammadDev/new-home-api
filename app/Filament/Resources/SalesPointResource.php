@@ -20,9 +20,8 @@ class SalesPointResource extends Resource
 {
   protected static ?string $model = SalesPoint::class;
   protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-  protected static ?string $navigationGroup = 'إدارة المبيعات';
+  protected static ?string $navigationGroup = 'نقاط البيع (POS)';
   protected static ?int $navigationSort = 1;
-  protected static ?string $navigationLabel = 'نقاط البيع';
   protected static ?string $pluralModelLabel = 'نقطة بيع';
   protected static ?string $modelLabel = 'نقطة بيع';
 
@@ -54,6 +53,8 @@ class SalesPointResource extends Resource
               ->label('رقم الهاتف')
               ->tel(),
 
+
+
             Toggle::make('is_active')
               ->label('حالة نقطة البيع')
               ->onIcon('heroicon-m-check-circle')
@@ -74,7 +75,6 @@ class SalesPointResource extends Resource
           ->searchable()
           ->sortable(),
 
-        // إضافة عمود المستودع في الجدول
         TextColumn::make('warehouse.name')
           ->label('المستودع')
           ->badge()
@@ -89,6 +89,12 @@ class SalesPointResource extends Resource
           ->label('الهاتف')
           ->formatStateUsing(fn(string $state): string => "📞 " . $state)
           ->extraAttributes(['class' => 'font-mono']),
+
+        TextColumn::make('amount')
+          ->label('المبلغ الموجود')
+          ->numeric()
+          ->money('USD', locale: 'en_US'),
+
 
         IconColumn::make('is_active')
           ->label('نشط')

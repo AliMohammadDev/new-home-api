@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointCashierTransResource\Pages;
 use App\Filament\Resources\SalesPointCashierTransResource\RelationManagers;
+use App\Models\SalesPoint;
 use App\Models\SalesPointCashierTrans;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -73,9 +74,19 @@ class SalesPointCashierTransResource extends Resource
             ])->required(),
 
           Forms\Components\TextInput::make('amount')
-            ->label('الكمية / المبلغ')
+            ->label('المبلغ')
             ->numeric()
-            ->required(),
+            ->required()
+            ->rules([
+              fn(Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                if ($get('trans_type') === 'deposit') {
+                  $salesPoint = SalesPoint::find($get('sales_point_id'));
+                  if ($salesPoint && $value > $salesPoint->amount) {
+                    $fail("رصيد نقطة البيع غير كافٍ. الرصيد الحالي: " . $salesPoint->amount);
+                  }
+                }
+              },
+            ]),
 
           Forms\Components\Textarea::make('note')
             ->label('ملاحظات إضافية')
@@ -106,17 +117,25 @@ class SalesPointCashierTransResource extends Resource
         ->searchable(),
 
       Tables\Columns\TextColumn::make('trans_type')
-        ->label('النوع')
+        ->label('نوع العملية')
         ->badge()
         ->color(fn(string $state): string => match ($state) {
           'deposit' => 'success',
-          'withdrawal' => 'danger',
+          'withdrawal', 'withdraw' => 'danger',
           'transfer' => 'warning',
+          default => 'gray',
         })
         ->formatStateUsing(fn(string $state): string => match ($state) {
           'deposit' => 'إيداع',
-          'withdrawal' => 'سحب',
-        }),
+          'withdrawal', 'withdraw' => 'سحب',
+          'transfer' => 'تحويل',
+          default => $state,
+        })
+        ->icons([
+          'heroicon-m-arrow-trending-up' => 'deposit',
+          'heroicon-m-arrow-trending-down' => fn($state) => in_array($state, ['withdrawal', 'withdraw']),
+          'heroicon-m-arrows-right-left' => 'transfer',
+        ]),
 
       Tables\Columns\TextColumn::make('amount')
         ->label('الكمية')

@@ -26,7 +26,7 @@ class ProductImportItemResource extends Resource
         Forms\Components\Section::make('تفاصيل الصنف الوارد')
           ->schema([
             Forms\Components\Select::make('product_import_id')
-              ->label('الفاتورة / المورد')
+              ->label('  المورد')
               ->relationship('productImport', 'supplier_name')
               ->searchable()
               ->preload()

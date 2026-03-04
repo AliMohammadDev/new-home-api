@@ -15,7 +15,7 @@ return new class extends Migration {
       $table->id();
 
       $table->foreignIdFor(SalesPointCashier::class)
-        ->constrained('sales_point_cashiers')
+        ->constrained()
         ->cascadeOnDelete();
 
       $table->date('date');

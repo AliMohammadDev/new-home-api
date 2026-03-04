@@ -35,9 +35,10 @@ class AdminPanelProvider extends PanelProvider
       ->navigationGroups([
         'إدارة المنتجات',
         'إدارة الطلبات',
+        'نقاط البيع (POS)',
         'إدارة المبيعات',
         'شحن واستيراد',
-        'إدارة المستخدمين',
+        'اإدارة المستخدمين',
       ])
       ->login()
       ->brandName('المنزل الحديث')

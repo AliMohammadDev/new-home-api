@@ -19,7 +19,7 @@ class SalesPointManagerResource extends Resource
   protected static ?string $model = SalesPointManager::class;
 
   protected static ?string $navigationIcon = 'heroicon-o-user-group';
-  protected static ?string $navigationGroup = 'إدارة المبيعات';
+  protected static ?string $navigationGroup = 'نقاط البيع (POS)';
   protected static ?string $navigationLabel = 'مدراء النقاط';
   protected static ?string $pluralModelLabel = 'مدراء نقاط البيع';
   protected static ?string $modelLabel = 'تعيين مدير';
