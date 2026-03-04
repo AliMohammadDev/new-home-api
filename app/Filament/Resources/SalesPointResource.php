@@ -6,6 +6,7 @@ use App\Filament\Resources\SalesPointResource\Pages;
 use App\Filament\Resources\SalesPointResource\RelationManagers;
 use App\Models\SalesPoint;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,15 +19,10 @@ use Filament\Forms\Components\Section;
 class SalesPointResource extends Resource
 {
   protected static ?string $model = SalesPoint::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-
   protected static ?string $navigationGroup = 'إدارة المبيعات';
-
   protected static ?int $navigationSort = 1;
-
   protected static ?string $navigationLabel = 'نقاط البيع';
-
   protected static ?string $pluralModelLabel = 'نقطة بيع';
   protected static ?string $modelLabel = 'نقطة بيع';
 
@@ -40,6 +36,15 @@ class SalesPointResource extends Resource
               ->label('اسم نقطة البيع')
               ->required()
               ->maxLength(255),
+
+
+            Forms\Components\Select::make('warehouse_id')
+              ->label('المستودع التابع له')
+              ->relationship('warehouse', 'name')
+              ->required()
+              ->searchable()
+              ->preload(),
+
 
             TextInput::make('location')
               ->label('الموقع')
@@ -67,6 +72,13 @@ class SalesPointResource extends Resource
         TextColumn::make('name')
           ->label('الاسم')
           ->searchable()
+          ->sortable(),
+
+        // إضافة عمود المستودع في الجدول
+        TextColumn::make('warehouse.name')
+          ->label('المستودع')
+          ->badge()
+          ->color('gray')
           ->sortable(),
 
         TextColumn::make('location')

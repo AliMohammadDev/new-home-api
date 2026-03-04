@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SalesPoint extends Model
 {
   protected $fillable = [
+    'warehouse_id',
     'name',
     'location',
     'phone',
@@ -15,6 +16,11 @@ class SalesPoint extends Model
   protected $casts = [
     'is_active' => 'boolean',
   ];
+
+  public function warehouse()
+  {
+    return $this->belongsTo(Warehouse::class);
+  }
 
   public function managers()
   {

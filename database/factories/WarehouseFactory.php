@@ -29,10 +29,10 @@ class WarehouseFactory extends Factory
     $warehouse = $this->faker->randomElement($warehouses);
 
     return [
-      'name' => $warehouse['name'],
+      'name' => $warehouse['name'], 
       'city' => $warehouse['city'],
       'address' => $warehouse['address'],
-      'phone' => $this->faker->numerify('+963 9## ### ###'), 
+      'phone' => $this->faker->numerify('+963 9## ### ###'),
     ];
   }
 }

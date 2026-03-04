@@ -4,17 +4,16 @@ namespace Database\Seeders;
 
 use App\Models\SalesPoint;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
 class SalesPointSeeder extends Seeder
 {
-  /**
-   * Run the database seeds.
-   */
   public function run(): void
   {
-    $salesPoints = [
+    $warehouses = Warehouse::factory()->count(5)->create();
+
+    $salesPointsData = [
       ['name' => 'فرع المزة الرئيسي', 'location' => 'دمشق - أوتوستراد المزة', 'phone' => '0112233445'],
       ['name' => 'نقطة بيع الشعلان', 'location' => 'دمشق - شارع الشعلان', 'phone' => '0115566778'],
       ['name' => 'مركز جرمانا التجاري', 'location' => 'ريف دمشق - ساحة جرمانا', 'phone' => '0118899001'],
@@ -24,25 +23,26 @@ class SalesPointSeeder extends Seeder
 
     $users = User::limit(10)->get();
 
-
-    foreach ($salesPoints as $data) {
+    foreach ($salesPointsData as $data) {
       $sp = SalesPoint::create([
+        'warehouse_id' => $warehouses->random()->id,
         'name' => $data['name'],
         'location' => $data['location'],
         'phone' => $data['phone'],
         'is_active' => true,
       ]);
 
-      $randomManagers = $users->random(rand(1, 2));
+      if ($users->count() > 0) {
+        $randomManagers = $users->random(rand(1, min(2, $users->count())));
 
-      foreach ($randomManagers as $user) {
-        $sp->managers()->attach($user->id, [
-          'phone' => '09' . rand(30, 99) . rand(100, 999) . rand(100, 999),
-          'created_at' => now(),
-          'updated_at' => now(),
-        ]);
+        foreach ($randomManagers as $user) {
+          $sp->managers()->attach($user->id, [
+            'phone' => '09' . rand(30, 99) . rand(100, 999) . rand(100, 999),
+            'created_at' => now(),
+            'updated_at' => now(),
+          ]);
+        }
       }
     }
-
   }
 }
