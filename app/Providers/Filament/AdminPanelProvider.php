@@ -43,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
       ->brandName('المنزل الحديث')
       ->brandLogo(asset('images/home-logo-black_dicco2.svg'))
       ->darkModeBrandLogo(asset('images/home-logo-white_c2et5l.svg'))
+      ->favicon(asset('logo.png'))
       ->brandLogoHeight('3rem')
       ->broadcasting()
       ->colors([
