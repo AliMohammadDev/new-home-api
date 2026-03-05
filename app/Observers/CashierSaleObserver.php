@@ -31,6 +31,29 @@ class CashierSaleObserver
   public function created(CashierSale $cashierSale): void
   {
     $cashierSale->fatora->increment('full_price', $cashierSale->full_price);
+
+    $cashier = $cashierSale->cashier;
+    $cashier->increment('daily_limit', $cashierSale->full_price);
+
+
+    $salesPoint = $cashier->salesPoint;
+    if ($salesPoint && $salesPoint->warehouse) {
+      $warehouse = $salesPoint->warehouse;
+
+      $variantInWarehouse = $warehouse->productVariants()
+        ->where('product_variant_id', $cashierSale->product_variant_id)
+        ->first();
+
+      if ($variantInWarehouse) {
+        $currentAmount = $variantInWarehouse->pivot->amount;
+        $warehouse->productVariants()->updateExistingPivot($cashierSale->product_variant_id, [
+          'amount' => $currentAmount - $cashierSale->quantity,
+        ]);
+      }
+    }
+
+
+
   }
 
   /**
@@ -38,7 +61,56 @@ class CashierSaleObserver
    */
   public function updated(CashierSale $cashierSale): void
   {
-    //
+    if ($cashierSale->wasChanged('full_price')) {
+      $oldFullPrice = $cashierSale->getOriginal('full_price');
+      $newFullPrice = $cashierSale->full_price;
+      $priceDifference = $newFullPrice - $oldFullPrice;
+
+      $cashierSale->fatora->increment('full_price', $priceDifference);
+
+      $cashier = $cashierSale->cashier;
+      if ($cashier) {
+        $cashier->increment('daily_limit', $priceDifference);
+      }
+    }
+
+    if ($cashierSale->wasChanged(['quantity', 'product_variant_id'])) {
+      $salesPoint = $cashierSale->cashier?->salesPoint;
+      if ($salesPoint && $salesPoint->warehouse) {
+        $warehouse = $salesPoint->warehouse;
+
+        if ($cashierSale->wasChanged('product_variant_id')) {
+          $oldVariantId = $cashierSale->getOriginal('product_variant_id');
+          $oldQuantity = $cashierSale->getOriginal('quantity');
+
+          $oldVariantInWh = $warehouse->productVariants()->where('product_variant_id', $oldVariantId)->first();
+          if ($oldVariantInWh) {
+            $warehouse->productVariants()->updateExistingPivot($oldVariantId, [
+              'amount' => $oldVariantInWh->pivot->amount + $oldQuantity,
+            ]);
+          }
+
+          $newVariantInWh = $warehouse->productVariants()->where('product_variant_id', $cashierSale->product_variant_id)->first();
+          if ($newVariantInWh) {
+            $warehouse->productVariants()->updateExistingPivot($cashierSale->product_variant_id, [
+              'amount' => $newVariantInWh->pivot->amount - $cashierSale->quantity,
+            ]);
+          }
+        } else {
+          $oldQuantity = $cashierSale->getOriginal('quantity');
+          $newQuantity = $cashierSale->quantity;
+          $quantityDifference = $newQuantity - $oldQuantity;
+
+          $variantInWh = $warehouse->productVariants()->where('product_variant_id', $cashierSale->product_variant_id)->first();
+          if ($variantInWh) {
+            $warehouse->productVariants()->updateExistingPivot($cashierSale->product_variant_id, [
+              'amount' => $variantInWh->pivot->amount - $quantityDifference,
+            ]);
+          }
+        }
+      }
+    }
+
   }
 
   /**
@@ -47,6 +119,20 @@ class CashierSaleObserver
   public function deleted(CashierSale $cashierSale): void
   {
     $cashierSale->fatora->decrement('full_price', $cashierSale->full_price);
+    $cashierSale->cashier?->decrement('daily_limit', $cashierSale->full_price);
+
+    $salesPoint = $cashierSale->cashier?->salesPoint;
+    if ($salesPoint && $salesPoint->warehouse) {
+      $variantInWh = $salesPoint->warehouse->productVariants()
+        ->where('product_variant_id', $cashierSale->product_variant_id)
+        ->first();
+
+      if ($variantInWh) {
+        $salesPoint->warehouse->productVariants()->updateExistingPivot($cashierSale->product_variant_id, [
+          'amount' => $variantInWh->pivot->amount + $cashierSale->quantity,
+        ]);
+      }
+    }
   }
 
   /**

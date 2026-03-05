@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CashierSaleResource\Pages;
 use App\Models\CashierSale;
+use App\Models\ProductVariant;
+use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -36,37 +38,71 @@ class CashierSaleResource extends Resource
 
           Forms\Components\Select::make('product_variant_id')
             ->label('المنتج (الخيار)')
-            ->relationship('variant', 'sku')
-            ->getOptionLabelFromRecordUsing(function ($record) {
-
-              $productName = $record->product->name['ar'] ?? 'منتج غير مسمى';
-              $sku = $record->sku ?? 'بدون SKU';
-
-              return "{$productName} - {$sku}";
-            })
+            ->required()
             ->searchable(['sku'])
             ->preload()
-            ->required()
             ->live()
+            ->options(function (Forms\Get $get) {
+              $cashierId = $get('sales_point_cashier_id');
+
+              if (!$cashierId) {
+                return [];
+              }
+
+              $cashier = SalesPointCashier::with('salesPoint.warehouse')
+                ->find($cashierId);
+
+              if (!$cashier || !$cashier->salesPoint || !$cashier->salesPoint->warehouse) {
+                return [];
+              }
+
+              return $cashier->salesPoint->warehouse->productVariants()
+                ->get()
+                ->mapWithKeys(function ($variant) {
+                  $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
+                  $sku = $variant->sku ?? 'بدون SKU';
+                  $stock = $variant->pivot->amount ?? 0;
+
+                  return [$variant->id => "{$productName} - {$sku} (متوفر: {$stock})"];
+                });
+            })
             ->afterStateUpdated(function ($state, Forms\Set $set) {
               if (!$state)
                 return;
-              $variant = \App\Models\ProductVariant::find($state);
+
+              $variant = ProductVariant::find($state);
               if ($variant) {
                 $set('price', $variant->price);
                 $set('full_price', (float) $variant->price * 1);
               }
             }),
+
           Forms\Components\TextInput::make('quantity')
             ->label('الكمية')
             ->numeric()
             ->default(1)
             ->required()
-            ->live(onBlur: true)
-            ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-              $price = (float) ($get('price') ?? 0);
-              $set('full_price', (float) $state * $price);
-            }),
+            ->rules([
+              function (Forms\Get $get) {
+                return function (string $attribute, $value, $fail) use ($get) {
+                  $variantId = $get('product_variant_id');
+                  $cashierId = $get('sales_point_cashier_id');
+
+                  if ($variantId && $cashierId) {
+                    $cashier = SalesPointCashier::find($cashierId);
+                    $warehouse = $cashier->salesPoint->warehouse;
+                    $stock = $warehouse->productVariants()
+                      ->where('product_variant_id', $variantId)
+                      ->first()?->pivot->amount ?? 0;
+
+                    if ($value > $stock) {
+                      $fail("الكمية المطلوبة غير متوفرة. المتاح في المستودع: {$stock}");
+                    }
+                  }
+                };
+              },
+            ]),
+
 
           Forms\Components\TextInput::make('price')
             ->label('سعر الوحدة')

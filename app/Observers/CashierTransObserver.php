@@ -14,14 +14,19 @@ class CashierTransObserver
     $cashier = $salesPointCashierTrans->cashier;
     $salesPoint = $salesPointCashierTrans->salesPoint;
 
+
     if ($salesPointCashierTrans->trans_type === 'deposit') {
+
       $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
       $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
+
     } elseif ($salesPointCashierTrans->trans_type === 'withdrawal') {
       $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
       $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
     }
   }
+
+
 
   /**
    * Handle the SalesPointCashierTrans "updated" event.

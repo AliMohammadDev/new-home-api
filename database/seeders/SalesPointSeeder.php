@@ -11,7 +11,7 @@ class SalesPointSeeder extends Seeder
 {
   public function run(): void
   {
-    $warehouses = Warehouse::factory()->count(5)->create();
+    $warehouses = Warehouse::limit(5)->get();
 
     $salesPointsData = [
       ['name' => 'فرع المزة الرئيسي', 'location' => 'دمشق - أوتوستراد المزة', 'phone' => '0112233445'],
