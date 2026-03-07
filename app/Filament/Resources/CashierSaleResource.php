@@ -66,14 +66,17 @@ class CashierSaleResource extends Resource
                   return [$variant->id => "{$productName} - {$sku} (متوفر: {$stock})"];
                 });
             })
-            ->afterStateUpdated(function ($state, Forms\Set $set) {
+            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
               if (!$state)
                 return;
 
               $variant = ProductVariant::find($state);
+              $variant = \App\Models\ProductVariant::find($state);
+
               if ($variant) {
                 $set('price', $variant->price);
-                $set('full_price', (float) $variant->price * 1);
+                $currentQuantity = (float) ($get('quantity') ?? 1);
+                $set('full_price', (float) $variant->price * $currentQuantity);
               }
             }),
 
@@ -82,6 +85,12 @@ class CashierSaleResource extends Resource
             ->numeric()
             ->default(1)
             ->required()
+            ->live(onBlur: true)
+            ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+              $price = (float) ($get('price') ?? 0);
+              $set('full_price', (float) $state * $price);
+
+            })
             ->rules([
               function (Forms\Get $get) {
                 return function (string $attribute, $value, $fail) use ($get) {
@@ -109,10 +118,13 @@ class CashierSaleResource extends Resource
             ->numeric()
             ->required()
             ->prefix('USD')
+            ->disabled()
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $quantity = (float) ($get('quantity') ?? 0);
               $set('full_price', (float) $state * $quantity);
+
+
             }),
 
           Forms\Components\TextInput::make('full_price')

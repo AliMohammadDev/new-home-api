@@ -38,23 +38,41 @@ class SalesPointCashierTransResource extends Resource
 
           Forms\Components\Select::make('sales_point_manager_id')
             ->label('المدير المسؤول')
-            ->relationship('manager', 'id', function ($query) {
-              return $query->with('user');
+            ->options(function (callable $get) {
+              $salesPointId = $get('sales_point_id');
+
+              if (!$salesPointId) {
+                return [];
+              }
+
+              return \App\Models\SalesPointManager::query()
+                ->where('sales_point_id', $salesPointId)
+                ->with('user')
+                ->get()
+                ->pluck('user.name', 'id');
             })
-            ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name)
             ->searchable()
-            ->preload()
-            ->required(),
+            ->required()
+            ->disabled(fn(callable $get) => !$get('sales_point_id')),
 
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الموظف المستلم (الكاشير)')
-            ->relationship('cashier', 'id', function ($query) {
-              return $query->with('user');
+            ->options(function (callable $get) {
+              $salesPointId = $get('sales_point_id');
+
+              if (!$salesPointId) {
+                return [];
+              }
+
+              return \App\Models\SalesPointCashier::query()
+                ->where('sales_point_id', $salesPointId)
+                ->with('user')
+                ->get()
+                ->pluck('user.name', 'id');
             })
-            ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name)
             ->searchable()
-            ->preload()
-            ->required(),
+            ->required()
+            ->disabled(fn(callable $get) => !$get('sales_point_id')),
 
           Forms\Components\TextInput::make('name')
             ->label('بيان العملية / المادة')

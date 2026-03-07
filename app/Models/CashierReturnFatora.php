@@ -16,4 +16,9 @@ class CashierReturnFatora extends Model
   {
     return $this->belongsTo(SalesPointCashier::class, 'sales_point_cashier_id');
   }
+
+  public function returns()
+  {
+    return $this->hasMany(CashierSalesReturn::class, 'cashier_return_fatora_id');
+  }
 }

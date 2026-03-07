@@ -62,12 +62,33 @@ class CashierReturnFatoraResource extends Resource
         //
       ])
       ->actions([
+
+        Tables\Actions\Action::make('print')
+          ->label('طباعة')
+          ->icon('heroicon-o-printer')
+          ->color('info')
+          ->url(fn($record) => route('fatora.print', ['ids' => [$record->id]]))
+          ->openUrlInNewTab(),
+
         Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make(),
       ])
       ->bulkActions([
+
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\BulkAction::make('print_selected')
+            ->label('طباعة الفواتير المحددة')
+            ->icon('heroicon-o-printer')
+            ->color('success')
+            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+              return redirect()->route('fatora.print', [
+                'ids' => $records->pluck('id')->toArray()
+              ]);
+            }),
         ]),
+
+
       ]);
   }
 

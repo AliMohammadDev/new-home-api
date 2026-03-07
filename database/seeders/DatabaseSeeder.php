@@ -30,21 +30,20 @@ class DatabaseSeeder extends Seeder
     Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+    Role::firstOrCreate(['name' => 'sales_point_manger', 'guard_name' => 'web']);
+    Role::firstOrCreate(['name' => 'sales_point_cashier', 'guard_name' => 'web']);
 
-    User::factory(10)->create();
 
-    Warehouse::factory(6)->create();
+    $this->call(UserSeeder::class);
+
+    $this->call(WarehouseSeeder::class);
     $this->call(CategorySeeder::class);
     $this->call(ProductSeeder::class);
     $this->call(ShippingCitySeeder::class);
-    $this->call(
-      AdminUserSeeder::class,
-    );
-
-    $this->call([
-      SalesPointSeeder::class,
-    ]);
+    $this->call(AdminUserSeeder::class);
+    $this->call(SalesPointSeeder::class);
     $this->call(CashierSeeder::class);
+
     $allImports = ProductImport::factory(5)->create();
 
     $colors = Color::factory(6)->create();

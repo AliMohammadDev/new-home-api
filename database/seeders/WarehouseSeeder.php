@@ -1,22 +1,14 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Seeders;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Warehouse;
+use Illuminate\Database\Seeder;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Warehouse>
- */
-class WarehouseFactory extends Factory
+class WarehouseSeeder extends Seeder
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
+  public function run(): void
   {
-
     $warehouses = [
       ['name' => 'مستودع الفيحاء المركزي', 'city' => 'دمشق', 'address' => 'المنطقة الصناعية - ركن الدين'],
       ['name' => 'مستودع الشهباء الرئيسي', 'city' => 'حلب', 'address' => 'الليرمون - حي الصناعة'],
@@ -26,13 +18,13 @@ class WarehouseFactory extends Factory
       ['name' => 'مستودع الرياض المتطور', 'city' => 'الرياض', 'address' => 'حي السلي - طريق الخرج'],
     ];
 
-    $warehouse = $this->faker->randomElement($warehouses);
-
-    return [
-      'name' => $warehouse['name'], 
-      'city' => $warehouse['city'],
-      'address' => $warehouse['address'],
-      'phone' => $this->faker->numerify('+963 9## ### ###'),
-    ];
+    foreach ($warehouses as $warehouse) {
+      Warehouse::create([
+        'name' => $warehouse['name'],
+        'city' => $warehouse['city'],
+        'address' => $warehouse['address'],
+        'phone' => fake()->numerify('+963 9## ### ###'),
+      ]);
+    }
   }
 }

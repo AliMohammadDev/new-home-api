@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\CashierSale;
+use App\Models\CashierSalesReturn;
 use App\Models\CompanySalesTransfer;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
 use App\Observers\CashierSaleObserver;
+use App\Observers\CashierSalesReturnObserver;
 use App\Observers\CashierTransObserver;
 use App\Observers\CompanySalesTransferObserver;
 use App\Observers\ProductImportItemObserver;
@@ -40,9 +42,10 @@ class AppServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
-    ShippingWarehouse::observe(ShippingWarehouseObserver::class);
     ProductImportItem::observe(ProductImportItemObserver::class);
     CashierSale::observe(CashierSaleObserver::class);
+    ShippingWarehouse::observe(ShippingWarehouseObserver::class);
+    CashierSalesReturn::observe(CashierSalesReturnObserver::class);
     SalesPointCashierTrans::observe(CashierTransObserver::class);
     CompanySalesTransfer::observe(CompanySalesTransferObserver::class);
 

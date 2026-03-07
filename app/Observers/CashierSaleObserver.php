@@ -52,8 +52,6 @@ class CashierSaleObserver
       }
     }
 
-
-
   }
 
   /**
@@ -118,8 +116,15 @@ class CashierSaleObserver
    */
   public function deleted(CashierSale $cashierSale): void
   {
-    $cashierSale->fatora->decrement('full_price', $cashierSale->full_price);
-    $cashierSale->cashier?->decrement('daily_limit', $cashierSale->full_price);
+
+    $fatora = $cashierSale->fatora;
+    if ($fatora) {
+      $fatora->decrement('full_price', $cashierSale->full_price);
+    }
+
+    if ($cashierSale->cashier) {
+      $cashierSale->cashier->increment('daily_limit', $cashierSale->full_price);
+    }
 
     $salesPoint = $cashierSale->cashier?->salesPoint;
     if ($salesPoint && $salesPoint->warehouse) {
@@ -132,6 +137,10 @@ class CashierSaleObserver
           'amount' => $variantInWh->pivot->amount + $cashierSale->quantity,
         ]);
       }
+    }
+
+    if ($fatora && $fatora->items()->count() === 0) {
+      $fatora->delete();
     }
   }
 

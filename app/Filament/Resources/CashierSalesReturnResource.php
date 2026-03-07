@@ -27,12 +27,6 @@ class CashierSalesReturnResource extends Resource
     return $form->schema([
       Forms\Components\Section::make('تفاصيل المادة المرتجعة')
         ->schema([
-          Forms\Components\Select::make('cashier_return_fatora_id')
-            ->label('رقم فاتورة المرتجع')
-            ->relationship('fatora', 'id')
-            ->required()
-            ->searchable(),
-
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الكاشير')
             ->relationship('cashier', 'id')
@@ -46,14 +40,17 @@ class CashierSalesReturnResource extends Resource
             ->relationship('variant', 'sku')
             ->getOptionLabelFromRecordUsing(function ($record) {
               $productName = $record->product->name['ar'] ?? 'منتج غير مسمى';
-              return "{$productName} - {$record->sku}";
+              $sku = $record->sku ?? 'بدون SKU';
+              return "{$productName} - {$sku}";
             })
-            ->searchable()
+            ->searchable(['sku'])
+            ->preload()
             ->required()
             ->live()
             ->afterStateUpdated(function ($state, Forms\Set $set) {
               if (!$state)
                 return;
+
               $variant = \App\Models\ProductVariant::find($state);
               if ($variant) {
                 $set('price', $variant->price);
@@ -73,6 +70,7 @@ class CashierSalesReturnResource extends Resource
           Forms\Components\TextInput::make('price')
             ->label('سعر الوحدة')
             ->numeric()
+            ->readonly()
             ->required()
             ->prefix('USD'),
 
@@ -92,9 +90,16 @@ class CashierSalesReturnResource extends Resource
       Tables\Columns\TextColumn::make('variant.product.name')->label('المنتج')->searchable(),
       Tables\Columns\TextColumn::make('quantity')->label('الكمية')->color('danger'),
       Tables\Columns\TextColumn::make('full_price')
-        ->label('إجمالي المرتجع')
-        ->money('USD')
-        ->summarize(Tables\Columns\Summarizers\Sum::make()->label('إجمالي المرتجعات')),
+        ->label('الإجمالي')
+        ->money('USD', locale: 'en_US')
+
+        ->summarize(
+          Tables\Columns\Summarizers\Sum::make()
+            ->label('إجمالي المرتجعات')
+            ->money('USD', locale: 'en_US')
+        ),
+
+
       Tables\Columns\TextColumn::make('cashier.user.name')->label('بواسطة الكاشير'),
     ])
       ->filters([])
