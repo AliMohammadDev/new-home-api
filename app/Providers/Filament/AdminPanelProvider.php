@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\CompanyTreasureResource\Widgets\CapitalStatsWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Widgets\GeneralStatsWidget;
 use App\Filament\Widgets\OrdersCountWidget;
@@ -82,12 +83,12 @@ class AdminPanelProvider extends PanelProvider
 
 
       ->widgets([
-
         LatestOrdersStats::class,
         WarehouseStatsWidget::class,
         WarehouseInventoryChart::class,
         GeneralStatsWidget::class,
         OrdersCountWidget::class,
+        CapitalStatsWidget::class,
       ])
       ->middleware([
         EncryptCookies::class,
