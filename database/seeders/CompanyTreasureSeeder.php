@@ -3,20 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\CompanyFund;
+use App\Models\CompanyTreasure;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class CompanyFundSeeder extends Seeder
+class CompanyTreasureSeeder extends Seeder
 {
   /**
    * Run the database seeds.
    */
   public function run(): void
   {
-    CompanyFund::updateOrCreate(
+    CompanyTreasure::updateOrCreate(
       ['name' => 'الصندوق الرئيسي'],
       [
-        'balance' => 5000,
+        'money' => 5000,
       ]
     );
   }

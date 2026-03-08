@@ -10,10 +10,10 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('company_funds', function (Blueprint $table) {
+    Schema::create('company_treasures', function (Blueprint $table) {
       $table->id();
-      $table->string('name')->default('صندوق الشركة');
-      $table->decimal('balance', 15, 2)->default(0);
+      $table->string('name');
+      $table->decimal('money', 15, 2)->default(0);
       $table->timestamps();
     });
   }
@@ -23,6 +23,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('company_funds');
+    Schema::dropIfExists('company_treasures');
   }
 };

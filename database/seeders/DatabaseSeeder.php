@@ -27,15 +27,24 @@ class DatabaseSeeder extends Seeder
 
     $this->command->call('shield:generate', ['--all' => true]);
 
-    Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
-    Role::firstOrCreate(['name' => 'sales_point_manger', 'guard_name' => 'web']);
-    Role::firstOrCreate(['name' => 'sales_point_cashier', 'guard_name' => 'web']);
+    $roles = [
+      'super_admin',
+      'product_data_entry',
+      'finance_manager',
+      'main_warehouse_manager',
+      'sub_warehouse_manager',
+      'sales_point_manager',
+      'sales_point_cashier',
+      'customer'
+    ];
+
+    foreach ($roles as $role) {
+      Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    }
 
 
     $this->call([
-      CompanyFundSeeder::class,
+      CompanyTreasureSeeder::class,
       UserSeeder::class,
       WarehouseSeeder::class,
       CategorySeeder::class,
