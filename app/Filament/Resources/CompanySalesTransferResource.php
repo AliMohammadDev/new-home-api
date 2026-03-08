@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanySalesTransferResource\Pages;
 use App\Models\CompanySalesTransfer;
+use App\Models\CompanyTreasure;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -57,7 +58,17 @@ class CompanySalesTransferResource extends Resource
           ->label('الكمية / المبلغ')
           ->numeric()
           ->required()
-          ->prefix('$'),
+          ->prefix('$')
+          ->rules([
+            fn(Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+              if ($get('trans_type') === 'deposit') {
+                $mainTreasure = CompanyTreasure::first();
+                if ($mainTreasure && $value > $mainTreasure->money) {
+                  $fail("عذراً، الرصيد في خزينة الشركة غير كافٍ. المتوفر حالياً: " . number_format($mainTreasure->money, 2) . " $");
+                }
+              }
+            },
+          ]),
 
         Forms\Components\Textarea::make('note')
           ->label('ملاحظات إضافية')
