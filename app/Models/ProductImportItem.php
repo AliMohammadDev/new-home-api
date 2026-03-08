@@ -13,6 +13,7 @@ class ProductImportItem extends Model
     'price',
     'shipping_price',
     'discount',
+    'total_cost',
     'expected_arrival'
   ];
 
