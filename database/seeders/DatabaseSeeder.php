@@ -34,15 +34,18 @@ class DatabaseSeeder extends Seeder
     Role::firstOrCreate(['name' => 'sales_point_cashier', 'guard_name' => 'web']);
 
 
-    $this->call(UserSeeder::class);
+    $this->call([
+      CompanyFundSeeder::class,
+      UserSeeder::class,
+      WarehouseSeeder::class,
+      CategorySeeder::class,
+      ProductSeeder::class,
+      ShippingCitySeeder::class,
+      AdminUserSeeder::class,
+      SalesPointSeeder::class,
+      CashierSeeder::class
+    ]);
 
-    $this->call(WarehouseSeeder::class);
-    $this->call(CategorySeeder::class);
-    $this->call(ProductSeeder::class);
-    $this->call(ShippingCitySeeder::class);
-    $this->call(AdminUserSeeder::class);
-    $this->call(SalesPointSeeder::class);
-    $this->call(CashierSeeder::class);
 
     $allImports = ProductImport::factory(5)->create();
 

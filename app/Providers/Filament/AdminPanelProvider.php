@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
         'نقاط البيع (POS)',
         'إدارة المبيعات',
         'شحن واستيراد',
+        'الإدارة المالية',
         'اإدارة المستخدمين',
       ])
       ->login()
