@@ -142,6 +142,7 @@ class CashierSaleResource extends Resource
             ->required()
             ->prefix('USD')
             ->disabled()
+            ->dehydrated()
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $quantity = (float) ($get('quantity') ?? 0);
