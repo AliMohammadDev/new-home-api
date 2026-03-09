@@ -94,7 +94,8 @@ class CashierSalesReturnResource extends Resource
           Forms\Components\TextInput::make('price')
             ->label('سعر الوحدة')
             ->numeric()
-            ->readonly()
+            ->disabled()
+            ->dehydrated()
             ->required()
             ->prefix('USD'),
 
