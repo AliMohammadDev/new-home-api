@@ -62,6 +62,7 @@ class SizeResource extends Resource
             return $query->when($data['color'] ?? null, fn($q, $color) => $q->where('color', 'like', "%$color%"));
           }),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),

@@ -91,7 +91,7 @@ class CategoryResource extends Resource
           ->searchable()
           ->date(),
       ])
-      ->defaultSort('created_at', 'desc')
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\Filter::make('name')
           ->label('اسم التصنيف')

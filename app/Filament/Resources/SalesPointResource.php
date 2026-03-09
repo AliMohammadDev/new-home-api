@@ -107,6 +107,7 @@ class SalesPointResource extends Resource
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\TernaryFilter::make('is_active')
           ->label('تصفية حسب الحالة'),

@@ -161,6 +161,7 @@ class SalesPointCashierTransResource extends Resource
         ->sortable(),
 
     ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         //
       ])

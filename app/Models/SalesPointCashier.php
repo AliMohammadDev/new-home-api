@@ -8,6 +8,12 @@ class SalesPointCashier extends Model
 {
   protected $fillable = ['sales_point_id', 'user_id', 'shift_type', 'daily_limit'];
 
+  public function getCashierNameAttribute()
+  {
+    return $this->user?->name;
+  }
+
+
   public function salesPoint()
   {
     return $this->belongsTo(SalesPoint::class);

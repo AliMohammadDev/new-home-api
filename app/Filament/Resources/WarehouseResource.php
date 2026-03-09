@@ -78,7 +78,8 @@ class WarehouseResource extends Resource
           ->dateTime()
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
-      ]);
+      ])
+      ->defaultSort('created_at', 'DESC');
   }
 
   public static function getRelations(): array

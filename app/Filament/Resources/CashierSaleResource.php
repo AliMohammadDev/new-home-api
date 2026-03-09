@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CashierSaleResource extends Resource
 {
@@ -28,10 +29,32 @@ class CashierSaleResource extends Resource
     return $form->schema([
       Forms\Components\Section::make('تفاصيل المادة المباعة')
         ->schema([
+          // Forms\Components\Select::make('sales_point_cashier_id')
+          //   ->label('الكاشير')
+          //   ->relationship('cashier', 'id')
+          //   ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
+          //   ->searchable()
+          //   ->preload()
+          //   ->required(),
+
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الكاشير')
-            ->relationship('cashier', 'id')
+            ->relationship(
+              name: 'cashier',
+              titleAttribute: 'id',
+              modifyQueryUsing: fn(Builder $query) => $query->whereHas(
+                'user',
+                fn(Builder $userQuery) => $userQuery->role('sales_point_cashier')
+              )
+            )
             ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
+
+            ->default(fn() => SalesPointCashier::where('user_id', auth()->id())->value('id'))
+
+            ->disabled(fn() => auth()->check() && auth()->user()->hasRole('sales_point_cashier'))
+
+            ->dehydrated()
+
             ->searchable()
             ->preload()
             ->required(),
@@ -155,6 +178,7 @@ class CashierSaleResource extends Resource
         ),
       Tables\Columns\TextColumn::make('cashier.user.name')->label('الكاشير'),
     ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make(),

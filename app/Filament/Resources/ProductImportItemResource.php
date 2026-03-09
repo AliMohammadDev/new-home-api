@@ -126,6 +126,7 @@ class ProductImportItemResource extends Resource
           ->label('المورد')
           ->relationship('productImport', 'supplier_name'),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\Action::make('print')
           ->label('طباعة')

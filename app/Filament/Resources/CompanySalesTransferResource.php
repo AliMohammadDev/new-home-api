@@ -111,6 +111,7 @@ class CompanySalesTransferResource extends Resource
           ->date()
           ->sortable(),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\SelectFilter::make('trans_type')
           ->options([

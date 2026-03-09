@@ -97,6 +97,7 @@ class SalesPointCashierResource extends Resource
       ->filters([
         //
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make(),

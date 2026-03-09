@@ -82,6 +82,7 @@ class ProductImportResource extends Resource
           ->label('ملاحظة')
           ->toggleable(isToggledHiddenByDefault: true),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\Filter::make('import_date')
           ->form([

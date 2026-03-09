@@ -91,6 +91,7 @@ class SalesPointManagerResource extends Resource
           ->label('تصفية حسب النقطة')
           ->relationship('salesPoint', 'name'),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make(),

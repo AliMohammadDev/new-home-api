@@ -159,6 +159,7 @@ class ShippingWarehouseResource extends Resource
           ->dateTime('Y-m-d H:i')
           ->sortable(),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\SelectFilter::make('warehouse_id')
           ->label('تصفية حسب المستودع')

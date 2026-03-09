@@ -141,6 +141,7 @@ class ProductResource extends Resource
           ->label('حالة الأرشفة')
           ->native(false),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),

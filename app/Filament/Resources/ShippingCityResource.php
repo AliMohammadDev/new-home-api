@@ -97,6 +97,7 @@ class ShippingCityResource extends Resource
           ->date()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\TernaryFilter::make('is_free_shipping')
           ->label('شحن مجاني فقط'),

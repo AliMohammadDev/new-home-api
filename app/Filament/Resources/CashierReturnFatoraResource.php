@@ -58,6 +58,7 @@ class CashierReturnFatoraResource extends Resource
         ->label('الإجمالي')
         ->money('USD', locale: 'en_US')
     ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         //
       ])

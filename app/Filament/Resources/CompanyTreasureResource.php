@@ -66,6 +66,7 @@ class CompanyTreasureResource extends Resource
               ->numeric()
               ->required(),
           ])
+          ->defaultSort('created_at', 'DESC')
           ->action(function (CompanyTreasure $record, array $data) {
             $record->entries()->create([
               'user_id' => auth()->id(),

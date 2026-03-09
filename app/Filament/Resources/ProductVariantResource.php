@@ -420,6 +420,7 @@ class ProductVariantResource extends Resource
 
 
       ])
+      ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\SelectFilter::make('product_id')
           ->label('المنتج')

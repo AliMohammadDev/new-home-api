@@ -93,7 +93,9 @@ class CompanyEntryResource extends Resource
         }),
       Tables\Columns\TextColumn::make('name')->label('البيان'),
       Tables\Columns\TextColumn::make('amount')->label('المبلغ')->money('USD', locale: 'en_US'),
-    ]);
+    ])
+      ->defaultSort('created_at', 'DESC')
+    ;
   }
   public static function getRelations(): array
   {
