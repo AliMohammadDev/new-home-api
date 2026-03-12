@@ -48,6 +48,8 @@ class CompanyTreasureResource extends Resource
         ->money('USD', locale: 'en_US')
         ->color(fn($state) => $state >= 0 ? 'success' : 'danger'),
     ])
+      ->defaultSort('created_at', 'DESC')
+
       ->actions([
         Tables\Actions\Action::make('add_entry')
           ->label('إيداع / سحب')
@@ -66,7 +68,6 @@ class CompanyTreasureResource extends Resource
               ->numeric()
               ->required(),
           ])
-          ->defaultSort('created_at', 'DESC')
           ->action(function (CompanyTreasure $record, array $data) {
             $record->entries()->create([
               'user_id' => auth()->id(),
