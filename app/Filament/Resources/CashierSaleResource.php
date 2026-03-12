@@ -29,14 +29,6 @@ class CashierSaleResource extends Resource
     return $form->schema([
       Forms\Components\Section::make('تفاصيل المادة المباعة')
         ->schema([
-          // Forms\Components\Select::make('sales_point_cashier_id')
-          //   ->label('الكاشير')
-          //   ->relationship('cashier', 'id')
-          //   ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
-          //   ->searchable()
-          //   ->preload()
-          //   ->required(),
-
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الكاشير')
             ->relationship(
@@ -48,13 +40,9 @@ class CashierSaleResource extends Resource
               )
             )
             ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
-
             ->default(fn() => SalesPointCashier::where('user_id', auth()->id())->value('id'))
-
             ->disabled(fn() => auth()->check() && auth()->user()->hasRole('sales_point_cashier'))
-
             ->dehydrated()
-
             ->searchable()
             ->preload()
             ->required(),
@@ -67,39 +55,35 @@ class CashierSaleResource extends Resource
             ->live()
             ->options(function (Forms\Get $get) {
               $cashierId = $get('sales_point_cashier_id');
-
               if (!$cashierId) {
                 return [];
               }
-
               $cashier = SalesPointCashier::with('salesPoint.warehouse')
                 ->find($cashierId);
-
               if (!$cashier || !$cashier->salesPoint || !$cashier->salesPoint->warehouse) {
                 return [];
               }
-
               return $cashier->salesPoint->warehouse->productVariants()
                 ->get()
                 ->mapWithKeys(function ($variant) {
                   $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
                   $sku = $variant->sku ?? 'بدون SKU';
                   $stock = $variant->pivot->amount ?? 0;
-
                   return [$variant->id => "{$productName} - {$sku} (متوفر: {$stock})"];
                 });
             })
             ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
               if (!$state)
                 return;
-
               $variant = ProductVariant::find($state);
-              $variant = \App\Models\ProductVariant::find($state);
-
+              $variant = ProductVariant::find($state);
               if ($variant) {
                 $set('price', $variant->price);
-                $currentQuantity = (float) ($get('quantity') ?? 1);
-                $set('full_price', (float) $variant->price * $currentQuantity);
+                $discount = $variant->discount ?? 0;
+                $set('discount', $discount);
+                $quantity = (float) ($get('quantity') ?? 1);
+                $total = ($variant->price * $quantity) - $discount;
+                $set('full_price', round($total, 2));
               }
             }),
 
@@ -111,22 +95,21 @@ class CashierSaleResource extends Resource
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $price = (float) ($get('price') ?? 0);
-              $set('full_price', (float) $state * $price);
-
+              $discount = (float) ($get('discount') ?? 0);
+              $total = ($state * $price) - $discount;
+              $set('full_price', round($total, 2));
             })
             ->rules([
               function (Forms\Get $get) {
                 return function (string $attribute, $value, $fail) use ($get) {
                   $variantId = $get('product_variant_id');
                   $cashierId = $get('sales_point_cashier_id');
-
                   if ($variantId && $cashierId) {
                     $cashier = SalesPointCashier::find($cashierId);
                     $warehouse = $cashier->salesPoint->warehouse;
                     $stock = $warehouse->productVariants()
                       ->where('product_variant_id', $variantId)
                       ->first()?->pivot->amount ?? 0;
-
                     if ($value > $stock) {
                       $fail("الكمية المطلوبة غير متوفرة. المتاح في المستودع: {$stock}");
                     }
@@ -134,7 +117,6 @@ class CashierSaleResource extends Resource
                 };
               },
             ]),
-
 
           Forms\Components\TextInput::make('price')
             ->label('سعر الوحدة')
@@ -146,9 +128,23 @@ class CashierSaleResource extends Resource
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $quantity = (float) ($get('quantity') ?? 0);
-              $set('full_price', (float) $state * $quantity);
+              $discount = (float) ($get('discount') ?? 0);
+              $set('full_price', round(($state * $quantity) - $discount, 2));
+            }),
 
-
+          Forms\Components\TextInput::make('discount')
+            ->label('الخصم')
+            ->numeric()
+            ->default(0)
+            ->disabled()
+            ->dehydrated()
+            ->prefix('USD')
+            ->live(onBlur: true)
+            ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+              $price = (float) ($get('price') ?? 0);
+              $quantity = (float) ($get('quantity') ?? 1);
+              $discount = (float) ($state ?? 0);
+              $set('full_price', round(($state * $quantity) - $discount, 2));
             }),
 
           Forms\Components\TextInput::make('full_price')
@@ -156,8 +152,6 @@ class CashierSaleResource extends Resource
             ->numeric()
             ->readonly()
             ->prefix('USD'),
-
-
         ])->columns(2),
     ]);
   }
@@ -197,9 +191,22 @@ class CashierSaleResource extends Resource
       'index' => Pages\ListCashierSales::route('/'),
       'create' => Pages\CreateCashierSale::route('/create'),
       'edit' => Pages\EditCashierSale::route('/{record}/edit'),
+      'pos' => Pages\CashierPos::route('/pos'),
     ];
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    $cashierId = SalesPointCashier::where('user_id', auth()->id())->value('id');
+
+    return $query->where('sales_point_cashier_id', $cashierId);
+  }
 
 
 }

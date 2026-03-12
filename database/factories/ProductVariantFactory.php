@@ -81,7 +81,6 @@ class ProductVariantFactory extends Factory
 
   public function configure()
   {
-
     // create 4 image for each variant
     return $this->afterCreating(function (ProductVariant $variant) {
       for ($i = 0; $i < 4; $i++) {
@@ -114,24 +113,18 @@ class ProductVariantFactory extends Factory
           logger()->error("Failed to seed image $i for variant {$variant->id}: " . $e->getMessage());
         }
       }
-
       // create packages logic
       $quantities = [6, 12, 24];
-
       foreach ($quantities as $qty) {
         $singleUnitFinalPrice = $variant->final_price;
-
         $bulkDiscountPercentage = match ($qty) {
           6 => 0.10,
           12 => 0.15,
           24 => 0.20,
           default => 0.05
         };
-
         $pricePerUnitInPackage = $singleUnitFinalPrice * (1 - $bulkDiscountPercentage);
-
         $totalPackagePrice = round($pricePerUnitInPackage * $qty, 2);
-
         $variant->packages()->create([
           'quantity' => $qty,
           'price' => $totalPackagePrice,
