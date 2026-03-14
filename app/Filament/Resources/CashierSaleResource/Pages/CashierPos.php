@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Filament\Resources\Pages\Page;
 use App\Models\SalesPointCashier;
 use App\Models\CashierSale;
-use App\Models\ProductVariant;
 
 class CashierPos extends Page
 {
@@ -26,60 +25,66 @@ class CashierPos extends Page
 
   public function scanBarcode()
   {
-    if (empty($this->barcode)) {
+    if (empty($this->barcode))
+      return;
+
+    $cashier = SalesPointCashier::with('salesPoint.warehouse')
+      ->where('user_id', auth()->id())
+      ->first();
+
+    if (!$cashier || !$cashier->salesPoint?->warehouse) {
+      Notification::make()->title('خطأ')->body('لا يوجد مستودع مرتبط بنقطة البيع هذه!')->danger()->send();
       return;
     }
 
-    $variant = ProductVariant::with('product')
-      ->where('barcode', $this->barcode)
-      ->orWhere('sku', $this->barcode)
+    $warehouse = $cashier->salesPoint->warehouse;
+
+    $variant = $warehouse->productVariants()
+      ->where(function ($query) {
+        $query->where('barcode', $this->barcode)
+          ->orWhere('sku', $this->barcode);
+      })
       ->first();
 
     if ($variant) {
+      $stockInWarehouse = $variant->pivot->amount;
       $existingItemKey = collect($this->cart)->search(fn($item) => $item['variant_id'] === $variant->id);
-
-      $netPrice = $variant->price - $variant->discount;
+      $netPrice = $variant->price - ($variant->discount ?? 0);
 
       if ($existingItemKey !== false) {
-        if ($this->cart[$existingItemKey]['quantity'] < $variant->stock_quantity) {
+        if ($this->cart[$existingItemKey]['quantity'] < $stockInWarehouse) {
           $this->cart[$existingItemKey]['quantity']++;
           $this->cart[$existingItemKey]['total'] = $this->cart[$existingItemKey]['quantity'] * $netPrice;
         } else {
-          Notification::make()
-            ->title('تنبيه')
-            ->body('الكمية المطلوبة تتجاوز المخزون المتوفر!')
-            ->warning()
-            ->send();
+          Notification::make()->title('تنبيه')->body("الكمية غير كافية! المتاح: {$stockInWarehouse}")->warning()->send();
         }
       } else {
-        if ($variant->stock_quantity > 0) {
+        if ($stockInWarehouse > 0) {
           $this->cart[] = [
             'variant_id' => $variant->id,
             'name' => $variant->product->name['ar'] ?? 'منتج غير مسمى',
             'sku' => $variant->sku,
-            'barcode' => $variant->barcode ?? $variant->sku,
             'price' => $variant->price,
-            'discount' => $variant->discount,
+            'discount' => $variant->discount ?? 0,
             'quantity' => 1,
             'total' => $netPrice,
           ];
         } else {
-          Notification::make()
-            ->title('نفذت الكمية')
-            ->body('هذا المنتج غير متوفر في المستودع حالياً.')
-            ->danger()
-            ->send();
+          Notification::make()->title('نفذت الكمية')->body('هذا المنتج غير متوفر في مستودعك حالياً.')->danger()->send();
         }
       }
-
       $this->calculateTotal();
-
     } else {
-      Notification::make()->title('خطأ')->body('المنتج غير موجود')->danger()->send();
+      Notification::make()->title('خطأ')->body('المنتج غير موجود في مستودعك')->danger()->send();
     }
 
     $this->barcode = '';
   }
+
+
+
+
+
 
   public function removeItem($index)
   {
@@ -87,10 +92,6 @@ class CashierPos extends Page
     $this->cart = array_values($this->cart);
     $this->calculateTotal();
   }
-
-
-
-
 
   public function calculateTotal()
   {
@@ -108,33 +109,30 @@ class CashierPos extends Page
 
     try {
       $cashierId = SalesPointCashier::where('user_id', auth()->id())->value('id');
-      $fatoraId = 1;
 
       foreach ($this->cart as $item) {
+
         CashierSale::create([
-          'fatora_id' => $fatoraId,
           'sales_point_cashier_id' => $cashierId,
           'product_variant_id' => $item['variant_id'],
           'quantity' => $item['quantity'],
           'price' => $item['price'],
+          'discount' => $item['discount'],
           'full_price' => $item['total'],
         ]);
-
-
       }
 
       DB::commit();
-
-      Notification::make()->title('تم حفظ الفاتورة بنجاح')->success()->send();
-
-      $this->dispatch('print-invoice', ['fatora_id' => $fatoraId]);
-
+      Notification::make()->title('تمت عملية البيع بنجاح')->success()->send();
       $this->cart = [];
       $this->grandTotal = 0;
 
     } catch (\Exception $e) {
       DB::rollBack();
-      Notification::make()->title('حدث خطأ أثناء حفظ الفاتورة')->body($e->getMessage())->danger()->send();
+      Notification::make()->title('حدث خطأ')->body($e->getMessage())->danger()->send();
     }
   }
+
+
+
 }

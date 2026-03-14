@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CashierSalesFatoraResource\Pages;
+use App\Filament\Resources\CashierSalesFatoraResource\RelationManagers\ItemsRelationManager;
 use App\Models\CashierSalesFatora;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -72,7 +73,7 @@ class CashierSalesFatoraResource extends Resource
           ->url(fn($record) => route('fatora.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
 
-        Tables\Actions\EditAction::make(),
+        Tables\Actions\EditAction::make()->label('عرض وتعديل'),
         Tables\Actions\DeleteAction::make(),
       ])
       ->bulkActions([
@@ -97,7 +98,7 @@ class CashierSalesFatoraResource extends Resource
   public static function getRelations(): array
   {
     return [
-      //
+      ItemsRelationManager::class,
     ];
   }
 
