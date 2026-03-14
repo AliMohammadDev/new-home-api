@@ -8,12 +8,17 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListCashierSales extends ListRecords
 {
-    protected static string $resource = CashierSaleResource::class;
+  protected static string $resource = CashierSaleResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      \Filament\Actions\Action::make('pos')
+        ->label('فتح الـ POS')
+        ->icon('heroicon-o-calculator')
+        ->color('warning')
+        ->url(static::getResource()::getUrl('pos')),
+      Actions\CreateAction::make(),
+    ];
+  }
 }
