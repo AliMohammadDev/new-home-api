@@ -77,6 +77,17 @@ class ShippingWarehouseResource extends Resource
             ->live()
             ->required(),
 
+
+
+          Forms\Components\Select::make('user_id')
+            ->label('المستخدم المسؤول')
+            ->relationship('user', 'name')
+            ->default(auth()->id())
+            ->disabled()
+            ->dehydrated()
+            ->required(),
+
+
           Forms\Components\TextInput::make('unit_name')
             ->label('اسم الوحدة')
             ->placeholder('مثلاً: كرتونة')
@@ -129,6 +140,11 @@ class ShippingWarehouseResource extends Resource
       ->columns([
         Tables\Columns\TextColumn::make('warehouse.name')
           ->label('المستودع')
+          ->searchable()
+          ->sortable(),
+
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('المستخدم')
           ->searchable()
           ->sortable(),
 
@@ -191,6 +207,7 @@ class ShippingWarehouseResource extends Resource
             WarehouseReturn::create([
               'product_variant_id' => $record->product_variant_id,
               'warehouse_id' => $record->warehouse_id,
+              'user_id' => auth()->id(),
               'amount' => $data['return_amount'],
               'reason' => $data['reason'],
             ]);

@@ -40,6 +40,15 @@ class ProductImportItemResource extends Resource
               ->preload()
               ->required(),
 
+            Forms\Components\Select::make('user_id')
+              ->label('المستخدم المسؤول')
+              ->relationship('user', 'name')
+              ->default(auth()->id())
+              ->disabled()
+              ->dehydrated()
+              ->required(),
+
+
             Forms\Components\TextInput::make('quantity')
               ->label('الكمية')
               ->numeric()
@@ -107,7 +116,10 @@ class ProductImportItemResource extends Resource
           })
           ->searchable(),
 
-
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('المستخدم')
+          ->searchable()
+          ->sortable(),
 
         Tables\Columns\TextColumn::make('quantity')
           ->label('الكمية')->badge()->color('success'),

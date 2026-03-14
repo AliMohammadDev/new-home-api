@@ -9,6 +9,7 @@ class ShippingWarehouse extends Model
 {
   protected $fillable = [
     'product_variant_id',
+    'user_id',
     'warehouse_id',
     'arrival_time',
     'amount',
@@ -21,6 +22,10 @@ class ShippingWarehouse extends Model
     'expected_arrival' => 'datetime',
   ];
 
+  public function user()
+  {
+    return $this->belongsTo(User::class);
+  }
 
   public function warehouse(): BelongsTo
   {

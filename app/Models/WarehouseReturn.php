@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WarehouseReturn extends Model
 {
-  protected $fillable = ['product_variant_id', 'warehouse_id', 'amount', 'reason'];
+  protected $fillable = ['product_variant_id', 'warehouse_id', 'user_id', 'amount', 'reason'];
 
   public function productVariant()
   {
@@ -17,4 +17,10 @@ class WarehouseReturn extends Model
   {
     return $this->belongsTo(Warehouse::class);
   }
+
+  public function user()
+  {
+    return $this->belongsTo(User::class);
+  }
+
 }

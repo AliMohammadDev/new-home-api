@@ -55,6 +55,13 @@ class AdminPanelProvider extends PanelProvider
       ->databaseNotifications()
       ->databaseNotificationsPolling('30s')
       ->font('Cairo')
+      ->navigationItems([
+        \Filament\Navigation\NavigationItem::make('شاشة الكاشير (POS)')
+          ->group('إدارة المبيعات')
+          ->icon('heroicon-o-computer-desktop')
+          ->url(fn(): string => \App\Filament\Resources\CashierSaleResource\Pages\CashierPos::getUrl())
+          ->sort(1),
+      ])
 
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,

@@ -11,13 +11,22 @@ use App\Models\CashierSale;
 
 class CashierPos extends Page
 {
+
   protected static string $resource = CashierSaleResource::class;
   protected static string $view = 'filament.resources.cashier-sale-resource.pages.cashier-pos';
 
   protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
   protected static ?string $navigationGroup = 'إدارة المبيعات';
   protected static ?string $navigationLabel = 'شاشة الكاشير (POS)';
-  protected static ?string $title = 'نقطة البيع';
+  protected static ?int $navigationSort = 1;
+
+  protected static ?string $title = 'نقطة البيع السريع';
+
+  public static function shouldRegisterNavigation(array $parameters = []): bool
+  {
+    return true;
+  }
+
 
   public string $barcode = '';
   public array $cart = [];

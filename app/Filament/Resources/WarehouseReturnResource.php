@@ -46,6 +46,14 @@ class WarehouseReturnResource extends Resource
               ->label('الكمية المرجعة')
               ->numeric()
               ->disabled(),
+
+            Forms\Components\Select::make('user_id')
+              ->label(' المستخدم المسؤول')
+              ->relationship('user', 'name')
+              ->searchable()
+              ->preload()
+              ->required(),
+
             Forms\Components\Textarea::make('reason')
               ->label('سبب الإرجاع')
               ->columnSpanFull()
@@ -94,6 +102,11 @@ class WarehouseReturnResource extends Resource
           ->badge()
           ->color('warning')
           ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('المستخدم')
+          ->searchable()
+          ->sortable(),
 
         TextColumn::make('reason')
           ->label('السبب')

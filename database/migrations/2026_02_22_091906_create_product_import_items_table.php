@@ -2,6 +2,7 @@
 
 use App\Models\ProductImport;
 use App\Models\ProductVariant;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,6 +18,7 @@ return new class extends Migration {
       $table->foreignIdFor(ProductImport::class)->constrained();
       $table->foreignIdFor(ProductVariant::class)->nullable()->constrained()
         ->nullOnDelete();
+      $table->foreignIdFor(User::class)->constrained();
 
       $table->integer('quantity');
       $table->decimal('price', 10, 2);
