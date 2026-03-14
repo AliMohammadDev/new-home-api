@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\FatoraPrintController;
+use App\Http\Controllers\Api\FinancialReportController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ShippingWarehouseController;
 use App\Http\Controllers\Api\SupplierImportController;
@@ -25,3 +26,7 @@ Route::get('/print-supplier-imports', [SupplierImportController::class, 'print']
 
 Route::get('/print-fatora', [FatoraPrintController::class, 'print'])
   ->name('fatora.print');
+
+Route::get('/print-financial-report', [FinancialReportController::class, 'print'])
+  ->name('reports.print.financial')
+  ->middleware(['auth']);
