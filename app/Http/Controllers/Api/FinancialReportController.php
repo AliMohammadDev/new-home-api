@@ -77,11 +77,10 @@ class FinancialReportController extends Controller
         ->get(),
 
 
-      // داخل مصفوفة $details في الـ Controller
       'waste_daily' => $wasteWarehouse ?
-        \DB::table('shipping_warehouses')
+        DB::table('shipping_warehouses')
           ->where('warehouse_id', $wasteWarehouse->id)
-          ->whereBetween('arrival_time', $range) // نستخدم الحقل الموجود في الموديل عندك
+          ->whereBetween('arrival_time', $range)
           ->selectRaw('DATE(arrival_time) as date, SUM(amount) as total_qty')
           ->groupBy('date')
           ->orderBy('date', 'desc')
