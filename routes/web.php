@@ -30,3 +30,6 @@ Route::get('/print-fatora', [FatoraPrintController::class, 'print'])
 Route::get('/print-financial-report', [FinancialReportController::class, 'print'])
   ->name('reports.print.financial')
   ->middleware(['auth']);
+
+Route::get('/print-product-report', [FinancialReportController::class, 'printProductReport'])
+  ->name('reports.print.products');

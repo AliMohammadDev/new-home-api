@@ -15,7 +15,8 @@
                 {{ $this->form }}
             </div>
             <x-filament::button type="submit" icon="heroicon-m-funnel" class="mb-1">
-                تحديث التقرير
+                تحديث البيانات
+
             </x-filament::button>
         </form>
     </div>

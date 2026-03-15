@@ -182,7 +182,9 @@
             <tbody>
                 @foreach ($details['imports'] as $import)
                     <tr>
-                        <td>{{ $import->product->name['ar'] ?? 'منتج غير معرف' }}</td>
+                        <td>
+                            {{ $import->productVariant->product->name['ar'] ?? 'منتج غير معرف' }}
+                        </td>
                         <td style="text-align: center;">{{ $import->quantity }}</td>
                         <td style="text-align: left;" class="badge-expense">{{ number_format($import->total_cost, 2) }}
                             $</td>
@@ -267,10 +269,7 @@
         </table>
     </div>
 
-    <div style="clear: both; margin-top: 50px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-        <p style="color: #888; font-size: 10pt;">هذا المستند سري ويستخدم للأغراض الإدارية فقط - نظام المحاسبة المركزي
-        </p>
-    </div>
+
 
 </body>
 
