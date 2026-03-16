@@ -16,17 +16,18 @@ class WishListController extends Controller
   ) {
   }
 
+
   public function index(Request $request)
   {
     $wishlist = $this->wishListService->findAll(
-      paginate: true,
-      perPage: $request->get('per_page', 5),
-      page: $request->get('page', 1),
+      paginate: false,  
       userId: Auth::id(),
     );
 
     return WishListResource::collection($wishlist);
   }
+
+
 
   // public function store(Request $request)
   // {
