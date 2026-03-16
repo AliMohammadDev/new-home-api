@@ -78,7 +78,7 @@
                 <h1>التقرير المالي العام الشامل</h1>
             </td>
             <td style="width: 40%; text-align: left; vertical-align: middle;">
-                @php $logoPath = public_path('images/logo.png'); @endphp
+                @php $logoPath = public_path('images/logo-no-black.png'); @endphp
                 @if (file_exists($logoPath))
                     <img src="{{ $logoPath }}" width="130">
                 @else

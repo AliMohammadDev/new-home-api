@@ -89,7 +89,7 @@
             </td>
             <td style="width: 50%; text-align: left; vertical-align: middle;">
                 @php
-                    $logoPath = public_path('images/logo.png');
+                    $logoPath = public_path('images/logo-no-black.png');
                 @endphp
 
                 @if (file_exists($logoPath))

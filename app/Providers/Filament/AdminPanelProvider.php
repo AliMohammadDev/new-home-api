@@ -43,11 +43,11 @@ class AdminPanelProvider extends PanelProvider
         'اإدارة المستخدمين',
       ])
       ->login()
-      ->brandName('المنزل الحديث')
-      ->brandLogo(asset('images/home-logo-black_dicco2.svg'))
-      ->darkModeBrandLogo(asset('images/home-logo-white_c2et5l.svg'))
-      ->favicon(asset('logo.png'))
-      ->brandLogoHeight('3rem')
+      ->brandName('وكالة نوح')
+      ->brandLogo(asset('images/logo-no-black.png'))
+      ->darkModeBrandLogo(asset('images/logo-no-white.svg'))
+      ->favicon(asset('logo-no-black.png'))
+      ->brandLogoHeight('5rem')
       ->broadcasting()
       ->colors([
         'primary' => '#025043',
