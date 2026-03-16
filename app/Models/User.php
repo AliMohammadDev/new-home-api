@@ -22,7 +22,7 @@ class User extends Authenticatable implements FilamentUser
    *
    * @var list<string>
    */
-
+  protected $guard_name = 'web';
 
   protected $fillable = [
     'name',
