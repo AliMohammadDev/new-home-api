@@ -11,6 +11,10 @@ class CapitalStatsWidget extends BaseWidget
 
   protected static ?int $sort = -20;
 
+  public static function canView(): bool
+  {
+    return auth()->check() && auth()->user()->hasRole('super_admin');
+  }
 
   protected function getStats(): array
   {
@@ -28,4 +32,3 @@ class CapitalStatsWidget extends BaseWidget
     ];
   }
 }
-                                                                                                                       
