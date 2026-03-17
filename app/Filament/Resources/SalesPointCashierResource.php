@@ -89,7 +89,7 @@ class SalesPointCashierResource extends Resource
             default => $state,
           }),
 
-        Tables\Columns\TextColumn::make('daily_limit')
+        Tables\Columns\TextColumn::make('daily_limit')  
           ->label('حد الصندوق')
           ->money('USD', locale: 'en_US')
         ,
