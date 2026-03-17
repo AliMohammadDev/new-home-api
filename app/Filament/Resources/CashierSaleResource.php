@@ -76,13 +76,15 @@ class CashierSaleResource extends Resource
               if (!$state)
                 return;
               $variant = ProductVariant::find($state);
-              $variant = ProductVariant::find($state);
               if ($variant) {
-                $set('price', $variant->price);
-                $discount = $variant->discount ?? 0;
-                $set('discount', $discount);
+                $price = (float) $variant->price;
+                $discountPercent = (float) ($variant->discount ?? 0);
                 $quantity = (float) ($get('quantity') ?? 1);
-                $total = ($variant->price * $quantity) - $discount;
+
+                $set('price', $price);
+                $set('discount', $discountPercent);
+
+                $total = ($price * $quantity) * (1 - ($discountPercent / 100));
                 $set('full_price', round($total, 2));
               }
             }),
@@ -95,8 +97,10 @@ class CashierSaleResource extends Resource
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $price = (float) ($get('price') ?? 0);
-              $discount = (float) ($get('discount') ?? 0);
-              $total = ($state * $price) - $discount;
+              $discountPercent = (float) ($get('discount') ?? 0);
+              $quantity = (float) ($state ?? 0);
+
+              $total = ($price * $quantity) * (1 - ($discountPercent / 100));
               $set('full_price', round($total, 2));
             })
             ->rules([
@@ -128,8 +132,9 @@ class CashierSaleResource extends Resource
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $quantity = (float) ($get('quantity') ?? 0);
-              $discount = (float) ($get('discount') ?? 0);
-              $set('full_price', round(($state * $quantity) - $discount, 2));
+              $discountPercent = (float) ($get('discount') ?? 0);
+              $total = ($state * $quantity) * (1 - ($discountPercent / 100));
+              $set('full_price', round($total, 2));
             }),
 
           Forms\Components\TextInput::make('discount')
@@ -137,16 +142,16 @@ class CashierSaleResource extends Resource
             ->numeric()
             ->default(0)
             ->disabled()
+            ->suffix('%')
             ->dehydrated()
-            ->prefix('USD')
             ->live(onBlur: true)
             ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
               $price = (float) ($get('price') ?? 0);
               $quantity = (float) ($get('quantity') ?? 1);
-              $discount = (float) ($state ?? 0);
-              $set('full_price', round(($state * $quantity) - $discount, 2));
+              $discountPercent = (float) ($state ?? 0);
+              $total = ($price * $quantity) * (1 - ($discountPercent / 100));
+              $set('full_price', round($total, 2));
             }),
-
           Forms\Components\TextInput::make('full_price')
             ->label('الإجمالي')
             ->numeric()
@@ -155,7 +160,6 @@ class CashierSaleResource extends Resource
         ])->columns(2),
     ]);
   }
-
 
   public static function table(Table $table): Table
   {
