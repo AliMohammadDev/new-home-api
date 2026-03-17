@@ -65,14 +65,15 @@ class ProductVariantFactory extends Factory
    */
   public function definition(): array
   {
-    $price = $this->faker->randomFloat(2, 0.2, 100);
+    $price = $this->faker->randomFloat(2, 10, 100);
+
     return [
       'product_id' => Product::factory(),
       'color_id' => Color::factory(),
       'size_id' => Size::factory(),
       'material_id' => Material::factory(),
       'price' => $price,
-      'discount' => $this->faker->numberBetween(0, 50),
+      'discount' => $this->faker->numberBetween(0, 40),
       'stock_quantity' => 0,
       'sku' => ProductVariant::generateUniqueSku(),
       'barcode' => ProductVariant::generateUniqueBarcode(),
