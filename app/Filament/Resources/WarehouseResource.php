@@ -29,6 +29,16 @@ class WarehouseResource extends Resource
       ->schema([
         Forms\Components\Card::make()
           ->schema([
+
+            Forms\Components\Select::make('user_id')
+              ->label('المسؤول عن المستودع')
+              ->relationship('user', 'name')
+              ->default(auth()->id())
+              ->required()
+              ->searchable()
+              ->preload(),
+
+
             Forms\Components\TextInput::make('name')
               ->label('اسم المستودع')
               ->required()
@@ -58,6 +68,10 @@ class WarehouseResource extends Resource
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')
           ->searchable()
+          ->sortable(),
+
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('المسؤول')
           ->sortable(),
 
         Tables\Columns\TextColumn::make('city')
@@ -96,5 +110,16 @@ class WarehouseResource extends Resource
       'create' => Pages\CreateWarehouse::route('/create'),
       'edit' => Pages\EditWarehouse::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->where('user_id', auth()->id());
   }
 }

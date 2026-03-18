@@ -245,4 +245,17 @@ class ShippingWarehouseResource extends Resource
       'edit' => Pages\EditShippingWarehouse::route('/{record}/edit'),
     ];
   }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('warehouse', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
+  }
 }

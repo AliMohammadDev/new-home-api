@@ -11,6 +11,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class WarehouseReturnResource extends Resource
 {
@@ -142,5 +144,18 @@ class WarehouseReturnResource extends Resource
     return [
       'index' => Pages\ListWarehouseReturns::route('/'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('warehouse', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
   }
 }

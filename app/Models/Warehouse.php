@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Warehouse extends Model
 {
   use HasFactory;
-  protected $fillable = ['name', 'address', 'city', 'phone'];
+  protected $fillable = ['name', 'address', 'city', 'phone', 'user_id'];
+
+  public function user()
+  {
+    return $this->belongsTo(User::class);
+  }
 
   public function productVariants()
   {

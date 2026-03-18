@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -9,6 +10,8 @@ class WarehouseSeeder extends Seeder
 {
   public function run(): void
   {
+
+    $adminId = User::first()?->id ?? 1;
     $warehouses = [
       ['name' => 'مستودع الفيحاء المركزي', 'city' => 'دمشق', 'address' => 'المنطقة الصناعية - ركن الدين'],
       ['name' => 'مستودع الشهباء الرئيسي', 'city' => 'حلب', 'address' => 'الليرمون - حي الصناعة'],
@@ -20,6 +23,7 @@ class WarehouseSeeder extends Seeder
 
     foreach ($warehouses as $warehouse) {
       Warehouse::create([
+        'user_id' => $adminId,
         'name' => $warehouse['name'],
         'city' => $warehouse['city'],
         'address' => $warehouse['address'],
