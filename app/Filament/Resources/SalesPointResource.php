@@ -15,6 +15,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class SalesPointResource extends Resource
 {
@@ -135,5 +137,18 @@ class SalesPointResource extends Resource
       'create' => Pages\CreateSalesPoint::route('/create'),
       'edit' => Pages\EditSalesPoint::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('managers', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
   }
 }

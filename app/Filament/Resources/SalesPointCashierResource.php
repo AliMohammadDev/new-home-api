@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class SalesPointCashierResource extends Resource
 {
@@ -29,7 +31,14 @@ class SalesPointCashierResource extends Resource
         ->schema([
           Forms\Components\Select::make('sales_point_id')
             ->label('نقطة البيع')
-            ->relationship('salesPoint', 'name')
+            ->relationship(
+              name: 'salesPoint',
+              titleAttribute: 'name',
+              modifyQueryUsing: fn(Builder $query) =>
+              auth()->user()->hasRole('super_admin')
+              ? $query
+              : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
+            )
             ->searchable()
             ->preload()
             ->required(),
@@ -89,7 +98,7 @@ class SalesPointCashierResource extends Resource
             default => $state,
           }),
 
-        Tables\Columns\TextColumn::make('daily_limit')  
+        Tables\Columns\TextColumn::make('daily_limit')
           ->label('حد الصندوق')
           ->money('USD', locale: 'en_US')
         ,
@@ -123,5 +132,18 @@ class SalesPointCashierResource extends Resource
       'create' => Pages\CreateSalesPointCashier::route('/create'),
       'edit' => Pages\EditSalesPointCashier::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('salesPoint.managers', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
   }
 }

@@ -29,14 +29,6 @@ class CashierSalesReturnResource extends Resource
     return $form->schema([
       Forms\Components\Section::make('تفاصيل المادة المرتجعة')
         ->schema([
-          // Forms\Components\Select::make('sales_point_cashier_id')
-          //   ->label('الكاشير')
-          //   ->relationship('cashier', 'id')
-          //   ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
-          //   ->searchable()
-          //   ->preload()
-          //   ->required(),
-
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الكاشير')
             ->relationship(
@@ -148,5 +140,22 @@ class CashierSalesReturnResource extends Resource
       'create' => Pages\CreateCashierSalesReturn::route('/create'),
       'edit' => Pages\EditCashierSalesReturn::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
+
+    if (!$cashierId) {
+      return $query->whereRaw('1 = 0');
+    }
+
+    return $query->where('sales_point_cashier_id', $cashierId);
   }
 }

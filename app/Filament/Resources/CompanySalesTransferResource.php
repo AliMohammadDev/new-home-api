@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class CompanySalesTransferResource extends Resource
 {
@@ -30,7 +32,14 @@ class CompanySalesTransferResource extends Resource
       ->schema([
         Forms\Components\Select::make('sales_point_id')
           ->label('نقطة البيع')
-          ->relationship('salesPoint', 'name')
+          ->relationship(
+            name: 'salesPoint',
+            titleAttribute: 'name',
+            modifyQueryUsing: fn(Builder $query) =>
+            auth()->user()->hasRole('super_admin')
+            ? $query
+            : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
+          )
           ->required()
           ->searchable()
           ->preload()
@@ -144,5 +153,18 @@ class CompanySalesTransferResource extends Resource
       'create' => Pages\CreateCompanySalesTransfer::route('/create'),
       'edit' => Pages\EditCompanySalesTransfer::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('salesPoint.managers', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
   }
 }

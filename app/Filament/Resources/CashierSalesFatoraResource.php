@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class CashierSalesFatoraResource extends Resource
 {
@@ -114,5 +116,22 @@ class CashierSalesFatoraResource extends Resource
   public static function canCreate(): bool
   {
     return false;
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
+
+    if (!$cashierId) {
+      return $query->whereRaw('1 = 0');
+    }
+
+    return $query->where('sales_point_cashier_id', $cashierId);
   }
 }

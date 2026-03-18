@@ -4,11 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CashierReturnFatoraResource\Pages;
 use App\Models\CashierReturnFatora;
+use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class CashierReturnFatoraResource extends Resource
 {
@@ -112,4 +115,23 @@ class CashierReturnFatoraResource extends Resource
   {
     return false;
   }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    $cashierId = SalesPointCashier::where('user_id', auth()->id())->value('id');
+
+    if (!$cashierId) {
+      return $query->whereRaw('1 = 0');
+    }
+
+    return $query->where('sales_point_cashier_id', $cashierId);
+  }
+
+
 }

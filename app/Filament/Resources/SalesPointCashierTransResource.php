@@ -190,4 +190,21 @@ class SalesPointCashierTransResource extends Resource
       'edit' => Pages\EditSalesPointCashierTrans::route('/{record}/edit'),
     ];
   }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
+
+    if (!$cashierId) {
+      return $query->whereRaw('1 = 0');
+    }
+
+    return $query->where('sales_point_cashier_id', $cashierId);
+  }
 }

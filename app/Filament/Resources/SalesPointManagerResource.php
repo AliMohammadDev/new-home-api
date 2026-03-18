@@ -46,7 +46,8 @@ class SalesPointManagerResource extends Resource
 
             TextInput::make('phone')
               ->label('رقم الهاتف')
-              ->tel(),
+              ->tel()
+              ->required(),
 
           ])->columns(2),
       ]);
@@ -115,5 +116,16 @@ class SalesPointManagerResource extends Resource
       'create' => Pages\CreateSalesPointManager::route('/create'),
       'edit' => Pages\EditSalesPointManager::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->where('user_id', auth()->id());
   }
 }
