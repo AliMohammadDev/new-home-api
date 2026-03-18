@@ -71,4 +71,14 @@ class ProductReports extends Page implements HasForms
       'returned_items' => WarehouseReturn::whereBetween('created_at', [$from, $to])->sum('amount'),
     ];
   }
+
+  public static function shouldRegisterNavigation(): bool
+  {
+    return auth()->user()->hasRole('super_admin');
+  }
+
+  public static function canAccess(): bool
+  {
+    return auth()->user()->hasRole('super_admin');
+  }
 }
