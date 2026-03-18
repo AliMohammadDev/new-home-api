@@ -74,11 +74,11 @@ class ProductReports extends Page implements HasForms
 
   public static function shouldRegisterNavigation(): bool
   {
-    return auth()->user()->hasRole('super_admin');
+    return auth()->user()->hasRole(['super_admin', 'finance_manager']);
   }
 
   public static function canAccess(): bool
   {
-    return auth()->user()->hasRole('super_admin');
+    return auth()->user()->hasRole(['super_admin', 'finance_manager']);
   }
 }
