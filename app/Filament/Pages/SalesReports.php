@@ -95,4 +95,14 @@ class SalesReports extends Page implements HasForms
       'count_trans_out' => $transOutQuery->count(),
     ];
   }
+
+  public static function shouldRegisterNavigation(): bool
+  {
+    return auth()->user()->hasRole('super_admin');
+  }
+
+  public static function canAccess(): bool
+  {
+    return auth()->user()->hasRole('super_admin');
+  }
 }

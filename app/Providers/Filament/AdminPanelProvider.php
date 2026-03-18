@@ -60,7 +60,8 @@ class AdminPanelProvider extends PanelProvider
           ->group('إدارة المبيعات')
           ->icon('heroicon-o-computer-desktop')
           ->url(fn(): string => \App\Filament\Resources\CashierSaleResource\Pages\CashierPos::getUrl())
-          ->sort(1),
+          ->sort(1)
+          ->visible(fn(): bool => auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier'])),
       ])
 
       ->renderHook(
