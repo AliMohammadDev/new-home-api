@@ -10,7 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Notifications\Notification;
 use Filament\Tables\Table;
 
 class UserResource extends Resource
@@ -98,12 +98,51 @@ class UserResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()->label('حذف'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, User $record) {
+            if (
+              $record->reviews()->exists() ||
+              $record->wishlist()->exists() ||
+              $record->carts()->exists() ||
+              $record->checkouts()->exists() ||
+              $record->reviews()->exists() ||
+              $record->orders()->exists() ||
+              $record->salesPoints()->exists()
+            ) {
+              Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المستخدم')
+                ->body('هذا المستخدم مرتبط بسجلات أخرى (طلبات، سلة، أو نقاط بيع). يجب حذف التبعيات أولاً.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
+
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make()
             ->label('حذف المحدد')
+            ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
+              foreach ($records as $record) {
+                if (
+                  $record->orders()->exists() ||
+                  $record->checkouts()->exists() ||
+                  $record->carts()->exists()
+                ) {
+                  Notification::make()
+                    ->danger()
+                    ->title('عملية غير مسموحة')
+                    ->body("المستخدم {$record->name} مرتبط ببيانات نشطة، لا يمكن حذف المجموعة.")
+                    ->send();
+
+                  $action->halt();
+                }
+              }
+            })
             ->requiresConfirmation()
             ->modalHeading('تأكيد الحذف')
             ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')

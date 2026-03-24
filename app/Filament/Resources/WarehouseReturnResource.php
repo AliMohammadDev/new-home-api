@@ -87,7 +87,14 @@ class WarehouseReturnResource extends Resource
         TextColumn::make('productVariant.product.name')
           ->label('المنتج')
           ->getStateUsing(fn($record) => $record->productVariant?->product?->name['ar'] ?? 'غير معروف')
-          ->searchable(),
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('productVariant.product', function (Builder $q) use ($search) {
+              $locale = app()->getLocale();
+              return $q->where("name->$locale", 'like', "%{$search}%")
+                ->orWhere("name->ar", 'like', "%{$search}%")
+                ->orWhere("name->en", 'like', "%{$search}%");
+            });
+          }),
 
         TextColumn::make('productVariant.sku')
           ->label('SKU')
@@ -97,28 +104,20 @@ class WarehouseReturnResource extends Resource
         TextColumn::make('warehouse.name')
           ->label('من مستودع')
           ->badge()
-          ->color('info'),
+          ->color('info')
+          ->searchable(),
 
-        TextColumn::make('amount')
-          ->label('الكمية المرجعة')
-          ->badge()
-          ->color('warning')
-          ->alignCenter(),
-
+        TextColumn::make('amount')->label('الكمية المرجعة')->badge()->color('warning')->alignCenter(),
         Tables\Columns\TextColumn::make('user.name')
           ->label('المستخدم')
-          ->searchable()
-          ->sortable(),
-
-        TextColumn::make('reason')
-          ->label('السبب')
-          ->placeholder('لم يتم ذكر سبب')
-          ->limit(30),
-
-        TextColumn::make('created_at')
-          ->label('تاريخ الإرجاع')
-          ->dateTime('Y-m-d H:i')
-          ->sortable(),
+          ->sortable()
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('user', function (Builder $q) use ($search) {
+              $q->where('name', 'like', "%{$search}%");
+            });
+          }),
+        TextColumn::make('reason')->label('السبب')->placeholder('لم يتم ذكر سبب')->searchable()->limit(30),
+        TextColumn::make('created_at')->label('تاريخ الإرجاع')->dateTime('Y-m-d H:i')->sortable(),
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
@@ -148,7 +147,12 @@ class WarehouseReturnResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with([
+      'productVariant.product',
+      'productVariant.images',
+      'user',
+      'warehouse'
+    ]);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
 
 class CashierSalesReturnResource extends Resource
 {
@@ -103,8 +104,28 @@ class CashierSalesReturnResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('fatora.id')->label('رقم فاتورة المرتجع')->sortable(),
-      Tables\Columns\TextColumn::make('variant.product.name')->label('المنتج')->searchable(),
+      Tables\Columns\TextColumn::make('fatora.id')
+        ->label('رقم فاتورة المرتجع')
+        ->sortable()
+        ->searchable(query: function (Builder $query, string $search): Builder {
+          return $query->whereHas('fatora', function (Builder $q) use ($search) {
+            $q->where('id', 'like', "%{$search}%");
+          });
+        }),
+      Tables\Columns\TextColumn::make('variant.product.name')
+        ->label('المنتج')
+        ->getStateUsing(
+          fn($record) =>
+          $record->variant?->product?->name[App::getLocale()] ??
+          $record->variant?->product?->name['en'] ?? ''
+        )
+        ->searchable(query: function (Builder $query, string $search): Builder {
+          return $query->whereHas('variant.product', function (Builder $q) use ($search) {
+            $locale = App::getLocale();
+            $q->where("name->$locale", 'like', "%{$search}%")
+              ->orWhere("name->en", 'like', "%{$search}%");
+          });
+        }),
       Tables\Columns\TextColumn::make('quantity')->label('الكمية')->color('danger'),
       Tables\Columns\TextColumn::make('full_price')
         ->label('الإجمالي')
@@ -117,7 +138,13 @@ class CashierSalesReturnResource extends Resource
         ),
 
 
-      Tables\Columns\TextColumn::make('cashier.user.name')->label('بواسطة الكاشير'),
+      Tables\Columns\TextColumn::make('cashier.user.name')
+        ->label('بواسطة الكاشير')
+        ->searchable(query: function (Builder $query, string $search): Builder {
+          return $query->whereHas('cashier.user', function (Builder $q) use ($search) {
+            $q->where('name', 'like', "%{$search}%");
+          });
+        }),
     ])
       ->filters([])
       ->defaultSort('created_at', 'DESC')
@@ -144,8 +171,7 @@ class CashierSalesReturnResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
-
+    $query = parent::getEloquentQuery()->with(['variant.product', 'cashier.user', 'fatora']);
     if (auth()->user()->hasRole('super_admin')) {
       return $query;
     }

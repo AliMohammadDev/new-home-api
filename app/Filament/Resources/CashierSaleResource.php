@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
 
 class CashierSaleResource extends Resource
 {
@@ -164,20 +165,40 @@ class CashierSaleResource extends Resource
 
   public static function table(Table $table): Table
   {
-    return $table->columns([
-      Tables\Columns\TextColumn::make('fatora.id')->label('رقم الفاتورة')->sortable(),
-      Tables\Columns\TextColumn::make('variant.product.name')->label('المنتج')->searchable(),
-      Tables\Columns\TextColumn::make('quantity')->label('الكمية'),
-      Tables\Columns\TextColumn::make('price')->label('السعر')->money('USD', locale: 'en_US'),
-      Tables\Columns\TextColumn::make('full_price')->label('الإجمالي')
-        ->money('USD', locale: 'en_US')
-        ->summarize(
-          Tables\Columns\Summarizers\Sum::make()
-            ->label('المجموع الكلي')
-            ->money('USD', locale: 'en_US')
-        ),
-      Tables\Columns\TextColumn::make('cashier.user.name')->label('الكاشير'),
-    ])
+    return $table
+      ->columns([
+        Tables\Columns\TextColumn::make('fatora.id')->label('رقم الفاتورة')->sortable(),
+
+        Tables\Columns\TextColumn::make('variant.product.name')
+          ->label('المنتج')
+          ->getStateUsing(fn($record) => $record->variant?->product?->name[App::getLocale()] ?? $record->variant?->product?->name['en'] ?? '')
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('variant.product', function (Builder $q) use ($search) {
+              $locale = App::getLocale();
+              $q->where("name->$locale", 'like', "%{$search}%")
+                ->orWhere("name->en", 'like', "%{$search}%");
+            });
+          }),
+
+
+        Tables\Columns\TextColumn::make('quantity')->label('الكمية'),
+        Tables\Columns\TextColumn::make('price')->label('السعر')->money('USD', locale: 'en_US'),
+        Tables\Columns\TextColumn::make('full_price')->label('الإجمالي')
+          ->money('USD', locale: 'en_US')
+          ->summarize(
+            Tables\Columns\Summarizers\Sum::make()
+              ->label('المجموع الكلي')
+              ->money('USD', locale: 'en_US')
+          ),
+        Tables\Columns\TextColumn::make('cashier.user.name')
+          ->label('الكاشير')
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('cashier.user', function (Builder $q) use ($search) {
+              $q->where('name', 'like', "%{$search}%");
+            });
+          }),
+
+      ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
@@ -202,8 +223,7 @@ class CashierSaleResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
-
+    $query = parent::getEloquentQuery()->with(['variant.product', 'cashier.user', 'fatora']);
     if (auth()->user()->hasRole('super_admin')) {
       return $query;
     }

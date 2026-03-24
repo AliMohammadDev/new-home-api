@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductImportItemResource extends Resource
 {
@@ -115,11 +116,10 @@ class ProductImportItemResource extends Resource
             return $product->name[app()->getLocale()] ?? $product->name['ar'] ?? $product->name['en'] ?? '-';
           })
           ->searchable(),
-
         Tables\Columns\TextColumn::make('user.name')
           ->label('المستخدم')
-          ->searchable()
-          ->sortable(),
+          ->sortable()
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('quantity')
           ->label('الكمية')->badge()->color('success'),
@@ -175,6 +175,12 @@ class ProductImportItemResource extends Resource
       'create' => Pages\CreateProductImportItem::route('/create'),
       'edit' => Pages\EditProductImportItem::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->with(['productImport', 'productVariant.product', 'user']);
   }
 
   protected static function updateTotal($set, $get)

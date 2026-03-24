@@ -3,16 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SizeResource\Pages;
-use App\Filament\Resources\SizeResource\RelationManagers;
-use App\Models\Size;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Form;
+use App\Models\Size;
+use Filament\Forms;
+use Filament\Tables;
 
 class SizeResource extends Resource
 {
@@ -56,10 +54,10 @@ class SizeResource extends Resource
         Tables\Filters\Filter::make('color')
           ->label('بحث باللون')
           ->form([
-            Forms\Components\TextInput::make('color')->label('اللون'),
+            Forms\Components\TextInput::make('size')->label('الحجم'),
           ])
           ->query(function (Builder $query, array $data) {
-            return $query->when($data['color'] ?? null, fn($q, $color) => $q->where('color', 'like', "%$color%"));
+            return $query->when($data['size'] ?? null, fn($q, $color) => $q->where('size', 'like', "%$color%"));
           }),
       ])
       ->defaultSort('created_at', 'DESC')

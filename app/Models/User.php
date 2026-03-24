@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Filament\Panel;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -75,12 +74,36 @@ class User extends Authenticatable implements FilamentUser
       ->where('status', 'active');
   }
 
+  public function carts()
+  {
+    return $this->hasMany(Cart::class);
+  }
+
+  public function orders()
+  {
+    return $this->hasMany(Order::class);
+  }
+
+  public function checkouts()
+  {
+    return $this->hasMany(Checkout::class);
+  }
+
+  public function warehouses()
+  {
+    return $this->hasMany(Warehouse::class);
+  }
+
+  public function salesPointManagers()
+  {
+    return $this->hasMany(SalesPointManager::class);
+  }
+
   public function canAccessPanel(\Filament\Panel $panel): bool
   {
     // return $this->hasRole('super_admin') || $this->hasRole('admin');
     return true;
   }
-
 
   public function salesPoints()
   {
