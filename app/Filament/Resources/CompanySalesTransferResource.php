@@ -91,7 +91,13 @@ class CompanySalesTransferResource extends Resource
       ->columns([
         Tables\Columns\TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
+          ->searchable()
           ->sortable(),
+
+        Tables\Columns\TextColumn::make('name')
+          ->label('البيان')
+          ->searchable()
+          ->placeholder('بدون بيان'),
 
         Tables\Columns\BadgeColumn::make('trans_type')
           ->label('نوع العملية')
@@ -123,10 +129,36 @@ class CompanySalesTransferResource extends Resource
       ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\SelectFilter::make('trans_type')
+          ->label('نوع الحركة')
           ->options([
             'deposit' => 'إيداع',
             'withdraw' => 'سحب',
           ]),
+
+        Tables\Filters\SelectFilter::make('sales_point_id')
+          ->label('نقطة البيع')
+          ->relationship('salesPoint', 'name')
+          ->searchable()
+          ->preload(),
+
+        Tables\Filters\Filter::make('date')
+          ->form([
+            Forms\Components\DatePicker::make('from')->label('من تاريخ'),
+            Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
+          ])
+          ->query(function (Builder $query, array $data): Builder {
+            return $query
+              ->when($data['from'], fn($q) => $q->whereDate('date', '>=', $data['from']))
+              ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
+          })
+          ->indicateUsing(function (array $data): array {
+            $indicators = [];
+            if ($data['from'] ?? null)
+              $indicators[] = 'من: ' . $data['from'];
+            if ($data['until'] ?? null)
+              $indicators[] = 'إلى: ' . $data['until'];
+            return $indicators;
+          }),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
@@ -157,7 +189,7 @@ class CompanySalesTransferResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['salesPoint']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

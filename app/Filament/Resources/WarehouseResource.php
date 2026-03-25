@@ -72,16 +72,19 @@ class WarehouseResource extends Resource
 
         Tables\Columns\TextColumn::make('user.name')
           ->label('المسؤول')
+          ->searchable()
           ->sortable(),
 
         Tables\Columns\TextColumn::make('city')
           ->label('المدينة')
           ->badge()
           ->color('info')
+          ->searchable()
           ->sortable(),
 
         Tables\Columns\TextColumn::make('address')
           ->label('العنوان التفصيلي')
+          ->limit(30)
           ->sortable(),
         Tables\Columns\TextColumn::make('phone')
           ->label('الهاتف')
@@ -93,7 +96,40 @@ class WarehouseResource extends Resource
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
-      ->defaultSort('created_at', 'DESC');
+      ->defaultSort('created_at', 'DESC')
+      ->filters([
+        Tables\Filters\SelectFilter::make('city')
+          ->label('تصفية حسب المدينة')
+          ->options(fn() => \App\Models\Warehouse::pluck('city', 'city')->unique()->toArray()),
+
+        Tables\Filters\SelectFilter::make('user_id')
+          ->label('تصفية حسب المسؤول')
+          ->relationship('user', 'name')
+          ->visible(fn() => auth()->user()->hasRole('super_admin'))
+          ->searchable()
+          ->preload(),
+      ])
+      ->actions([
+        Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->before(function (Tables\Actions\DeleteAction $action, Warehouse $record) {
+            if ($record->productVariants()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المستودع')
+                ->body('هذا المستودع يحتوي على مخزون بضائع حالياً. يجب تفريغ المستودع أو نقله قبل الحذف.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make(),
+        ]),
+      ]);
   }
 
   public static function getRelations(): array
@@ -114,7 +150,7 @@ class WarehouseResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['user']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

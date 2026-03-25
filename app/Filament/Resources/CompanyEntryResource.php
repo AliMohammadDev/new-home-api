@@ -71,8 +71,15 @@ class CompanyEntryResource extends Resource
   {
     return $table->columns([
       Tables\Columns\TextColumn::make('created_at')->label('التاريخ')->dateTime(),
-      Tables\Columns\TextColumn::make('treasure.name')->label('الصندوق'),
-      Tables\Columns\TextColumn::make('user.name')->label('الموظف'),
+      Tables\Columns\TextColumn::make('treasure.name')
+        ->label('الصندوق')
+        ->searchable()
+        ->sortable(),
+
+      Tables\Columns\TextColumn::make('user.name')
+        ->label('الموظف')
+        ->searchable()
+        ->sortable(),
       Tables\Columns\TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
@@ -91,10 +98,35 @@ class CompanyEntryResource extends Resource
           'withdrawal' => 'heroicon-m-arrow-trending-down',
           default => 'heroicon-m-minus',
         }),
-      Tables\Columns\TextColumn::make('name')->label('البيان'),
+      Tables\Columns\TextColumn::make('name')
+        ->label('البيان')
+        ->searchable(),
       Tables\Columns\TextColumn::make('amount')->label('المبلغ')->money('USD', locale: 'en_US'),
     ])
       ->defaultSort('created_at', 'DESC')
+      ->filters([
+        Tables\Filters\SelectFilter::make('trans_type')
+          ->label('نوع الحركة')
+          ->options([
+            'deposit' => 'إيداع',
+            'withdrawal' => 'سحب',
+          ]),
+        Tables\Filters\SelectFilter::make('company_treasure_id')
+          ->label('الصندوق')
+          ->relationship('treasure', 'name'),
+      ])
+      ->actions([
+        Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->requiresConfirmation()
+          ->modalHeading('حذف الحركة المالية')
+          ->modalDescription('عند حذف الحركة، سيتم إعادة الرصيد إلى ما كان عليه في الصندوق. هل أنت متأكد؟'),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make(),
+        ]),
+      ])
     ;
   }
   public static function getRelations(): array
@@ -102,6 +134,12 @@ class CompanyEntryResource extends Resource
     return [
       //
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->with(['treasure', 'user']);
   }
 
   public static function getPages(): array

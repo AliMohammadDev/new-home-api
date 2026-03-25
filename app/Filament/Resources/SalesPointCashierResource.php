@@ -78,6 +78,7 @@ class SalesPointCashierResource extends Resource
 
         Tables\Columns\TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
+          ->searchable()
           ->badge(),
 
         Tables\Columns\TextColumn::make('shift_type')
@@ -104,12 +105,35 @@ class SalesPointCashierResource extends Resource
         ,
       ])
       ->filters([
-        //
+        Tables\Filters\SelectFilter::make('sales_point_id')
+          ->label('نقطة البيع')
+          ->relationship('salesPoint', 'name')
+          ->searchable()
+          ->preload(),
+
+        Tables\Filters\SelectFilter::make('shift_type')
+          ->label('نوع الوردية')
+          ->options([
+            'morning' => 'صباحية',
+            'evening' => 'مسائية',
+            'night' => 'ليلية',
+            'full_time' => 'دوام كامل',
+          ]),
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashier $record) {
+            if ($record->fatora()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف الكاشير')
+                ->body('هذا الكاشير لديه فواتير مسجلة في النظام. لا يمكن حذفه للحفاظ على البيانات.')
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -136,7 +160,7 @@ class SalesPointCashierResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['user', 'salesPoint']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

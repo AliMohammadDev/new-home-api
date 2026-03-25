@@ -34,7 +34,6 @@ class CompanyTreasureResource extends Resource
       Forms\Components\TextInput::make('money')
         ->label('الرصيد الحالي')
         ->numeric()
-        ->disabled()
         ->dehydrated(),
     ]);
   }
@@ -42,11 +41,13 @@ class CompanyTreasureResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('name')->label('الصندوق')->sortable(),
+      Tables\Columns\TextColumn::make('name')->label('الصندوق')->sortable()->searchable(),
       Tables\Columns\TextColumn::make('money')
         ->label('الرصيد المتوفر')
         ->money('USD', locale: 'en_US')
-        ->color(fn($state) => $state >= 0 ? 'success' : 'danger'),
+        ->sortable()
+        ->color(fn($state) => $state >= 0 ? 'success' : 'danger')
+        ->description(fn(CompanyTreasure $record): string => $record->money < 0 ? 'رصيد سالب!' : ''),
     ])
       ->defaultSort('created_at', 'DESC')
 
@@ -75,9 +76,11 @@ class CompanyTreasureResource extends Resource
               'name' => $data['name'],
               'amount' => $data['amount'],
             ]);
-          }),
 
-        // Tables\Actions\EditAction::make(),
+
+
+          }),
+        Tables\Actions\EditAction::make(),
       ]);
   }
 
