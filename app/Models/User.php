@@ -57,6 +57,17 @@ class User extends Authenticatable implements FilamentUser
       'is_active' => 'boolean',
     ];
   }
+
+  protected static function booted()
+  {
+    static::updated(function ($user) {
+      if ($user->wasChanged('is_active') && !$user->is_active) {
+        $user->tokens()->delete();
+      }
+    });
+  }
+
+
   public function checkout()
   {
     return $this->hasOne(Checkout::class);
