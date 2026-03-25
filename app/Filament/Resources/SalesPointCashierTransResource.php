@@ -126,6 +126,10 @@ class SalesPointCashierTransResource extends Resource
         ->badge()
         ->color('gray'),
 
+      Tables\Columns\TextColumn::make('name')
+        ->label('البيان / المادة')
+        ->searchable(),
+
       Tables\Columns\TextColumn::make('manager.user.name')
         ->label('المدير المسلم')
         ->searchable(),
@@ -163,15 +167,48 @@ class SalesPointCashierTransResource extends Resource
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        //
+        Tables\Filters\SelectFilter::make('trans_type')
+          ->label('نوع الحركة')
+          ->options([
+            'deposit' => 'إيداع',
+            'withdrawal' => 'سحب',
+          ]),
+
+        Tables\Filters\SelectFilter::make('sales_point_id')
+          ->label('نقطة البيع')
+          ->relationship('salesPoint', 'name'),
+
+        Tables\Filters\Filter::make('date')
+          ->form([
+            Forms\Components\DatePicker::make('from')->label('من تاريخ'),
+            Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
+          ])
+          ->query(function (Builder $query, array $data): Builder {
+            return $query
+              ->when($data['from'], fn($q) => $q->whereDate('date', '>=', $data['from']))
+              ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
+          })
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+
+        // Tables\Actions\DeleteAction::make()
+        //   ->label('حذف')
+        //   ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashierTrans $record) {
+        //     if ($record->salesPoint()->exists()) {
+        //       \Filament\Notifications\Notification::make()
+        //         ->danger()
+        //         ->title('لا يمكن حذف التحويل')
+        //         ->body('هذا التحويل مرتبط بنقطة بيع وسجلات محاسبية.')
+        //         ->persistent()
+        //         ->send();
+
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
         ]),
       ]);
   }
@@ -193,7 +230,11 @@ class SalesPointCashierTransResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with([
+      'salesPoint',
+      'manager.user',
+      'cashier.user'
+    ]);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;
