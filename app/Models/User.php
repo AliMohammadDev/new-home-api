@@ -54,6 +54,7 @@ class User extends Authenticatable implements FilamentUser
     return [
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
+      'is_active' => 'boolean',
     ];
   }
   public function checkout()
@@ -102,8 +103,10 @@ class User extends Authenticatable implements FilamentUser
 
   public function canAccessPanel(\Filament\Panel $panel): bool
   {
-    // return $this->hasRole('super_admin') || $this->hasRole('admin');
-    return true;
+    if (!$this->is_active) {
+      return false;
+    }
+    return $this->roles()->where('name', '!=', 'customer')->exists();
   }
 
   public function salesPoints()
