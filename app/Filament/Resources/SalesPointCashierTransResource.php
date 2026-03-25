@@ -192,20 +192,20 @@ class SalesPointCashierTransResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
 
-        // Tables\Actions\DeleteAction::make()
-        //   ->label('حذف')
-        //   ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashierTrans $record) {
-        //     if ($record->salesPoint()->exists()) {
-        //       \Filament\Notifications\Notification::make()
-        //         ->danger()
-        //         ->title('لا يمكن حذف التحويل')
-        //         ->body('هذا التحويل مرتبط بنقطة بيع وسجلات محاسبية.')
-        //         ->persistent()
-        //         ->send();
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashierTrans $record) {
+            if ($record->salesPoint()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف التحويل')
+                ->body('هذا التحويل مرتبط بنقطة بيع وسجلات محاسبية.')
+                ->persistent()
+                ->send();
 
-        //       $action->halt();
-        //     }
-        //   }),
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([

@@ -95,7 +95,20 @@ class SalesPointManagerResource extends Resource
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, SalesPointManager $record) {
+            if ($record->cashierTransactions()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المدير')
+                ->body('هذا المدير مسؤول عن تحويلات مالية سابقة للكاشيرات. حذفه سيؤدي إلى فقدان سجلات المحاسبة.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\DeleteBulkAction::make(),

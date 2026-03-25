@@ -129,7 +129,16 @@ class SalesPointCashierResource extends Resource
               \Filament\Notifications\Notification::make()
                 ->danger()
                 ->title('لا يمكن حذف الكاشير')
-                ->body('هذا الكاشير لديه فواتير مسجلة في النظام. لا يمكن حذفه للحفاظ على البيانات.')
+                ->body('هذا الكاشير لديه فواتير مسجلة في النظام.')
+                ->send();
+              $action->halt();
+            }
+
+            if ($record->transactions()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف الكاشير')
+                ->body('هذا الكاشير مرتبط بسجلات تحويلات مالية (مناقلات).')
                 ->send();
               $action->halt();
             }

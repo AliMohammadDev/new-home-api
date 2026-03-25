@@ -21,4 +21,9 @@ class SalesPointManager extends Model
   {
     return $this->belongsTo(User::class);
   }
+
+  public function cashierTransactions()
+  {
+    return $this->hasMany(SalesPointCashierTrans::class, 'sales_point_manager_id');
+  }
 }

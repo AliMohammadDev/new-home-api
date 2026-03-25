@@ -162,22 +162,22 @@ class CompanySalesTransferResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-        // Tables\Actions\DeleteAction::make()
-        //   ->label('حذف')
-        //   ->modalHeading('حذف التحويل المالي')
-        //   ->modalDescription('هل أنت متأكد من حذف هذا التحويل؟ سيؤثر هذا على سجلات المحاسبة.')
-        //   ->before(function (Tables\Actions\DeleteAction $action, CompanySalesTransfer $record) {
-        //     if ($record->sales_point_id) {
-        //       \Filament\Notifications\Notification::make()
-        //         ->danger()
-        //         ->title('فشل الحذف')
-        //         ->body('لا يمكن حذف تحويلات نقاط البيع بعد تسجيلها لضمان دقة الرصيد المالي. يرجى مراجعة الإدارة.')
-        //         ->persistent()
-        //         ->send();
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->modalHeading('حذف التحويل المالي')
+          ->modalDescription('هل أنت متأكد من حذف هذا التحويل؟ سيؤثر هذا على سجلات المحاسبة.')
+          ->before(function (Tables\Actions\DeleteAction $action, CompanySalesTransfer $record) {
+            if ($record->sales_point_id) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('فشل الحذف')
+                ->body('لا يمكن حذف تحويلات نقاط البيع بعد تسجيلها لضمان دقة الرصيد المالي. يرجى مراجعة الإدارة.')
+                ->persistent()
+                ->send();
 
-        //       $action->halt();
-        //     }
-        //   }),
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
