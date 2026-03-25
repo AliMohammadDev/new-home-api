@@ -45,6 +45,7 @@ class CashierSalesFatoraResource extends Resource
           Forms\Components\TextInput::make('full_price')
             ->label('إجمالي المبلغ')
             ->numeric()
+            ->disabled()
             ->prefix('USD')
             ->required(),
         ])->columns(2),
@@ -76,7 +77,9 @@ class CashierSalesFatoraResource extends Resource
           ->openUrlInNewTab(),
 
         Tables\Actions\EditAction::make()->label('عرض وتعديل'),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->modalHeading('حذف الفاتورة نهائياً')
+          ->modalDescription('تحذير: حذف الفاتورة سيعيد كافة الأصناف للمخزون ويخصم المبالغ من رصيد الكاشير. هل أنت متأكد؟')
       ])
       ->bulkActions([
 
@@ -92,8 +95,6 @@ class CashierSalesFatoraResource extends Resource
               ]);
             }),
         ]),
-
-
       ]);
   }
 
@@ -108,7 +109,6 @@ class CashierSalesFatoraResource extends Resource
   {
     return [
       'index' => Pages\ListCashierSalesFatoras::route('/'),
-      // 'create' => Pages\CreateCashierSalesFatora::route('/create'),
       'edit' => Pages\EditCashierSalesFatora::route('/{record}/edit'),
     ];
   }

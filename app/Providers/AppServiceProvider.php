@@ -2,14 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\CashierReturnFatora;
 use App\Models\CashierSale;
+use App\Models\CashierSalesFatora;
 use App\Models\CashierSalesReturn;
 use App\Models\CompanyEntry;
 use App\Models\CompanySalesTransfer;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
+use App\Observers\CashierReturnFatoraObserver;
 use App\Observers\CashierSaleObserver;
+use App\Observers\CashierSalesFatoraObserver;
 use App\Observers\CashierSalesReturnObserver;
 use App\Observers\CashierTransObserver;
 use App\Observers\CompanyEntryObserver;
@@ -46,6 +50,8 @@ class AppServiceProvider extends ServiceProvider
   {
     ProductImportItem::observe(ProductImportItemObserver::class);
     CashierSale::observe(CashierSaleObserver::class);
+    CashierSalesFatora::observe(CashierSalesFatoraObserver::class);
+    CashierReturnFatora::observe(CashierReturnFatoraObserver::class);
     ShippingWarehouse::observe(ShippingWarehouseObserver::class);
     CashierSalesReturn::observe(CashierSalesReturnObserver::class);
     SalesPointCashierTrans::observe(CashierTransObserver::class);

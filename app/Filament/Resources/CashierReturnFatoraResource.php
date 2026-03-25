@@ -44,6 +44,7 @@ class CashierReturnFatoraResource extends Resource
             Forms\Components\TextInput::make('full_price')
               ->label('إجمالي المبلغ')
               ->numeric()
+              ->disabled()
               ->prefix('USD')
               ->required(),
           ])->columns(2),
@@ -75,7 +76,9 @@ class CashierReturnFatoraResource extends Resource
           ->openUrlInNewTab(),
 
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->modalHeading('حذف فاتورة المرتجع')
+          ->modalDescription('سيتم خصم الكميات المرتجعة من المستودع وإعادة المبالغ لعهدة الكاشير، هل أنت متأكد؟')
       ])
       ->bulkActions([
 
@@ -107,7 +110,6 @@ class CashierReturnFatoraResource extends Resource
   {
     return [
       'index' => Pages\ListCashierReturnFatoras::route('/'),
-      // 'create' => Pages\CreateCashierReturnFatora::route('/create'),
       'edit' => Pages\EditCashierReturnFatora::route('/{record}/edit'),
     ];
   }
