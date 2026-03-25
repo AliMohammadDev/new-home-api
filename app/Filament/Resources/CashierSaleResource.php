@@ -217,7 +217,6 @@ class CashierSaleResource extends Resource
       'index' => Pages\ListCashierSales::route('/'),
       'create' => Pages\CreateCashierSale::route('/create'),
       'edit' => Pages\EditCashierSale::route('/{record}/edit'),
-      'pos' => Pages\CashierPos::route('/pos'),
     ];
   }
 
@@ -233,5 +232,14 @@ class CashierSaleResource extends Resource
     return $query->where('sales_point_cashier_id', $cashierId);
   }
 
+  public static function getNavigationItems(): array
+  {
+    return [
+      parent::getNavigationItems()[0]->isActiveWhen(function () {
+        return request()->routeIs('filament.admin.resources.cashier-sales.*')
+          && !request()->routeIs('filament.admin.resources.cashier-sales.pages.pos');
+      }),
+    ];
+  }
 
 }

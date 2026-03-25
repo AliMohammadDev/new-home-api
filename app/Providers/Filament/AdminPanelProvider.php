@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\CashierPos;
 use App\Filament\Resources\CompanyTreasureResource\Widgets\CapitalStatsWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Widgets\GeneralStatsWidget;
@@ -59,7 +60,8 @@ class AdminPanelProvider extends PanelProvider
         \Filament\Navigation\NavigationItem::make('شاشة الكاشير (POS)')
           ->group('إدارة المبيعات')
           ->icon('heroicon-o-computer-desktop')
-          ->url(fn(): string => \App\Filament\Resources\CashierSaleResource\Pages\CashierPos::getUrl())
+          ->url(fn(): string => CashierPos::getUrl())
+          ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.cashier-pos'))
           ->sort(1)
           ->visible(fn(): bool => auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier'])),
       ])
