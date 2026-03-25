@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -36,6 +37,14 @@ class UserResource extends Resource
           ->email()
           ->required()
           ->unique(ignoreRecord: true),
+
+
+        Toggle::make('is_active')
+          ->label('حساب نشط')
+          ->default(true)
+          ->color('success'),
+
+
         Select::make('roles')
           ->label('الأدوار')
           ->multiple()
@@ -72,6 +81,13 @@ class UserResource extends Resource
           ->sortable()
           ->searchable(),
 
+        Tables\Columns\ToggleColumn::make('is_active')
+          ->label('الحالة')
+          ->onIcon('heroicon-m-check-circle')
+          ->offIcon('heroicon-m-x-circle')
+          ->onColor('success')
+          ->offColor('danger'),
+
         TextColumn::make('roles.name')
           ->label('الأدوار')
           ->badge()
@@ -90,6 +106,12 @@ class UserResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
+        Tables\Filters\TernaryFilter::make('is_active')
+          ->label('حالة الحساب')
+          ->placeholder('الكل')
+          ->trueLabel('المستخدمون النشطون')
+          ->falseLabel('المستخدمون المعطلون'),
+
         Tables\Filters\SelectFilter::make('roles')
           ->label('الدور')
           ->relationship('roles', 'name')
