@@ -8,6 +8,7 @@ use App\Models\CashierSalesFatora;
 use App\Models\CashierSalesReturn;
 use App\Models\CompanyEntry;
 use App\Models\CompanySalesTransfer;
+use App\Models\Order;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
@@ -18,6 +19,7 @@ use App\Observers\CashierSalesReturnObserver;
 use App\Observers\CashierTransObserver;
 use App\Observers\CompanyEntryObserver;
 use App\Observers\CompanySalesTransferObserver;
+use App\Observers\OrderObserver;
 use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
 use Filament\Support\Facades\FilamentIcon;
@@ -48,6 +50,8 @@ class AppServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
+    Order::observe(OrderObserver::class);
+
     ProductImportItem::observe(ProductImportItemObserver::class);
     CashierSale::observe(CashierSaleObserver::class);
     CashierSalesFatora::observe(CashierSalesFatoraObserver::class);
