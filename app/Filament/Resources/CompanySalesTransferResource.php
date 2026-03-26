@@ -16,9 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 class CompanySalesTransferResource extends Resource
 {
   protected static ?string $model = CompanySalesTransfer::class;
-
   protected static ?string $navigationGroup = 'نقاط البيع (POS)';
-
   protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
   protected static ?string $navigationLabel = 'تحويلات نقاط البيع';
   protected static ?string $modelLabel = 'تحويل مالي';

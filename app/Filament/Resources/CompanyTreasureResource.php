@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CompanyTreasureResource extends Resource
 {
   protected static ?string $model = CompanyTreasure::class;
-
-
   protected static ?string $navigationIcon = 'heroicon-o-building-library';
   protected static ?string $navigationGroup = 'الإدارة المالية';
   protected static ?string $navigationLabel = 'صناديق الشركة (الخزينة)';

@@ -11,12 +11,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WarehouseResource extends Resource
 {
   protected static ?string $model = Warehouse::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-building-library';
   protected static ?string $navigationLabel = ' مستودعات مصغرة';
   protected static ?string $pluralModelLabel = 'مستودعات مصغرة';
@@ -27,9 +25,8 @@ class WarehouseResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Card::make()
+        Forms\Components\Section::make()
           ->schema([
-
             Forms\Components\Select::make('user_id')
               ->label('المسؤول عن المستودع')
               ->relationship('user', 'name')
@@ -37,7 +34,6 @@ class WarehouseResource extends Resource
               ->required()
               ->searchable()
               ->preload(),
-
 
             Forms\Components\TextInput::make('name')
               ->label('اسم المستودع')
@@ -57,7 +53,8 @@ class WarehouseResource extends Resource
               ->label('العنوان التفصيلي')
               ->required()
               ->columnSpanFull(),
-          ])->columns(2),
+          ])
+          ->columns(2),
       ]);
   }
 

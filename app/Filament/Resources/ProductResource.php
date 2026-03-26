@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Forms;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -25,6 +24,12 @@ class ProductResource extends Resource
   protected static ?string $navigationGroup = 'إدارة المنتجات';
 
 
+
+  /**
+   * Get a new instance of the model's query builder.
+   *
+   * @return \Illuminate\Database\Eloquent\Builder
+   */
   public static function getEloquentQuery(): Builder
   {
     return parent::getEloquentQuery()
@@ -37,10 +42,10 @@ class ProductResource extends Resource
   {
     return $form
       ->schema([
-        Tabs::make('Languages')
+        Forms\Components\Tabs::make('Languages')
           ->tabs([
-            Tabs\Tab::make('English')->schema([
-              Forms\Components\Card::make()
+            Forms\Components\Tabs\Tab::make('English')->schema([
+              Forms\Components\Section::make()
                 ->schema([
                   Forms\Components\TextInput::make('name.en')
                     ->label('اسم المنتج (EN)')
@@ -50,8 +55,8 @@ class ProductResource extends Resource
                     ->required(),
                 ]),
             ]),
-            Tabs\Tab::make('Arabic')->schema([
-              Forms\Components\Card::make()
+            Forms\Components\Tabs\Tab::make('Arabic')->schema([
+              Forms\Components\Section::make()
                 ->schema([
                   Forms\Components\TextInput::make('name.ar')
                     ->label('اسم المنتج (AR)')
@@ -61,9 +66,9 @@ class ProductResource extends Resource
                     ->required(),
                 ]),
             ]),
-          ]),
+          ])->columnSpanFull(),
 
-        Forms\Components\Card::make()
+        Forms\Components\Section::make('معلومات إضافية')
           ->schema([
             Forms\Components\Select::make('category_id')
               ->label('الصنف')
@@ -74,12 +79,9 @@ class ProductResource extends Resource
               ->required(),
             Forms\Components\Toggle::make('is_featured')
               ->label('منتج مميز'),
-
-
-          ]),
+          ])->columns(2),
       ]);
   }
-
 
 
   public static function table(Table $table): Table

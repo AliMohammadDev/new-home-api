@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ShippingWarehouseResource\Pages;
-use App\Filament\Resources\ShippingWarehouseResource\RelationManagers;
 use App\Models\ProductVariant;
 use App\Models\ShippingWarehouse;
 use App\Models\WarehouseReturn;
@@ -15,12 +14,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ShippingWarehouseResource extends Resource
 {
   protected static ?string $model = ShippingWarehouse::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-truck';
   protected static ?string $navigationLabel = ' شحنة مستودع مصغر';
   protected static ?string $pluralModelLabel = 'مخزون المستودعات';
@@ -76,8 +73,6 @@ class ShippingWarehouseResource extends Resource
             })
             ->live()
             ->required(),
-
-
 
           Forms\Components\Select::make('user_id')
             ->label('المستخدم المسؤول')

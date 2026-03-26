@@ -38,14 +38,12 @@ class SalesPointResource extends Resource
               ->required()
               ->maxLength(255),
 
-
             Forms\Components\Select::make('warehouse_id')
               ->label('المستودع التابع له')
               ->relationship('warehouse', 'name')
               ->required()
               ->searchable()
               ->preload(),
-
 
             TextInput::make('location')
               ->label('الموقع')
@@ -54,8 +52,6 @@ class SalesPointResource extends Resource
             TextInput::make('phone')
               ->label('رقم الهاتف')
               ->tel(),
-
-
 
             Toggle::make('is_active')
               ->label('حالة نقطة البيع')

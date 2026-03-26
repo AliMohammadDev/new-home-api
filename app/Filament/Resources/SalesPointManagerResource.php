@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SalesPointManagerResource extends Resource
 {
   protected static ?string $model = SalesPointManager::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-user-group';
   protected static ?string $navigationGroup = 'نقاط البيع (POS)';
   protected static ?string $navigationLabel = 'مدراء النقاط';

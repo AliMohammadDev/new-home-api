@@ -19,7 +19,6 @@ class SalesPointCashierResource extends Resource
   protected static ?string $navigationGroup = 'نقاط البيع (POS)';
   protected static ?string $navigationLabel = 'الكاشيرات';
   protected static ?string $navigationIcon = 'heroicon-o-calculator';
-
   protected static ?string $pluralModelLabel = ' الكاشيرات';
   protected static ?string $modelLabel = 'كاشير جديد';
 

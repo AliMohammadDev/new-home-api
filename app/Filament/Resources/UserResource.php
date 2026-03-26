@@ -38,7 +38,6 @@ class UserResource extends Resource
           ->required()
           ->unique(ignoreRecord: true),
 
-
         Toggle::make('is_active')
           ->label('حساب نشط')
           ->default(true)
@@ -145,31 +144,31 @@ class UserResource extends Resource
 
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
-            ->label('حذف المحدد')
-            ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
-              foreach ($records as $record) {
-                if (
-                  $record->orders()->exists() ||
-                  $record->checkouts()->exists() ||
-                  $record->carts()->exists()
-                ) {
-                  Notification::make()
-                    ->danger()
-                    ->title('عملية غير مسموحة')
-                    ->body("المستخدم {$record->name} مرتبط ببيانات نشطة، لا يمكن حذف المجموعة.")
-                    ->send();
+        // Tables\Actions\BulkActionGroup::make([
+        //   Tables\Actions\DeleteBulkAction::make()
+        //     ->label('حذف المحدد')
+        //     ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
+        //       foreach ($records as $record) {
+        //         if (
+        //           $record->orders()->exists() ||
+        //           $record->checkouts()->exists() ||
+        //           $record->carts()->exists()
+        //         ) {
+        //           Notification::make()
+        //             ->danger()
+        //             ->title('عملية غير مسموحة')
+        //             ->body("المستخدم {$record->name} مرتبط ببيانات نشطة، لا يمكن حذف المجموعة.")
+        //             ->send();
 
-                  $action->halt();
-                }
-              }
-            })
-            ->requiresConfirmation()
-            ->modalHeading('تأكيد الحذف')
-            ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')
-            ->modalSubmitActionLabel('نعم، احذف'),
-        ]),
+        //           $action->halt();
+        //         }
+        //       }
+        //     })
+        //     ->requiresConfirmation()
+        //     ->modalHeading('تأكيد الحذف')
+        //     ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')
+        //     ->modalSubmitActionLabel('نعم، احذف'),
+        // ]),
       ]);
   }
 
@@ -187,7 +186,6 @@ class UserResource extends Resource
       'create' => Pages\CreateUser::route('/create'),
       'edit' => Pages\EditUser::route('/{record}/edit'),
       'view' => Pages\ViewUser::route('/{record}'),
-
     ];
   }
 
