@@ -34,6 +34,12 @@ class UserSeeder extends Seeder
       ['name' => 'ندى حسن', 'email' => 'nada@example.com', 'role' => 'customer'],
       ['name' => 'رامي عادل', 'email' => 'rami@example.com', 'role' => 'customer'],
       ['name' => 'جنى خالد', 'email' => 'jana@example.com', 'role' => 'customer'],
+
+      ['name' => 'شركة النسر للتوصيل', 'email' => 'eagle@example.com', 'role' => 'delivery_company'],
+      ['name' => 'توصيل البرق', 'email' => 'lightning@example.com', 'role' => 'delivery_company'],
+      ['name' => 'مندوبنا السريع', 'email' => 'fast_agent@example.com', 'role' => 'delivery_company'],
+      ['name' => 'خدمات اللوجستيك العربية', 'email' => 'arab_logistics@example.com', 'role' => 'delivery_company'],
+      ['name' => 'شركة الثقة للنقل', 'email' => 'trust_transport@example.com', 'role' => 'delivery_company'],
     ];
 
     foreach ($users as $userData) {

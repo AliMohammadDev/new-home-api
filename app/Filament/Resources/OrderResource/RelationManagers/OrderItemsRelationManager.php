@@ -80,7 +80,7 @@ class OrderItemsRelationManager extends RelationManager
                 $shipping = (float) ($this->getOwnerRecord()->shipping_fee ?? 0);
                 $total = $productsTotal + $shipping;
 
-                return "الشحن: {$shipping}$  |  الإجمالي: {$total}$";
+                return "$    الإجمالي:{$total}$";
               })
 
           ])

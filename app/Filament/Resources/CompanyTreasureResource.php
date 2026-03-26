@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyTreasureResource\Pages;
-use App\Filament\Resources\CompanyTreasureResource\RelationManagers;
 use App\Models\CompanyTreasure;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyTreasureResource extends Resource
 {
@@ -29,10 +26,12 @@ class CompanyTreasureResource extends Resource
       Forms\Components\TextInput::make('name')
         ->label('اسم الصندوق')
         ->required(),
+
       Forms\Components\TextInput::make('money')
         ->label('الرصيد الحالي')
         ->numeric()
-        ->dehydrated(),
+        ->default(0)
+        ->required()
     ]);
   }
 

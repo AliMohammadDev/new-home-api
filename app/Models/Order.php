@@ -11,7 +11,9 @@ class Order extends Model
     'cart_id',
     'checkout_id',
     'total_amount',
+    'delivery_company_id',
     'shipping_fee',
+    'discount_fee',
     'payment_method',
     'status'
   ];
@@ -39,5 +41,10 @@ class Order extends Model
   public function getCreatedAtFormattedAttribute()
   {
     return $this->created_at->format('H:i d, M Y');
+  }
+
+  public function deliveryCompany()
+  {
+    return $this->belongsTo(DeliveryCompany::class);
   }
 }

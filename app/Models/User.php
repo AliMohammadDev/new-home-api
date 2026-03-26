@@ -125,4 +125,9 @@ class User extends Authenticatable implements FilamentUser
     return $this->belongsToMany(SalesPoint::class, 'sales_point_managers');
   }
 
+  public function deliveryCompanies()
+  {
+    return $this->hasMany(DeliveryCompany::class);
+  }
+
 }

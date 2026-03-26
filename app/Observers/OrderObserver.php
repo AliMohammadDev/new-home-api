@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\CompanyTreasure;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +22,6 @@ class OrderObserver
   public function updated(Order $order): void
   {
     if ($order->isDirty('status') && $order->status === 'cancelled' && $order->getOriginal('status') !== 'cancelled') {
-
       DB::transaction(function () use ($order) {
         foreach ($order->orderItems as $item) {
           if ($item->productVariant) {
@@ -40,7 +40,20 @@ class OrderObserver
         }
       });
     }
+
+    if ($order->isDirty('status') && $order->status === 'completed' && $order->getOriginal('status') !== 'completed') {
+      $netAmount = $order->orderItems->sum('total');
+
+      if ($netAmount > 0) {
+        $treasure = CompanyTreasure::where('name', 'صندوق مبيعات المتجر الالكتروني')->first();
+
+        if ($treasure) {
+          $treasure->increment('money', $netAmount);
+        }
+      }
+    }
   }
+
 
   /**
    * Handle the Order "deleted" event.

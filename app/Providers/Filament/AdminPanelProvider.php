@@ -68,6 +68,7 @@ class AdminPanelProvider extends PanelProvider
 
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
+
         fn(): string => Blade::render('
         @vite([\'resources/js/app.js\', \'resources/js/filament-fcm.js\'])
 
@@ -84,6 +85,28 @@ class AdminPanelProvider extends PanelProvider
         </style>
     '),
       )
+
+      ->renderHook(
+        \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+        fn(): string => Blade::render('
+        <div class="flex items-center gap-x-3 ms-4">
+            <a href="https://almanzel-alhadith.com/"
+               target="_blank"
+               title="الذهاب إلى الموقع الإلكتروني"
+               class="fi-icon-btn relative flex items-center justify-center rounded-lg p-2
+                      text-gray-400 outline-none transition duration-75
+                      hover:bg-gray-500/10 hover:text-success-600
+                      focus:ring-2 focus:ring-primary-500
+                      dark:text-gray-400 dark:hover:bg-gray-500/20 dark:hover:text-success-400"
+            >
+                <x-heroicon-o-globe-alt class="w-6 h-6 transition-colors duration-200" />
+                <span class="hidden md:inline text-sm font-bold ms-1">الموقع</span>
+            </a>
+        </div>
+    '),
+      )
+
+
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
       ->pages([

@@ -45,7 +45,46 @@ class OrderResource extends Resource
               ])
               ->required()
               ->native(false),
-          ])
+
+            Forms\Components\Select::make('delivery_company_id')
+              ->label('شركة التوصيل')
+              ->relationship('deliveryCompany', 'name')
+              ->searchable()
+              ->preload()
+              ->required(),
+
+            Forms\Components\TextInput::make('shipping_fee')
+              ->label('رسوم الشحن')
+              ->numeric()
+              ->prefix('$')
+              ->default(0)
+              ->live(onBlur: true)
+              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record)),
+
+            Forms\Components\TextInput::make('delivery_fee')
+              ->label('رسوم التوصيل')
+              ->numeric()
+              ->prefix('$')
+              ->default(0)
+              ->live(onBlur: true)
+              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record)),
+
+            Forms\Components\TextInput::make('total_amount')
+              ->label('الإجمالي النهائي')
+              ->numeric()
+              ->prefix('$')
+              ->readOnly()
+              ->afterStateHydrated(function (Forms\Set $set, Forms\Get $get, $record) {
+                if ($record) {
+                  $itemsSubtotal = floatval($record->orderItems->sum('total'));
+                  $shipping = floatval($get('shipping_fee') ?? 0);
+                  $delivery = floatval($get('delivery_fee') ?? 0);
+                  $set('total_amount', round($itemsSubtotal + $shipping + $delivery, 2));
+                }
+              }),
+          ])->columns(2)
+
+
       ]);
   }
 
@@ -62,6 +101,8 @@ class OrderResource extends Resource
           ->sortable()
           ->searchable(),
 
+
+
         TextColumn::make('status')
           ->label('الحالة')
           ->badge()
@@ -76,11 +117,23 @@ class OrderResource extends Resource
           ->sortable()
           ->searchable(),
 
+        TextColumn::make('items_subtotal')
+          ->label('صافي المنتجات')
+          ->getStateUsing(function (Order $record) {
+            return $record->orderItems->sum('total');
+          })
+          ->money('USD', locale: 'en_US')
+          ->color('success')
+          ->sortable(),
+
         TextColumn::make('total_amount')
           ->label('المبلغ الكلي')
-          ->formatStateUsing(fn($state) => number_format($state, 2, '.', ','))
+          ->money('USD', locale: 'en_US')
+          ->color('success')
           ->sortable()
           ->searchable(),
+
+
         TextColumn::make('order_items_count')->label('عدد المنتجات')->counts('orderItems'),
         TextColumn::make('created_at')->label('تاريخ الطلب')->since()->sortable()->searchable(),
       ])
@@ -124,10 +177,25 @@ class OrderResource extends Resource
     ];
   }
 
+  public static function updateTotal(Forms\Set $set, Forms\Get $get, $record)
+  {
+    if (!$record)
+      return;
+
+    $itemsSubtotal = floatval($record->orderItems->sum('total'));
+
+    $shipping = floatval($get('shipping_fee') ?? 0);
+    $delivery = floatval($get('delivery_fee') ?? 0);
+
+    $total = round($itemsSubtotal + $shipping + $delivery, 2);
+
+    $set('total_amount', $total);
+  }
+
   public static function infolist(Infolist $infolist): Infolist
   {
     return $infolist->schema([
-      Section::make('معلومات الطلب')
+      Section::make('معلومات الطلب والشحن')
         ->schema([
           TextEntry::make('id')->label('رقم الطلب'),
 
@@ -148,9 +216,13 @@ class OrderResource extends Resource
             })
             ->hintAction(
               \Filament\Infolists\Components\Actions\Action::make('updateStatus')
-                ->label('تغيير الحالة')
+                ->label('تغيير الحالة والشحن')
                 ->icon('heroicon-m-pencil-square')
                 ->color('info')
+                ->fillForm(fn(Order $record): array => [
+                  'status' => $record->status,
+                  'delivery_company_id' => $record->delivery_company_id,
+                ])
                 ->form([
                   Forms\Components\Select::make('status')
                     ->label('اختر الحالة الجديدة')
@@ -159,17 +231,50 @@ class OrderResource extends Resource
                       'completed' => 'مكتمل',
                       'cancelled' => 'ملغي',
                     ])
-                    ->required(),
+                    ->required()
+                    ->native(false),
+
+                  Forms\Components\Select::make('delivery_company_id')
+                    ->label('شركة التوصيل')
+                    ->relationship('deliveryCompany', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->helperText('يجب تحديد شركة التوصيل لإتمام العملية'),
                 ])
                 ->action(function (Order $record, array $data) {
                   $record->update($data);
+
+                  \Filament\Notifications\Notification::make()
+                    ->title('تم تحديث الطلب بنجاح')
+                    ->success()
+                    ->send();
                 })
             ),
 
-          TextEntry::make('payment_method')->label('طريقة الدفع'),
+          TextEntry::make('deliveryCompany.name')
+            ->label('شركة التوصيل')
+            ->icon('heroicon-m-truck')
+            ->weight('bold')
+            ->color('primary')
+            ->placeholder('لم تحدد بعد'),
+
+          TextEntry::make('shipping_fee')
+            ->label('رسوم الشحن')
+            ->money('USD', locale: 'en_US'),
+
+          TextEntry::make('delivery_fee')
+            ->label('رسوم التوصيل')
+            ->money('USD', locale: 'en_US'),
+
           TextEntry::make('total_amount')
-            ->label('المبلغ الكلي')
-            ->formatStateUsing(fn($state) => number_format($state, 2)),
+            ->label('المبلغ الكلي الكلي')
+            ->weight('bold')
+            ->color('success')
+            ->money('USD', locale: 'en_US'),
+          // -----------------------------------
+
+          TextEntry::make('payment_method')->label('طريقة الدفع'),
           TextEntry::make('created_at')->label('تاريخ الطلب')->since(),
         ])
         ->columns(2),
@@ -181,14 +286,13 @@ class OrderResource extends Resource
         ])
         ->columns(2),
 
-      Section::make('معلومات الشحن')
+      Section::make('معلومات العنوان التفصيلية (Checkout)')
         ->schema([
           TextEntry::make('full_name')
-            ->label('الاسم الكامل')
+            ->label('الاسم الكامل المستلم')
             ->getStateUsing(function ($record) {
               if (!$record->checkout)
                 return '-';
-
               return "{$record->checkout->first_name} {$record->checkout->last_name}";
             }),
           TextEntry::make('checkout.phone')->label('رقم الهاتف'),
