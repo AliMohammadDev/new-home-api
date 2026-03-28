@@ -25,7 +25,7 @@ class CashierSeeder extends Seeder
       SalesPointCashier::create([
         'sales_point_id' => $salesPoints->random()->id,
         'user_id' => $user->id,
-        'shift_type' => $index % 2 == 0 ? 'صباحي' : 'مسائي',
+        'shift_type' => $index % 2 == 0 ? 'صباحية' : 'مسائية',
         'daily_limit' => 0,
       ]);
     }

@@ -15,7 +15,7 @@ class CompanyTreasureSeeder extends Seeder
     CompanyTreasure::updateOrCreate(
       ['name' => 'الصندوق الرئيسي'],
       [
-        'money' => 5000,
+        'money' => 100000,
       ]
     );
 
