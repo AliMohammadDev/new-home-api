@@ -118,8 +118,20 @@ class ShippingWarehouseResource extends Resource
             ->label('إجمالي الكمية (قطع)')
             ->numeric()
             ->required()
-            ->helperText('يتم حسابه تلقائياً')
-            ->maxValue(fn(Get $get) => ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 99999),
+            ->live()
+            ->hint(function (Get $get) {
+              $variantId = $get('product_variant_id');
+              if (!$variantId)
+                return null;
+
+              $stock = ProductVariant::find($variantId)?->stock_quantity ?? 0;
+              return "المتوفر في المستودع الرئيسي: " . $stock;
+            })
+            ->hintColor('info')
+            ->maxValue(fn(Get $get) => ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 99999)
+            ->validationMessages([
+              'max' => 'عذراً، الكمية المطلوبة غير متوفرة. المتاح هو :max فقط.',
+            ]),
 
           Forms\Components\DateTimePicker::make('arrival_time')
             ->label('وقت الوصول المتوقع')

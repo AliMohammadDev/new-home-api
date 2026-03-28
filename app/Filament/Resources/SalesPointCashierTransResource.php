@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointCashierTransResource\Pages;
-use App\Filament\Resources\SalesPointCashierTransResource\RelationManagers;
 use App\Models\SalesPoint;
 use App\Models\SalesPointCashierTrans;
 use Filament\Forms;
@@ -12,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SalesPointCashierTransResource extends Resource
 {
@@ -34,16 +32,19 @@ class SalesPointCashierTransResource extends Resource
             ->required()
             ->searchable()
             ->preload()
-            ->live(),
+            ->live()
+            ->afterStateUpdated(function (Forms\Set $set) {
+              $set('sales_point_manager_id', null);
+              $set('sales_point_cashier_id', null);
+            }),
 
           Forms\Components\Select::make('sales_point_manager_id')
             ->label('المدير المسؤول')
-            ->options(function (callable $get) {
+            ->key(fn(Forms\Get $get) => 'manager_' . $get('sales_point_id'))
+            ->options(function (Forms\Get $get) {
               $salesPointId = $get('sales_point_id');
-
-              if (!$salesPointId) {
+              if (!$salesPointId)
                 return [];
-              }
 
               return \App\Models\SalesPointManager::query()
                 ->where('sales_point_id', $salesPointId)
@@ -53,16 +54,15 @@ class SalesPointCashierTransResource extends Resource
             })
             ->searchable()
             ->required()
-            ->disabled(fn(callable $get) => !$get('sales_point_id')),
+            ->disabled(fn(Forms\Get $get) => !$get('sales_point_id')),
 
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الموظف المستلم (الكاشير)')
-            ->options(function (callable $get) {
+            ->key(fn(Forms\Get $get) => 'cashier_' . $get('sales_point_id'))
+            ->options(function (Forms\Get $get) {
               $salesPointId = $get('sales_point_id');
-
-              if (!$salesPointId) {
+              if (!$salesPointId)
                 return [];
-              }
 
               return \App\Models\SalesPointCashier::query()
                 ->where('sales_point_id', $salesPointId)
@@ -72,7 +72,9 @@ class SalesPointCashierTransResource extends Resource
             })
             ->searchable()
             ->required()
-            ->disabled(fn(callable $get) => !$get('sales_point_id')),
+            ->disabled(fn(Forms\Get $get) => !$get('sales_point_id')),
+
+
 
           Forms\Components\TextInput::make('name')
             ->label('بيان العملية / المادة')
