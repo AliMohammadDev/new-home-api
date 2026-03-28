@@ -169,13 +169,23 @@ class SalesPointCashierResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()->with(['user', 'salesPoint']);
+    $user = auth()->user();
 
-    if (auth()->user()->hasRole('super_admin')) {
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    return $query->whereHas('salesPoint.managers', function (Builder $subQuery) {
-      $subQuery->where('user_id', auth()->id());
-    });
+    if ($user->hasRole('sales_point_manager')) {
+      return $query->whereHas('salesPoint.managers', function (Builder $subQuery) use ($user) {
+        $subQuery->where('user_id', $user->id);
+      });
+    }
+
+    if ($user->hasRole('sales_point_cashier')) {
+      return $query->where('user_id', $user->id);
+    }
+
+    return $query->whereRaw('1 = 0');
+
   }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CashierSalesFatoraResource\Pages;
 use App\Filament\Resources\CashierSalesFatoraResource\RelationManagers\ItemsRelationManager;
 use App\Models\CashierSalesFatora;
+use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -120,18 +121,29 @@ class CashierSalesFatoraResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['cashier.user', 'cashier.salesPoint']);
+    $user = auth()->user();
 
-    if (auth()->user()->hasRole('super_admin')) {
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
-
-    if (!$cashierId) {
-      return $query->whereRaw('1 = 0');
+    if ($user->hasRole('sales_point_manager')) {
+      return $query->whereHas('cashier.salesPoint.managers', function (Builder $subQuery) use ($user) {
+        $subQuery->where('user_id', $user->id);
+      });
     }
 
-    return $query->where('sales_point_cashier_id', $cashierId);
+    if ($user->hasRole('sales_point_cashier')) {
+      $cashierId = SalesPointCashier::where('user_id', $user->id)->value('id');
+
+      if (!$cashierId) {
+        return $query->whereRaw('1 = 0');
+      }
+
+      return $query->where('sales_point_cashier_id', $cashierId);
+    }
+
+    return $query->whereRaw('1 = 0');
   }
 }

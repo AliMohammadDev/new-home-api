@@ -172,16 +172,28 @@ class CashierSalesReturnResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()->with(['variant.product', 'cashier.user', 'fatora']);
-    if (auth()->user()->hasRole('super_admin')) {
+    $user = auth()->user();
+
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
-
-    if (!$cashierId) {
-      return $query->whereRaw('1 = 0');
+    if ($user->hasRole('sales_point_manager')) {
+      return $query->whereHas('cashier.salesPoint.managers', function (Builder $subQuery) use ($user) {
+        $subQuery->where('user_id', $user->id);
+      });
     }
 
-    return $query->where('sales_point_cashier_id', $cashierId);
+    if ($user->hasRole('sales_point_cashier')) {
+      $cashierId = SalesPointCashier::where('user_id', $user->id)->value('id');
+
+      if (!$cashierId) {
+        return $query->whereRaw('1 = 0');
+      }
+
+      return $query->where('sales_point_cashier_id', $cashierId);
+    }
+
+    return $query->whereRaw('1 = 0');
   }
 }

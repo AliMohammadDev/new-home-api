@@ -27,4 +27,9 @@ class SalesPoint extends Model
   {
     return $this->belongsToMany(User::class, 'sales_point_managers');
   }
+
+  public function cashier()
+  {
+    return $this->hasOne(SalesPointCashier::class);
+  }
 }
