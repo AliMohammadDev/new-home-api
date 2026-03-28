@@ -38,10 +38,6 @@ class UserResource extends Resource
           ->required()
           ->unique(ignoreRecord: true),
 
-        Toggle::make('is_active')
-          ->label('حساب نشط')
-          ->default(true)
-          ->color('success'),
 
 
         Select::make('roles')
@@ -49,6 +45,12 @@ class UserResource extends Resource
           ->multiple()
           ->relationship('roles', 'name')
           ->preload(),
+
+        Toggle::make('is_active')
+          ->label('حساب نشط')
+          ->default(true)
+          ->onColor('success')
+          ->offColor('danger'),
 
         TextInput::make('password')
           ->label('كلمة المرور')
@@ -71,7 +73,6 @@ class UserResource extends Resource
 
         TextColumn::make('name')
           ->label('الاسم')
-          ->searchable()
           ->sortable()
           ->searchable(),
 

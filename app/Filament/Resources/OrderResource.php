@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderItemsRelationManager;
+use App\Filament\Resources\OrderResource\Pages;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Resources\Resource;
+use Filament\Forms\Form;
 use App\Models\Order;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
@@ -46,12 +47,14 @@ class OrderResource extends Resource
               ->required()
               ->native(false),
 
+
             Forms\Components\Select::make('delivery_company_id')
               ->label('شركة التوصيل')
               ->relationship('deliveryCompany', 'name')
               ->searchable()
               ->preload()
-              ->required(),
+              ->required()
+              ->disabled(!auth()->user()->hasRole('super_admin')),
 
             Forms\Components\TextInput::make('shipping_fee')
               ->label('رسوم الشحن')
@@ -59,7 +62,8 @@ class OrderResource extends Resource
               ->prefix('$')
               ->default(0)
               ->live(onBlur: true)
-              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record)),
+              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record))
+              ->disabled(!auth()->user()->hasRole('super_admin')),
 
             Forms\Components\TextInput::make('delivery_fee')
               ->label('رسوم التوصيل')
@@ -67,7 +71,9 @@ class OrderResource extends Resource
               ->prefix('$')
               ->default(0)
               ->live(onBlur: true)
-              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record)),
+              ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record))
+              ->disabled(!auth()->user()->hasRole('super_admin')),
+
 
             Forms\Components\TextInput::make('total_amount')
               ->label('الإجمالي النهائي')
@@ -102,7 +108,14 @@ class OrderResource extends Resource
           ->searchable(),
 
 
-
+        TextColumn::make('deliveryCompany.name')
+          ->label('شركة التوصيل')
+          ->badge()
+          ->color('primary')
+          ->icon('heroicon-m-truck')
+          ->placeholder('لم تحدد بعد')
+          ->sortable()
+          ->searchable(),
         TextColumn::make('status')
           ->label('الحالة')
           ->badge()
@@ -135,7 +148,10 @@ class OrderResource extends Resource
 
 
         TextColumn::make('order_items_count')->label('عدد المنتجات')->counts('orderItems'),
-        TextColumn::make('created_at')->label('تاريخ الطلب')->since()->sortable()->searchable(),
+        TextColumn::make('created_at')
+          ->label('تاريخ الطلب')
+          ->dateTime('Y-m-d H:i')
+          ->sortable(),
       ])
       ->defaultSort('created_at', 'desc')
 
@@ -149,8 +165,15 @@ class OrderResource extends Resource
           ]),
       ])
       ->actions([
-        Tables\Actions\ViewAction::make(),
-        Tables\Actions\EditAction::make(),
+        Tables\Actions\ViewAction::make()
+          ->label('عرض التفاصيل')
+          ->color('info')
+          ->icon('heroicon-m-eye'),
+
+        Tables\Actions\EditAction::make()
+          ->label('تأكيد الطلب')
+          ->color('warning')
+          ->icon('heroicon-m-check-circle'),
       ])
       ->recordUrl(
         fn(Order $record): string => Pages\ViewOrder::getUrl([$record->id]),
@@ -240,7 +263,7 @@ class OrderResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->helperText('يجب تحديد شركة التوصيل لإتمام العملية'),
+                    ->disabled(!auth()->user()->hasRole('super_admin'))
                 ])
                 ->action(function (Order $record, array $data) {
                   $record->update($data);
@@ -305,5 +328,16 @@ class OrderResource extends Resource
     ]);
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery();
 
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('deliveryCompany', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
+  }
 }

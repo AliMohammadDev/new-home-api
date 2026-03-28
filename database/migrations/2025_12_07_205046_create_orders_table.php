@@ -22,7 +22,7 @@ return new class extends Migration {
       $table->foreignIdFor(DeliveryCompany::class)->nullable()->constrained();
       $table->decimal('total_amount', 10, 2);
       $table->decimal('shipping_fee', 10, 2)->default(0);
-      $table->decimal('discount_fee', 10, 2)->default(0);
+      $table->decimal('delivery_fee', 10, 2)->default(0);
       $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
       $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
       $table->timestamps();

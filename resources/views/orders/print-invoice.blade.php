@@ -104,14 +104,31 @@
     <table class="info-table">
         <tr>
             <td class="info-box" style="text-align: right;">
-                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">مُصدرة إلى:</h4>
-                <strong style="font-size: 18pt;">{{ $order->user?->name ?? 'عميل مجهول' }}</strong><br>
-                <span>العنوان: {{ $order->checkout?->address ?? 'غير محدد' }}</span>
+                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">معلومات المستلم:</h4>
+                <strong style="font-size: 18pt;">
+                    {{ $order->checkout?->first_name }} {{ $order->checkout?->last_name }}
+                </strong><br>
+
+                <div style="margin-top: 5px; font-size: 14pt;">
+                    <span>المدينة: <strong>{{ $order->checkout?->city ?? 'غير محدد' }}</strong></span><br>
+                    <span>الشارع: {{ $order->checkout?->street ?? '-' }}</span>
+                    @if ($order->checkout?->floor)
+                        <span> - الطابق: {{ $order->checkout?->floor }}</span>
+                    @endif
+                    <br>
+                    <span>الهاتف: {{ $order->checkout?->phone ?? '-' }}</span>
+                </div>
             </td>
             <td class="info-box" style="text-align: left; vertical-align: top;">
-                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">تفاصيل الوقت:</h4>
+                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">تفاصيل الفاتورة:</h4>
                 <span>تاريخ الطلب: {{ $order->created_at->format('Y/m/d') }}</span><br>
-                <span>الحالة: <span style="color: #025043; font-weight: bold;">مدفوع</span></span>
+                <span>طريقة الدفع:
+                    <span style="color: #025043; font-weight: bold;">
+                        {{ $order->payment_method == 'cod' ? 'دفع عند الاستلام' : $order->payment_method }}
+                    </span>
+                </span><br>
+                <span>الحالة: <span
+                        style="color: #025043; font-weight: bold;">{{ $order->status == 'completed' ? 'مكتمل' : 'نشط' }}</span></span>
             </td>
         </tr>
     </table>
@@ -172,21 +189,41 @@
     </table>
 
     <div class="totals-container">
+        @php
+            $productsSubtotal = $order->total_amount - ($order->shipping_fee ?? 0) - ($order->delivery_fee ?? 0);
+        @endphp
+
         <table class="totals-table" align="left">
             <tr>
-                <td style="color: #666;">المجموع الفرعي:</td>
-                <td style="text-align: left;">
-                    {{ number_format($order->total_amount - ($order->shipping_fee ?? 0), 2) }} $</td>
+                <td style="color: #666; font-size: 14pt;">مجموع المنتجات:</td>
+                <td style="text-align: left; font-size: 14pt;">
+                    {{ number_format($productsSubtotal, 2) }} $
+                </td>
             </tr>
-            @if ($order->shipping_fee)
+
+            @if ($order->shipping_fee > 0)
                 <tr>
-                    <td style="color: #666;">رسوم الشحن:</td>
-                    <td style="text-align: left;">{{ number_format($order->shipping_fee, 2) }} $</td>
+                    <td style="color: #666; font-size: 14pt;">رسوم الشحن:</td>
+                    <td style="text-align: left; font-size: 14pt;">
+                        {{ number_format($order->shipping_fee, 2) }} $
+                    </td>
                 </tr>
             @endif
+
+            @if ($order->delivery_fee > 0)
+                <tr>
+                    <td style="color: #666; font-size: 14pt;">رسوم التوصيل:</td>
+                    <td style="text-align: left; font-size: 14pt;">
+                        {{ number_format($order->delivery_fee, 2) }} $
+                    </td>
+                </tr>
+            @endif
+
             <tr class="total-row final">
-                <td style="padding-top: 15px;">الإجمالي الكلي:</td>
-                <td style="text-align: left; padding-top: 15px;">{{ number_format($order->total_amount, 2) }} $</td>
+                <td style="padding-top: 15px; font-weight: bold;">الإجمالي الكلي:</td>
+                <td style="text-align: left; padding-top: 15px; font-weight: bold;">
+                    {{ number_format($order->total_amount, 2) }} $
+                </td>
             </tr>
         </table>
     </div>

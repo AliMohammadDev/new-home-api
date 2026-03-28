@@ -13,7 +13,7 @@ class Order extends Model
     'total_amount',
     'delivery_company_id',
     'shipping_fee',
-    'discount_fee',
+    'delivery_fee',
     'payment_method',
     'status'
   ];

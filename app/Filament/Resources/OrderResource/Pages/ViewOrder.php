@@ -18,7 +18,15 @@ class ViewOrder extends ViewRecord
         ->label('رجوع')
         ->color('gray')
         ->url($this->getResource()::getUrl('index')),
-      Actions\EditAction::make(),
+      Actions\EditAction::make()
+        ->label('تأكيد الطلب')
+        ->color('warning')
+        ->icon('heroicon-m-check-circle'),
     ];
+  }
+
+  public function getTitle(): string
+  {
+    return "تفاصيل الطلب رقم: {$this->record->id}";
   }
 }

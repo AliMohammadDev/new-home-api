@@ -40,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
         'نقاط البيع (POS)',
         'إدارة المبيعات',
         'شحن واستيراد',
+        'إدارة التوصيل',
         'الإدارة المالية',
         'اإدارة المستخدمين',
       ])
@@ -56,15 +57,15 @@ class AdminPanelProvider extends PanelProvider
       ->databaseNotifications()
       ->databaseNotificationsPolling('30s')
       ->font('Cairo')
-      ->navigationItems([
-        \Filament\Navigation\NavigationItem::make('شاشة الكاشير (POS)')
-          ->group('إدارة المبيعات')
-          ->icon('heroicon-o-computer-desktop')
-          ->url(fn(): string => CashierPos::getUrl())
-          ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.cashier-pos'))
-          ->sort(1)
-          ->visible(fn(): bool => auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier'])),
-      ])
+      // ->navigationItems([
+      //   \Filament\Navigation\NavigationItem::make('شاشة الكاشير (POS)')
+      //     ->group('إدارة المبيعات')
+      //     ->icon('heroicon-o-computer-desktop')
+      //     ->url(fn(): string => CashierPos::getUrl())
+      //     ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.cashier-pos'))
+      //     ->sort(1)
+      //     ->visible(fn(): bool => auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier'])),
+      // ])
 
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,

@@ -7,6 +7,7 @@ use App\Models\CompanySalesTransfer;
 use App\Models\CompanyTreasure;
 use App\Models\Order;
 use App\Models\ProductImportItem;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -16,6 +17,8 @@ use Filament\Forms\Form;
 class SalesReports extends Page implements HasForms
 {
   use InteractsWithForms;
+  use HasPageShield;
+
 
   protected static string $view = 'filament.pages.sales-reports';
   protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
@@ -96,13 +99,13 @@ class SalesReports extends Page implements HasForms
     ];
   }
 
-  public static function shouldRegisterNavigation(): bool
-  {
-    return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  }
+  // public static function shouldRegisterNavigation(): bool
+  // {
+  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
+  // }
 
-  public static function canAccess(): bool
-  {
-    return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  }
+  // public static function canAccess(): bool
+  // {
+  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
+  // }
 }

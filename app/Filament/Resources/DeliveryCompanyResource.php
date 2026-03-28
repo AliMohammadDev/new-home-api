@@ -14,7 +14,7 @@ class DeliveryCompanyResource extends Resource
 {
   protected static ?string $model = DeliveryCompany::class;
   protected static ?string $navigationIcon = 'heroicon-o-truck';
-  protected static ?string $navigationGroup = 'إدارة الشحن';
+  protected static ?string $navigationGroup = 'إدارة التوصيل';
   protected static ?string $navigationLabel = 'شركات التوصيل';
   protected static ?string $pluralModelLabel = 'شركات التوصيل';
   protected static ?string $modelLabel = 'شركة توصيل';
