@@ -14,7 +14,6 @@ class SalesPointSeeder extends Seeder
     $warehouses = Warehouse::all();
 
 
-
     $salesPointsData = [
       ['name' => 'فرع المزة الرئيسي', 'location' => 'دمشق - أوتوستراد المزة', 'phone' => '0112233445'],
       ['name' => 'نقطة بيع الشعلان', 'location' => 'دمشق - شارع الشعلان', 'phone' => '0115566778'],
