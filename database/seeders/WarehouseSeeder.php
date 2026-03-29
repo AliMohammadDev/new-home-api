@@ -38,6 +38,5 @@ class WarehouseSeeder extends Seeder
       ]);
     }
 
-    $this->command->info('تم إنشاء المستودعات وربطها بمدراء المستودعات المصغرة بنجاح.');
   }
 }
