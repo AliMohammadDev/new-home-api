@@ -45,14 +45,20 @@ class ProductVariantResource extends Resource
               ->schema([
                 Forms\Components\Select::make('color_id')
                   ->label('اللون')
+                  ->searchable()
+                  ->preload()
                   ->options(\App\Models\Color::pluck('color', 'id'))
                   ->required(),
                 Forms\Components\Select::make('size_id')
                   ->label('الحجم')
                   ->options(\App\Models\Size::pluck('size', 'id'))
+                  ->searchable()
+                  ->preload()
                   ->required(),
                 Forms\Components\Select::make('material_id')
                   ->label('المادة')
+                  ->searchable()
+                  ->preload()
                   ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
@@ -68,7 +74,13 @@ class ProductVariantResource extends Resource
                   ->live()
                   ->helperText('هذا الرمز الإداري الخاص بالخيار'),
 
-
+                Forms\Components\TextInput::make('barcode')
+                  ->label('الباركود (Barcode)')
+                  ->placeholder('أدخل رقم الباركود')
+                  ->prefixIcon('heroicon-m-qr-code')
+                  ->unique(ignoreRecord: true)
+                  ->helperText('يمكنك إدخال رقم الباركود الدولي (EAN/UPC) هنا')
+                  ->live(),
 
                 Forms\Components\Grid::make(4)
                   ->schema([
@@ -85,8 +97,6 @@ class ProductVariantResource extends Resource
                       ->view('filament.forms.components.barcode-display')
                       ->columnSpan(1)
                       ->visible(fn($record) => filled($record?->barcode)),
-
-
                   ]),
               ]),
 
@@ -207,16 +217,27 @@ class ProductVariantResource extends Resource
           ->schema([
             Forms\Components\Grid::make(3)
               ->schema([
-                Forms\Components\MultiSelect::make('temp_colors')
+                Forms\Components\Select::make('temp_colors')
                   ->label('الألوان')
+                  ->multiple()
                   ->options(\App\Models\Color::pluck('color', 'id'))
+                  ->searchable()
+                  ->preload()
                   ->dehydrated(false),
-                Forms\Components\MultiSelect::make('temp_sizes')
+
+                Forms\Components\Select::make('temp_sizes')
                   ->label('الأحجام')
+                  ->multiple()
                   ->options(\App\Models\Size::pluck('size', 'id'))
+                  ->searchable()
+                  ->preload()
                   ->dehydrated(false),
-                Forms\Components\MultiSelect::make('temp_materials')
+
+                Forms\Components\Select::make('temp_materials')
                   ->label('المواد')
+                  ->multiple()
+                  ->searchable()
+                  ->preload()
                   ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
@@ -226,7 +247,7 @@ class ProductVariantResource extends Resource
             Forms\Components\Actions::make([
               Forms\Components\Actions\Action::make('generate_variants')
                 ->label('توليد الخيارات تلقائياً')
-                ->icon('heroicon-m-sparkles')
+                ->icon('heroicon-o-sparkles')
                 ->color('success')
                 ->action(function ($get, $set) {
                   $colors = $get('temp_colors') ?? [];
@@ -243,7 +264,7 @@ class ProductVariantResource extends Resource
                           'color_id' => $colorId,
                           'size_id' => $sizeId,
                           'material_id' => $materialId,
-                          'stock_quantity' => 1,
+                          'stock_quantity' => 0,
                           'price' => 0,
                           'discount' => 0,
                           'packages' => [],
@@ -259,6 +280,8 @@ class ProductVariantResource extends Resource
         Forms\Components\Select::make('product_id')
           ->label('المنتج')
           ->relationship('product', 'id')
+          ->searchable()
+          ->preload()
           ->getOptionLabelFromRecordUsing(fn($record) => $record->name[app()->getLocale()] ?? $record->name['en'] ?? '')
           ->required()
           ->visible(fn($context) => $context === 'create')
@@ -268,19 +291,37 @@ class ProductVariantResource extends Resource
           ->label('قائمة الخيارات الناتجة')
           ->visible(fn($context) => $context === 'create')
           ->schema([
-            Forms\Components\Grid::make(3)
+            Forms\Components\Grid::make(2)
               ->schema([
-                Forms\Components\Select::make('color_id')->label('اللون')->options(\App\Models\Color::pluck('color', 'id'))->required(),
-                Forms\Components\Select::make('size_id')->label('الحجم')->options(\App\Models\Size::pluck('size', 'id'))->required(),
-                Forms\Components\Select::make('material_id')->label('المادة')->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
-                  $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
-                  return [$item->id => $name];
-                }))->required(),
+                Forms\Components\Select::make('color_id')->label('اللون')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Color::pluck('color', 'id'))->required(),
+                Forms\Components\Select::make('size_id')->label('الحجم')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Size::pluck('size', 'id'))->required(),
+                Forms\Components\Select::make('material_id')->label('المادة')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                    return [$item->id => $name];
+                  }))->required(),
                 Forms\Components\TextInput::make('sku')
                   ->label('SKU')
                   ->required()
                   ->unique(table: 'product_variants', column: 'sku'),
                 // Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
+
+                Forms\Components\TextInput::make('barcode')
+                  ->label('الباركود')
+                  ->required()
+                  ->unique(table: 'product_variants', column: 'barcode')
+                  ->prefixIcon('heroicon-m-qr-code')
+                  ->placeholder('barcode'),
+
+
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
               ]),
 

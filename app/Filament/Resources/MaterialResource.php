@@ -37,7 +37,7 @@ class MaterialResource extends Resource
               ]),
             Forms\Components\Tabs\Tab::make('Arabic')
               ->schema([
-                Forms\Components\TextInput::make('material;.ar')
+                Forms\Components\TextInput::make('material.ar')
                   ->label('اسم المادة (AR)')
                   ->required(),
               ]),

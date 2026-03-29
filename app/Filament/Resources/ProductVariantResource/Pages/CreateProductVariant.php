@@ -42,6 +42,8 @@ class CreateProductVariant extends CreateRecord
         'price' => $variantData['price'],
         'discount' => $variantData['discount'] ?? 0,
         'stock_quantity' => $variantData['stock_quantity'],
+        'sku' => $variantData['sku'],
+        'barcode' => $variantData['barcode'] ?? null,
         'image' => '',
       ]);
 

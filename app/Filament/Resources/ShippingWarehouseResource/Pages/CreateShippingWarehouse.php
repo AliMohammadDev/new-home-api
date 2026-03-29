@@ -24,12 +24,19 @@ class CreateShippingWarehouse extends CreateRecord
 
   protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
   {
-    $items = $data['shipping_items'];
+    $items = $data['shipping_items'] ?? [];
+    $lastRecord = null;
 
     foreach ($items as $item) {
-      ShippingWarehouse::create($item);
+      $item['user_id'] = auth()->id();
+      $lastRecord = ShippingWarehouse::create($item);
     }
 
-    return ShippingWarehouse::latest()->first();
+    return $lastRecord;
+  }
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
   }
 }

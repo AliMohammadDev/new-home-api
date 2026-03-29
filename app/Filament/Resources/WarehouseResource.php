@@ -145,14 +145,26 @@ class WarehouseResource extends Resource
     ];
   }
 
+
+
+
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()->with(['user']);
+    $user = auth()->user();
 
-    if (auth()->user()->hasRole('super_admin')) {
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    return $query->where('user_id', auth()->id());
+    if ($user->hasRole('main_warehouse_manager')) {
+      return $query;
+    }
+
+    if ($user->hasRole('sub_warehouse_manager')) {
+      return $query->where('user_id', $user->id);
+    }
+
+    return $query->whereRaw('1 = 0');
   }
 }

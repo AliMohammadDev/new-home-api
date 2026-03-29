@@ -27,10 +27,11 @@ class ProductVariant extends Model
     parent::boot();
 
     static::creating(function ($variant) {
-      if (empty($variant->sku)) {
+      if (!isset($variant->sku) || trim((string) $variant->sku) === '') {
         $variant->sku = self::generateUniqueSku();
       }
-      if (empty($variant->barcode)) {
+
+      if (!isset($variant->barcode) || trim((string) $variant->barcode) === '') {
         $variant->barcode = self::generateUniqueBarcode();
       }
     });
