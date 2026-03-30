@@ -72,7 +72,9 @@ class ProductVariantResource extends Resource
                   ->unique(ignoreRecord: true)
                   ->required()
                   ->live()
-                  ->helperText('هذا الرمز الإداري الخاص بالخيار'),
+                  ->helperText('هذا الرمز الإداري الخاص بالخيار')
+                  ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                  ->dehydrateStateUsing(fn($state) => strtoupper($state)),
 
                 Forms\Components\TextInput::make('barcode')
                   ->label('الباركود (Barcode)')
@@ -141,7 +143,6 @@ class ProductVariantResource extends Resource
                     return $path ? basename((string) $path) : null;
                   }),
               ])
-
               ->saveRelationshipsUsing(function ($record, $state) {
                 $existingImages = $record->images;
                 $newItems = collect($state);
@@ -209,8 +210,6 @@ class ProductVariantResource extends Resource
               ->defaultItems(0)
               ->createItemButtonLabel('إضافة باقة سعر جديدة'),
           ]),
-
-
 
         Forms\Components\Section::make('أدوات التوليد السريع')
           ->visible(fn($context) => $context === 'create')
@@ -311,12 +310,14 @@ class ProductVariantResource extends Resource
                 Forms\Components\TextInput::make('sku')
                   ->label('SKU')
                   ->required()
-                  ->unique(table: 'product_variants', column: 'sku'),
+                  ->unique(table: 'product_variants', column: 'sku')
+                  ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                  ->dehydrateStateUsing(fn($state) => strtoupper($state)),
+
                 // Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
 
                 Forms\Components\TextInput::make('barcode')
                   ->label('الباركود')
-                  ->required()
                   ->unique(table: 'product_variants', column: 'barcode')
                   ->prefixIcon('heroicon-m-qr-code')
                   ->placeholder('barcode'),
@@ -330,7 +331,7 @@ class ProductVariantResource extends Resource
               ->schema([
                 Forms\Components\Grid::make(2)
                   ->schema([
-                    // Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
+                    Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
                     Forms\Components\TextInput::make('price')->label('السعر')->numeric()->required(),
                   ]),
               ])

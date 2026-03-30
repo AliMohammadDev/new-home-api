@@ -18,6 +18,7 @@ class WarehouseReturnResource extends Resource
 {
   protected static ?string $model = WarehouseReturn::class;
   protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-left';
+  protected static ?int $navigationSort = 5;
   protected static ?string $navigationLabel = 'المرتجعات من المستودعات';
   protected static ?string $pluralModelLabel = 'المرتجعات';
   protected static ?string $modelLabel = 'مرتجع';

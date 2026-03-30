@@ -17,6 +17,7 @@ class ShippingCityResource extends Resource
   protected static ?string $model = ShippingCity::class;
 
   protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+  protected static ?int $navigationSort = 6;
   protected static ?string $navigationLabel = 'مناطق الشحن';
   protected static ?string $pluralModelLabel = 'مناطق الشحن';
   protected static ?string $modelLabel = 'منطقة شحن';

@@ -15,6 +15,7 @@ class ProductImportItemResource extends Resource
 {
   protected static ?string $model = ProductImportItem::class;
   protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+  protected static ?int $navigationSort = 2;
   protected static ?string $navigationLabel = 'عملية استيراد بضاعة';
   protected static ?string $pluralModelLabel = 'عملية استيراد بضاعة';
   protected static ?string $modelLabel = ' عملية ';
