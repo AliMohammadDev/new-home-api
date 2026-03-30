@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\CashierPos;
 use App\Filament\Resources\CompanyTreasureResource\Widgets\CapitalStatsWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Widgets\GeneralStatsWidget;
@@ -24,6 +23,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Navigation\NavigationGroup;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -35,14 +35,32 @@ class AdminPanelProvider extends PanelProvider
       ->id('admin')
       ->path('admin')
       ->navigationGroups([
-        'إدارة المنتجات',
-        'إدارة الطلبات',
-        'نقاط البيع (POS)',
-        'إدارة المبيعات',
-        'شحن واستيراد',
-        'إدارة التوصيل',
-        'الإدارة المالية',
-        'اإدارة المستخدمين',
+        NavigationGroup::make()
+          ->label('إدارة المنتجات'),
+
+        NavigationGroup::make()
+          ->label('إدارة الطلبات'),
+
+        NavigationGroup::make()
+          ->label('نقاط البيع (POS)'),
+
+        NavigationGroup::make()
+          ->label('إدارة المبيعات'),
+
+        NavigationGroup::make()
+          ->label('شحن و استيراد'),
+
+        NavigationGroup::make()
+          ->label('إدارة التوصيل'),
+
+        NavigationGroup::make()
+          ->label('الإدارة المالية'),
+
+        NavigationGroup::make()
+          ->label('التقارير والإحصائيات'),
+
+        NavigationGroup::make()
+          ->label('إدارة المستخدمين'),
       ])
       ->login()
       ->brandName('المنزل الحديث')

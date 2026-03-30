@@ -31,9 +31,9 @@ class ProductVariant extends Model
         $variant->sku = self::generateUniqueSku();
       }
 
-      if (!isset($variant->barcode) || trim((string) $variant->barcode) === '') {
-        $variant->barcode = self::generateUniqueBarcode();
-      }
+      // if (!isset($variant->barcode) || trim((string) $variant->barcode) === '') {
+      //   $variant->barcode = self::generateUniqueBarcode();
+      // }
     });
   }
 

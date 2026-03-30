@@ -162,7 +162,7 @@ class ProductImportItemResource extends Resource
               return redirect()->route('supplier.print', [
                 'ids' => $records->pluck('id')->toArray()
               ]);
-            }),
+            })->openUrlInNewTab(),
 
           Tables\Actions\DeleteBulkAction::make(),
         ]),

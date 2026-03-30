@@ -16,7 +16,7 @@ class SupplierImportController extends Controller
     if (!$ids)
       return redirect()->back();
 
-    $records = ProductImportItem::whereIn('product_variant_id', $ids)
+    $records = ProductImportItem::whereIn('id', $ids)
       ->with([
         'productVariant.product',
         'productVariant.color',
