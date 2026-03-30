@@ -97,7 +97,9 @@ class ShippingCityResource extends Resource
           ->boolean(),
 
         Tables\Columns\ToggleColumn::make('is_active')
-          ->label('نشط'),
+          ->label('نشط')
+          ->toggleable(isToggledHiddenByDefault: true),
+
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإضافة')

@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointCashierTransResource\Pages;
 use App\Models\SalesPoint;
+use App\Models\SalesPointCashier;
 use App\Models\SalesPointCashierTrans;
+use App\Models\SalesPointManager;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,33 +30,53 @@ class SalesPointCashierTransResource extends Resource
         ->schema([
           Forms\Components\Select::make('sales_point_id')
             ->label('نقطة البيع')
-            ->relationship('salesPoint', 'name')
+            ->relationship(
+              name: 'salesPoint',
+              titleAttribute: 'name',
+              modifyQueryUsing: function (Builder $query) {
+                if (auth()->user()->hasRole('super_admin'))
+                  return $query;
+                return $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()));
+              }
+            )
             ->required()
             ->searchable()
             ->preload()
             ->live()
-            ->afterStateUpdated(function (Forms\Set $set) {
-              $set('sales_point_manager_id', null);
+            ->afterStateUpdated(function (Forms\Set $set, $state) {
               $set('sales_point_cashier_id', null);
+
+              if (!auth()->user()->hasRole('super_admin') && $state) {
+                $managerId = SalesPointManager::where('user_id', auth()->id())
+                  ->where('sales_point_id', $state)
+                  ->value('id');
+                $set('sales_point_manager_id', $managerId);
+              } else {
+                $set('sales_point_manager_id', null);
+              }
             }),
 
           Forms\Components\Select::make('sales_point_manager_id')
             ->label('المدير المسؤول')
-            ->key(fn(Forms\Get $get) => 'manager_' . $get('sales_point_id'))
             ->options(function (Forms\Get $get) {
               $salesPointId = $get('sales_point_id');
               if (!$salesPointId)
                 return [];
 
-              return \App\Models\SalesPointManager::query()
-                ->where('sales_point_id', $salesPointId)
-                ->with('user')
-                ->get()
-                ->pluck('user.name', 'id');
+              $query = SalesPointManager::query()->where('sales_point_id', $salesPointId);
+
+              if (!auth()->user()->hasRole('super_admin')) {
+                $query->where('user_id', auth()->id());
+              }
+
+              return $query->with('user')->get()->pluck('user.name', 'id');
             })
-            ->searchable()
             ->required()
-            ->disabled(fn(Forms\Get $get) => !$get('sales_point_id')),
+            ->searchable()
+            ->live()
+            ->disabled(fn() => !auth()->user()->hasRole('super_admin'))
+            ->dehydrated()
+            ->helperText(fn() => !auth()->user()->hasRole('super_admin') ? 'يتم تحديد المدير تلقائياً بناءً على حسابك.' : ''),
 
           Forms\Components\Select::make('sales_point_cashier_id')
             ->label('الموظف المستلم (الكاشير)')
@@ -64,7 +86,7 @@ class SalesPointCashierTransResource extends Resource
               if (!$salesPointId)
                 return [];
 
-              return \App\Models\SalesPointCashier::query()
+              return SalesPointCashier::query()
                 ->where('sales_point_id', $salesPointId)
                 ->with('user')
                 ->get()
@@ -232,22 +254,32 @@ class SalesPointCashierTransResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
+    $user = auth()->user();
     $query = parent::getEloquentQuery()->with([
       'salesPoint',
       'manager.user',
       'cashier.user'
     ]);
 
-    if (auth()->user()->hasRole('super_admin')) {
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    $cashierId = \App\Models\SalesPointCashier::where('user_id', auth()->id())->value('id');
+    $cashierId = SalesPointCashier::where('user_id', $user->id)->value('id');
+    $managerId = SalesPointManager::where('user_id', $user->id)->value('id');
 
-    if (!$cashierId) {
-      return $query->whereRaw('1 = 0');
-    }
+    return $query->where(function (Builder $subQuery) use ($cashierId, $managerId) {
+      if ($cashierId) {
+        $subQuery->orWhere('sales_point_cashier_id', $cashierId);
+      }
 
-    return $query->where('sales_point_cashier_id', $cashierId);
+      if ($managerId) {
+        $subQuery->orWhere('sales_point_manager_id', $managerId);
+      }
+
+      if (!$cashierId && !$managerId) {
+        $subQuery->whereRaw('1 = 0');
+      }
+    });
   }
 }

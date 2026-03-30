@@ -75,6 +75,7 @@ class DeliveryCompanyResource extends Resource
 
         Tables\Columns\IconColumn::make('is_active')
           ->label('نشط')
+          ->toggleable(isToggledHiddenByDefault: true)
           ->boolean(),
 
         Tables\Columns\TextColumn::make('created_at')
