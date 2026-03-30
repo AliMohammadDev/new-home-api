@@ -2,6 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\CategoryResource;
+use App\Filament\Resources\ProductResource;
+use App\Filament\Resources\UserResource;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\ProductVariant;
@@ -21,19 +24,22 @@ class GeneralStatsWidget extends BaseWidget
         ->description('نمو قاعدة العملاء')
         ->descriptionIcon('heroicon-m-users')
         ->color('info')
-        ->chart([1, 3, 2, 5, 4, 7, 9]),
+        ->chart([1, 3, 2, 5, 4, 7, 9])
+        ->url(UserResource::getUrl('index')),
 
       Stat::make('الأصناف والنشاطات', Category::count())
         ->description('تنوع المنتجات في المتجر')
         ->descriptionIcon('heroicon-m-tag')
         ->color('gray')
-        ->chart([2, 2, 5, 2, 2, 6, 4]),
+        ->chart([2, 2, 5, 2, 2, 6, 4])
+        ->url(CategoryResource::getUrl('index')),
 
       Stat::make('خيارات المنتجات (Variants)', ProductVariant::count())
         ->description('إجمالي الموديلات والقياسات')
         ->descriptionIcon('heroicon-m-rectangle-group')
         ->color('primary')
-        ->chart([3, 7, 5, 8, 4, 9, 12]),
+        ->chart([3, 7, 5, 8, 4, 9, 12])
+        ->url(ProductResource::getUrl('index')),
     ];
   }
 }
