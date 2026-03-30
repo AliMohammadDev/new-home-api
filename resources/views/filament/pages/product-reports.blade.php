@@ -24,12 +24,12 @@
         <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-                    <x-heroicon-o-home-modern class="w-6 h-6 " />
+                    <x-heroicon-o-home-modern class="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">المخزون الرئيسي (النوع)</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">المخزون الرئيسي (الحالي)</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ number_format($totals['main_stock']) }}</p>
+                        {{ number_format($totals['main_stock'] ?? 0) }}</p>
                 </div>
             </div>
         </div>
@@ -42,7 +42,20 @@
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">مخزون المستودعات المصغرة</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ number_format($totals['sub_warehouses_stock']) }}</p>
+                        {{ number_format($totals['sub_warehouses_stock'] ?? 0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-warning-50 dark:bg-warning-900/20 rounded-lg">
+                    <x-heroicon-o-arrow-down-tray class="w-6 h-6 text-warning-600" />
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي الوارد (خلال الفترة)</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ number_format($totals['total_imported'] ?? 0) }}</p>
                 </div>
             </div>
         </div>
@@ -55,12 +68,24 @@
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي المواد المباعة</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ number_format($totals['sold_items']) }}</p>
+                        {{ number_format($totals['sold_items'] ?? 0) }}</p>
                 </div>
             </div>
         </div>
 
-        {{-- كرت: المهدورات --}}
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
+                    <x-heroicon-o-arrow-path class="w-6 h-6 text-gray-600" />
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي المرتجعات</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ number_format($totals['returned_items'] ?? 0) }}</p>
+                </div>
+            </div>
+        </div>
+
         <div
             class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm border-r-4 border-r-danger-500">
             <div class="flex items-center gap-4">
@@ -70,7 +95,7 @@
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">مواد مهدورة/تالفة</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ number_format($totals['wasted_items']) }}</p>
+                        {{ number_format($totals['wasted_items'] ?? 0) }}</p>
                 </div>
             </div>
         </div>

@@ -61,26 +61,16 @@ class ProductReports extends Page implements HasForms
     $this->totals = [
       'main_stock' => ProductVariant::sum('stock_quantity'),
       'sub_warehouses_stock' => ShippingWarehouse::sum('amount'),
-
       'total_imported' => ProductImportItem::whereBetween('created_at', [$from, $to])->sum('quantity'),
-
       'wasted_items' => $wasteWarehouse
-        ? $wasteWarehouse->productVariants()->sum('amount')
+        ? $wasteWarehouse->productVariants()
+          ->wherePivotBetween('created_at', [$from, $to])
+          ->sum('amount')
         : 0,
-
       'sold_items' => CashierSale::whereBetween('created_at', [$from, $to])->sum('quantity'),
-
       'returned_items' => WarehouseReturn::whereBetween('created_at', [$from, $to])->sum('amount'),
     ];
   }
 
-  // public static function shouldRegisterNavigation(): bool
-  // {
-  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  // }
 
-  // public static function canAccess(): bool
-  // {
-  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  // }
 }

@@ -73,7 +73,7 @@ class SalesReports extends Page implements HasForms
     $cashierQuery = CashierSale::whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
     $onlineQuery = Order::where('status', 'completed')->whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
     $transInQuery = CompanySalesTransfer::where('trans_type', 'deposit')->whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
-    $transOutQuery = CompanySalesTransfer::where('trans_type', 'withdrawal')->whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
+    $transOutQuery = CompanySalesTransfer::where('trans_type', 'withdraw')->whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
 
     $imports = $importsQuery->sum('total_cost');
     $cashier = $cashierQuery->sum('full_price');
@@ -99,13 +99,5 @@ class SalesReports extends Page implements HasForms
     ];
   }
 
-  // public static function shouldRegisterNavigation(): bool
-  // {
-  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  // }
 
-  // public static function canAccess(): bool
-  // {
-  //   return auth()->user()->hasRole(['super_admin', 'finance_manager']);
-  // }
 }

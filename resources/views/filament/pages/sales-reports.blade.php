@@ -28,11 +28,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium ">إجمالي الاستيراد</p>
-                        <p class="text-2xl font-black text-danger-600 mt-1 font-mono">
+                        <p class="text-2xl font-black  mt-1 font-mono">
                             ${{ number_format($totals['imports'], 2) }}</p>
                     </div>
-                    <div
-                        class="p-3 bg-danger-50 dark:bg-danger-900/20 rounded-xl text-danger-600 group-hover:scale-110 transition">
+                    <div class="p-3 bg-danger-50 dark:bg-danger-900/20 rounded-xl  group-hover:scale-110 transition">
                         <x-heroicon-o-arrow-down-tray class="w-6 h-6" />
                     </div>
                 </div>
@@ -57,7 +56,7 @@
                 class="relative p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium">مبيعات الموقع</p>
+                        <p class="text-sm font-medium">مبيعات الموقع الالكتروني</p>
                         <p class="text-2xl font-black  mt-1 font-mono">
                             ${{ number_format($totals['online'], 2) }}</p>
                     </div>
@@ -71,7 +70,7 @@
                 class="relative p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">صافي التحويلات</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">صافي تحويلات نقاط البيع</p>
                         <p class="text-2xl font-black text-amber-600 mt-1 font-mono">
                             ${{ number_format($totals['transfers_net'], 2) }}</p>
                     </div>
@@ -140,22 +139,22 @@
                             <td class="px-6 py-4 text-sm font-medium">عمليات الاستيراد والمشتريات</td>
                             <td class="px-6 py-4 text-center font-mono">
                                 {{ number_format($totals['count_imports'] ?? 0) }}</td>
-                            <td class="px-6 py-4 font-bold text-danger-600 font-mono">
-                                -${{ number_format($totals['imports'], 2) }}</td>
+                            <td class="px-6 py-4 font-bold  font-mono">
+                                ${{ number_format($totals['imports'], 2) }}</td>
                         </tr>
                         <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition">
                             <td class="px-6 py-4 text-sm font-medium text-success-600">مبيعات الكاشير المباشرة</td>
                             <td class="px-6 py-4 text-center font-mono">
                                 {{ number_format($totals['count_cashier'] ?? 0) }}</td>
                             <td class="px-6 py-4 font-bold text-success-600 font-mono">
-                                +${{ number_format($totals['cashier'], 2) }}</td>
+                                ${{ number_format($totals['cashier'], 2) }}</td>
                         </tr>
                         <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition">
                             <td class="px-6 py-4 text-sm font-medium ">طلبات الموقع الإلكتروني</td>
                             <td class="px-6 py-4 text-center font-mono">
                                 {{ number_format($totals['count_online'] ?? 0) }}</td>
                             <td class="px-6 py-4 font-bold font-mono">
-                                +${{ number_format($totals['online'], 2) }}</td>
+                                ${{ number_format($totals['online'], 2) }}</td>
                         </tr>
                         <tr
                             class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition border-t-2 border-amber-100 dark:border-amber-900/30">
@@ -163,14 +162,14 @@
                             <td class="px-6 py-4 text-center font-mono">
                                 {{ number_format($totals['count_trans_in'] ?? 0) }}</td>
                             <td class="px-6 py-4 font-bold text-amber-600 font-mono">
-                                +${{ number_format($totals['transfers_in'], 2) }}</td>
+                                ${{ number_format($totals['transfers_in'], 2) }}</td>
                         </tr>
                         <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition">
                             <td class="px-6 py-4 text-sm font-medium text-red-400">سحوبات نقاط البيع</td>
                             <td class="px-6 py-4 text-center font-mono">
                                 {{ number_format($totals['count_trans_out'] ?? 0) }}</td>
                             <td class="px-6 py-4 font-bold text-red-400 font-mono">
-                                -${{ number_format($totals['transfers_out'], 2) }}</td>
+                                ${{ number_format($totals['transfers_out'], 2) }}</td>
                         </tr>
                     </tbody>
                 </table>
