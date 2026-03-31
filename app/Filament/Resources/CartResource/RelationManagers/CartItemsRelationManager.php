@@ -55,7 +55,6 @@ class CartItemsRelationManager extends RelationManager
         TextColumn::make('productVariant.discount')
           ->label('الخصم')
           ->suffix('%')
-          ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get))
           ->placeholder('0%'),
 
         TextColumn::make('productVariant.final_price')
