@@ -54,7 +54,7 @@ class OrderResource extends Resource
               ->searchable()
               ->preload()
               ->required()
-              ->disabled(!auth()->user()->hasRole('super_admin')),
+              ->disabled(!auth()->user()->hasAnyRole(['super_admin', 'main_warehouse_manager'])),
 
             Forms\Components\TextInput::make('shipping_fee')
               ->label('رسوم الشحن')
@@ -63,7 +63,8 @@ class OrderResource extends Resource
               ->default(0)
               ->live(onBlur: true)
               ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record))
-              ->disabled(!auth()->user()->hasRole('super_admin')),
+              ->disabled(!auth()->user()->hasAnyRole(['super_admin', 'main_warehouse_manager'])),
+
 
             Forms\Components\TextInput::make('delivery_fee')
               ->label('رسوم التوصيل')
@@ -72,7 +73,8 @@ class OrderResource extends Resource
               ->default(0)
               ->live(onBlur: true)
               ->afterStateUpdated(fn(Forms\Set $set, Forms\Get $get, $record) => self::updateTotal($set, $get, $record))
-              ->disabled(!auth()->user()->hasRole('super_admin')),
+              ->disabled(!auth()->user()->hasAnyRole(['super_admin', 'main_warehouse_manager'])),
+
 
 
             Forms\Components\TextInput::make('total_amount')
@@ -147,7 +149,9 @@ class OrderResource extends Resource
           ->searchable(),
 
 
-        TextColumn::make('order_items_count')->label('عدد المنتجات')->counts('orderItems'),
+        TextColumn::make('order_items_count')
+          ->label('عدد المنتجات')
+          ->counts('orderItems'),
         TextColumn::make('created_at')
           ->label('تاريخ الطلب')
           ->dateTime('Y-m-d H:i')
@@ -263,7 +267,8 @@ class OrderResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->disabled(!auth()->user()->hasRole('super_admin'))
+                    ->disabled(!auth()->user()->hasAnyRole(['super_admin', 'main_warehouse_manager'])),
+
                 ])
                 ->action(function (Order $record, array $data) {
                   $record->update($data);
