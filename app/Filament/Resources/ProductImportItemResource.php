@@ -78,7 +78,7 @@ class ProductImportItemResource extends Resource
             Forms\Components\TextInput::make('discount')
               ->label('خصم إجمالي')
               ->numeric()
-              ->prefix('%')
+              ->prefix('$')
               ->default(0)
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
