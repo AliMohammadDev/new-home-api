@@ -52,6 +52,40 @@
                 </div>
             </div>
 
+
+            <div
+                class="relative p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مرتجعات الكاشير</p>
+                        <p class="text-2xl font-black  mt-1 font-mono">
+                            ${{ number_format($totals['cashier_return'], 2) }}</p>
+                    </div>
+                    <div class="p-3 rounded-xl group-hover:scale-110 transition">
+                        <x-heroicon-o-arrow-uturn-left class="w-6 h-6" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                class="relative p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">صافي مبيعات الكاشير
+                        </p>
+                        <p class="text-2xl font-black text-blue-600 mt-1 font-mono">
+                            ${{ number_format($totals['cashier_net'], 2) }}
+                        </p>
+                    </div>
+                    <div
+                        class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 group-hover:scale-110 transition">
+                        <x-heroicon-o-calculator class="w-6 h-6" />
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-blue-500 opacity-20"></div>
+            </div>
+
             <div
                 class="relative p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden group">
                 <div class="flex items-center justify-between">
@@ -148,7 +182,20 @@
                                 {{ number_format($totals['count_cashier'] ?? 0) }}</td>
                             <td class="px-6 py-4 font-bold text-success-600 font-mono">
                                 ${{ number_format($totals['cashier'], 2) }}</td>
+
+
                         </tr>
+
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition">
+                            <td class="px-6 py-4 text-sm font-medium text-danger-500">المرتجعات (منتجات مرتجعة)</td>
+                            <td class="px-6 py-4 text-center font-mono">
+                                {{ number_format($totals['count_returns'] ?? 0) }}</td>
+                            <td class="px-6 py-4 font-bold text-danger-500 font-mono">
+                                ${{ number_format($totals['cashier_return'], 2) }}</td>
+                        </tr>
+
+
+
                         <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition">
                             <td class="px-6 py-4 text-sm font-medium ">طلبات الموقع الإلكتروني</td>
                             <td class="px-6 py-4 text-center font-mono">
