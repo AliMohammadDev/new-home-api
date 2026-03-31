@@ -50,7 +50,7 @@ class CartItemsRelationManager extends RelationManager
 
         TextColumn::make('productVariant.product.price')
           ->label('السعر الأصلي')
-          ->money('USD'),
+          ->money('USD', locale: 'en_US'),
 
         TextColumn::make('productVariant.product.discount')
           ->label('الخصم')
@@ -60,12 +60,12 @@ class CartItemsRelationManager extends RelationManager
         TextColumn::make('final_price')
           ->label('السعر بعد الخصم')
           ->getStateUsing(fn($record) => round($record->productVariant->product->price * (1 - $record->productVariant->product->discount / 100), 2))
-          ->money('USD'),
+          ->money('USD', locale: 'en_US'),
 
         TextColumn::make('total_price')
           ->label('الإجمالي')
           ->getStateUsing(fn($record) => $record->quantity * round($record->productVariant->product->price * (1 - $record->productVariant->product->discount / 100), 2))
-          ->money('USD'),
+          ->money('USD', locale: 'en_US'),
 
         TextColumn::make('created_at')
           ->label('أضيف بتاريخ')
