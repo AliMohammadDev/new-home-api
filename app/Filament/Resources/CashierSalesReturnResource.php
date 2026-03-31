@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CashierSalesReturnResource\Pages;
 use App\Models\CashierSalesReturn;
+use App\Models\ProductVariant;
 use App\Models\SalesPointCashier;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,9 +17,7 @@ use Illuminate\Support\Facades\App;
 class CashierSalesReturnResource extends Resource
 {
   protected static ?string $model = CashierSalesReturn::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
   protected static ?string $navigationGroup = 'إدارة المبيعات';
   protected static ?int $navigationSort = 6;
   protected static ?string $navigationLabel = 'مرتجعات الكاشير (الأصناف) ';
@@ -41,48 +40,87 @@ class CashierSalesReturnResource extends Resource
               )
             )
             ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name ?? 'غير محدد')
-
             ->default(fn() => SalesPointCashier::where('user_id', auth()->id())->value('id'))
-
             ->disabled(fn() => auth()->check() && auth()->user()->hasRole('sales_point_cashier'))
-
             ->dehydrated()
-
             ->searchable()
             ->preload()
             ->required(),
 
           Forms\Components\Select::make('product_variant_id')
-            ->label('المنتج المرتجع')
-            ->relationship('variant', 'sku')
-            ->getOptionLabelFromRecordUsing(function ($record) {
-              $productName = $record->product->name['ar'] ?? 'منتج غير مسمى';
-              $sku = $record->sku ?? 'بدون SKU';
-              return "{$productName} - {$sku}";
-            })
+            ->label('المنتج (الخيار)')
+            ->required()
             ->searchable(['sku'])
             ->preload()
-            ->required()
             ->live()
-            ->afterStateUpdated(function ($state, Forms\Set $set) {
+            ->options(function (Forms\Get $get) {
+              $cashierId = $get('sales_point_cashier_id');
+              if (!$cashierId) {
+                return [];
+              }
+              $cashier = SalesPointCashier::with('salesPoint.warehouse')
+                ->find($cashierId);
+              if (!$cashier || !$cashier->salesPoint || !$cashier->salesPoint->warehouse) {
+                return [];
+              }
+              return $cashier->salesPoint->warehouse->productVariants()
+                ->get()
+                ->mapWithKeys(function ($variant) {
+                  $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
+                  $sku = $variant->sku ?? 'بدون SKU';
+                  $stock = $variant->pivot->amount ?? 0;
+                  return [$variant->id => "{$productName} - {$sku} (متوفر: {$stock})"];
+                });
+            })
+            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
               if (!$state)
                 return;
-
-              $variant = \App\Models\ProductVariant::find($state);
+              $variant = ProductVariant::find($state);
               if ($variant) {
-                $set('price', $variant->price);
-                $set('full_price', (float) $variant->price);
+                $price = (float) $variant->price;
+                $discountPercent = (float) ($variant->discount ?? 0);
+                $quantity = (float) ($get('quantity') ?? 1);
+
+                $set('price', $price);
+                $set('discount', $discountPercent);
+
+                $total = ($price * $quantity) * (1 - ($discountPercent / 100));
+                $set('full_price', round($total, 2));
               }
             }),
 
           Forms\Components\TextInput::make('quantity')
-            ->label('الكمية المرتجعة')
+            ->label('الكمية')
             ->numeric()
             ->default(1)
             ->required()
-            ->live()
-            ->afterStateUpdated(fn($state, Forms\Get $get, Forms\Set $set) =>
-              $set('full_price', (float) $state * (float) ($get('price') ?? 0))),
+            ->live(onBlur: true)
+            ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+              $price = (float) ($get('price') ?? 0);
+              $discountPercent = (float) ($get('discount') ?? 0);
+              $quantity = (float) ($state ?? 0);
+
+              $total = ($price * $quantity) * (1 - ($discountPercent / 100));
+              $set('full_price', round($total, 2));
+            })
+            ->rules([
+              function (Forms\Get $get) {
+                return function (string $attribute, $value, $fail) use ($get) {
+                  $variantId = $get('product_variant_id');
+                  $cashierId = $get('sales_point_cashier_id');
+                  if ($variantId && $cashierId) {
+                    $cashier = SalesPointCashier::find($cashierId);
+                    $warehouse = $cashier->salesPoint->warehouse;
+                    $stock = $warehouse->productVariants()
+                      ->where('product_variant_id', $variantId)
+                      ->first()?->pivot->amount ?? 0;
+                    if ($value > $stock) {
+                      $fail("الكمية المطلوبة غير متوفرة. المتاح في المستودع: {$stock}");
+                    }
+                  }
+                };
+              },
+            ]),
 
           Forms\Components\TextInput::make('price')
             ->label('سعر الوحدة')
