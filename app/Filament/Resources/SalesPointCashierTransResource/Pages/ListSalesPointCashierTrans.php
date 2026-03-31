@@ -20,4 +20,5 @@ class ListSalesPointCashierTrans extends ListRecords
       Actions\CreateAction::make(),
     ];
   }
+
 }

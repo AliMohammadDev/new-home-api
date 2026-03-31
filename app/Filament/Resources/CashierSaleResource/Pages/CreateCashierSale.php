@@ -8,5 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateCashierSale extends CreateRecord
 {
-    protected static string $resource = CashierSaleResource::class;
+  protected static string $resource = CashierSaleResource::class;
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }

@@ -80,9 +80,6 @@ class ProductVariantsRelationManager extends RelationManager
           ->url(fn(ProductVariant $record) => route('supplier.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
       ])
-
-
-
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\BulkAction::make('print_selected')

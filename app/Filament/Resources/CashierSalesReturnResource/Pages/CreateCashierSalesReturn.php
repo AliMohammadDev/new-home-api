@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCashierSalesReturn extends CreateRecord
 {
   protected static string $resource = CashierSalesReturnResource::class;
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }
