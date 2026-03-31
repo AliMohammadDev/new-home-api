@@ -166,7 +166,7 @@ class ProductImportItemResource extends Resource
           ->label('طباعة')
           ->icon('heroicon-o-printer')
           ->color('info')
-          ->url(fn($record) => route('supplier.print', ['ids' => [$record->id]]))
+          ->url(fn($record) => route('product.import.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
 
         Tables\Actions\EditAction::make(),
@@ -180,7 +180,7 @@ class ProductImportItemResource extends Resource
             ->icon('heroicon-o-printer')
             ->color('success')
             ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('supplier.print', [
+              return redirect()->route('product.import.print', [
                 'ids' => $records->pluck('id')->toArray()
               ]);
             })->openUrlInNewTab(),
