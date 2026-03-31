@@ -335,6 +335,9 @@ class OrderResource extends Resource
     if (auth()->user()->hasRole('super_admin')) {
       return $query;
     }
+    if (auth()->user()->hasRole('main_warehouse_manager')) {
+      return $query;
+    }
 
     return $query->whereHas('deliveryCompany', function (Builder $subQuery) {
       $subQuery->where('user_id', auth()->id());
