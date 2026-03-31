@@ -34,11 +34,13 @@ class ProductVariantService
       'material:id,material',
       'images'
     ])
+      ->where('stock_quantity', '>', 0)
       ->withAvg('reviews', 'rating')
       ->withCount('reviews')
       ->whereIn('id', function ($q) {
         $q->select(DB::raw('MIN(id)'))
           ->from('product_variants')
+          ->where('stock_quantity', '>', 0)
           ->groupBy('product_id');
       })
       ->get()
@@ -54,11 +56,14 @@ class ProductVariantService
       'color:id,color',
       'size:id,size',
       'material:id,material',
-    ])->withAvg('reviews', 'rating')
+    ])
+      ->withAvg('reviews', 'rating')
       ->withCount('reviews')
+      ->where('stock_quantity', '>', 0)
       ->whereIn('id', function ($q) {
         $q->select(DB::raw('MIN(id)'))
           ->from('product_variants')
+          ->where('stock_quantity', '>', 0)
           ->groupBy('product_id');
       });
 
@@ -99,7 +104,9 @@ class ProductVariantService
       'color:id,color',
       'size:id,size',
       'material:id,material',
-    ])->withAvg('reviews', 'rating')
+    ])
+      ->where('stock_quantity', '>', 0)
+      ->withAvg('reviews', 'rating')
       ->withCount('reviews')
       ->whereIn('id', function ($q) {
         $q->select(DB::raw('MIN(id)'))
