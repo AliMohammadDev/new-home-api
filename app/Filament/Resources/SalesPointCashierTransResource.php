@@ -265,20 +265,16 @@ class SalesPointCashierTransResource extends Resource
       return $query;
     }
 
-    $cashierId = SalesPointCashier::where('user_id', $user->id)->value('id');
-    $managerId = SalesPointManager::where('user_id', $user->id)->value('id');
+    $managerIds = SalesPointManager::where('user_id', $user->id)->pluck('id')->toArray();
+    $cashierIds = SalesPointCashier::where('user_id', $user->id)->pluck('id')->toArray();
 
-    return $query->where(function (Builder $subQuery) use ($cashierId, $managerId) {
-      if ($cashierId) {
-        $subQuery->orWhere('sales_point_cashier_id', $cashierId);
+    return $query->where(function (Builder $subQuery) use ($managerIds, $cashierIds) {
+      if (!empty($managerIds)) {
+        $subQuery->orWhereIn('sales_point_manager_id', $managerIds);
       }
 
-      if ($managerId) {
-        $subQuery->orWhere('sales_point_manager_id', $managerId);
-      }
-
-      if (!$cashierId && !$managerId) {
-        $subQuery->whereRaw('1 = 0');
+      if (!empty($cashierIds)) {
+        $subQuery->orWhereIn('sales_point_cashier_id', $cashierIds);
       }
     });
   }
