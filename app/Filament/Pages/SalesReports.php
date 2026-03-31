@@ -98,6 +98,7 @@ class SalesReports extends Page implements HasForms
 
       'count_imports' => $importsQuery->count(),
       'count_cashier' => $cashierQuery->count(),
+      'count_returns' => $cashierReturnQuery->count(),
       'count_online' => $onlineQuery->count(),
       'count_trans_in' => $transInQuery->count(),
       'count_trans_out' => $transOutQuery->count(),
