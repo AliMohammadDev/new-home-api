@@ -78,7 +78,7 @@ class ProductImportItemResource extends Resource
             Forms\Components\TextInput::make('discount')
               ->label('خصم إجمالي')
               ->numeric()
-              ->prefix('$')
+              ->prefix('%')
               ->default(0)
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
@@ -126,10 +126,31 @@ class ProductImportItemResource extends Resource
           ->label('الكمية')->badge()->color('success'),
 
         Tables\Columns\TextColumn::make('price')
-          ->label('السعر')->money('USD', locale: 'en_US')->color('success'),
+          ->label('السعر')->money('USD', locale: 'en_US')
+          ->color('success'),
+        Tables\Columns\TextColumn::make('shipping_price')
+          ->label('شحن/وحدة')
+          ->money('USD', locale: 'en_US')
+          ->color('warning')
+          ->alignCenter(),
 
         Tables\Columns\TextColumn::make('discount')
-          ->label('الخصم')->money('USD', locale: 'en_US', )->color('danger'),
+          ->label('الخصم')
+          ->money('USD', locale: 'en_US')
+          ->color('danger')
+          ->default(0)
+          ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('total_cost')
+          ->label('الإجمالي النهائي')
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success')
+          ->summarize(
+            Tables\Columns\Summarizers\Sum::make()
+              ->label('الإجمالي النهائي')
+              ->money('USD', locale: 'en_US')
+          ),
 
         Tables\Columns\TextColumn::make('expected_arrival')
           ->label('تاريخ الوصول')->dateTime('Y-m-d H:i'),

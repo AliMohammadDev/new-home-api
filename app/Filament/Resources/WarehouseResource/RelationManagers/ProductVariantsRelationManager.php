@@ -8,6 +8,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ProductVariantsRelationManager extends RelationManager
 {
@@ -44,16 +45,61 @@ class ProductVariantsRelationManager extends RelationManager
             })->toArray();
           })
           ->disk('public'),
-
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
-          ->getStateUsing(fn($record) => $record->product->name['ar'] ?? '')
-          ->searchable(),
+          ->formatStateUsing(fn($record) => $record->product?->getTranslatedNameAttribute() ?? '-')
+          ->searchable(query: function ($query, string $search) {
+            $query->whereHas(
+              'product',
+              fn($q) =>
+              $q->where('name->ar', 'like', "%{$search}%")
+                ->orWhere('name->en', 'like', "%{$search}%")
+            );
+          })
+          ->description(fn($record) => "SKU: " . $record->sku),
 
-        Tables\Columns\TextColumn::make('sku')
-          ->label('رمز المنتج (SKU)')
-          ->copyable()
-          ->searchable(),
+        Tables\Columns\TextColumn::make('barcode')
+          ->label('الباركود')
+          ->formatStateUsing(fn($state) => $state ? new HtmlString(
+            "<div class='flex flex-col items-center justify-center gap-1'>" .
+            \DNS1D::getBarcodeHTML((string) $state, 'C128', 1.2, 22) .
+            "<span class='text-[10px] font-mono'>$state</span></div>"
+          ) : '-')
+          ->html()
+          ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('price')
+          ->label('السعر الأصلي')
+          ->money('USD', locale: 'en_US')
+          ->sortable()
+          ->color('gray')
+          ->description('السعر قبل الخصم'),
+
+
+        Tables\Columns\TextColumn::make('discount')
+          ->label('الخصم')
+          ->formatStateUsing(fn($state) => number_format($state, 0) . '%')
+          ->suffix('%')
+          ->badge()
+          ->color(fn($state) => $state > 0 ? 'danger' : 'gray')
+          ->sortable(),
+
+
+        Tables\Columns\TextColumn::make('final_price')
+          ->label('السعر النهائي')
+          ->getStateUsing(fn($record) => $record->final_price)
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success')
+          ->description('السعر بعد تطبيق الخصم'),
+
+        Tables\Columns\TextColumn::make('specs')
+          ->label('المواصفات')
+          ->getStateUsing(function ($record) {
+            return "{$record->color?->color} / {$record->size?->size}";
+          })
+          ->color('gray')
+          ->size('sm'),
 
         Tables\Columns\TextColumn::make('pivot.amount')
           ->label('الكمية المتوفرة')

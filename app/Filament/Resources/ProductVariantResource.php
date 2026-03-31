@@ -414,20 +414,25 @@ class ProductVariantResource extends Resource
             if (is_null($state) || $state === '') {
               return '0%';
             }
-
             $number = floatval($state);
-
             $formatted = rtrim(rtrim(number_format($number, 2), '0'), '.');
-
             if (intval($number) == $number) {
               $formatted = intval($number);
             }
-
             return $formatted . '%';
           })
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true)
           ->searchable(),
+
+        Tables\Columns\TextColumn::make('final_price')
+          ->label('السعر النهائي')
+          ->getStateUsing(fn($record) => $record->final_price)
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success')
+          ->description('السعر بعد تطبيق الخصم')
+          ->toggleable(isToggledHiddenByDefault: true),
 
         Tables\Columns\TextColumn::make('visual_barcode')
           ->label('الباركود والترميز')
