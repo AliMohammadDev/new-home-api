@@ -8,5 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateCompanyTreasure extends CreateRecord
 {
-    protected static string $resource = CompanyTreasureResource::class;
+  protected static string $resource = CompanyTreasureResource::class;
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }

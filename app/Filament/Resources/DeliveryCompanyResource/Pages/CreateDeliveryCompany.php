@@ -8,5 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateDeliveryCompany extends CreateRecord
 {
-    protected static string $resource = DeliveryCompanyResource::class;
+  protected static string $resource = DeliveryCompanyResource::class;
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }
