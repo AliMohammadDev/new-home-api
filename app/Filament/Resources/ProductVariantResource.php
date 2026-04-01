@@ -3,12 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
+use App\Models\Material;
 use App\Models\Product;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\App;
 use Filament\Resources\Resource;
 use App\Models\ProductVariant;
+use App\Models\Size;
 use Illuminate\Support\Str;
 use Filament\Tables\Table;
 use Filament\Forms\Form;
@@ -222,6 +224,7 @@ class ProductVariantResource extends Resource
                   ->options(\App\Models\Color::pluck('color', 'id'))
                   ->searchable()
                   ->preload()
+                  ->live()
                   ->dehydrated(false),
 
                 Forms\Components\Select::make('temp_sizes')
@@ -230,18 +233,63 @@ class ProductVariantResource extends Resource
                   ->options(\App\Models\Size::pluck('size', 'id'))
                   ->searchable()
                   ->preload()
-                  ->dehydrated(false),
+                  ->live()
+                  ->dehydrated(false)
+                  ->createOptionUsing(function (array $data) {
+                    return Size::create(['size' => $data['size']])->id;
+                  })
+                  ->createOptionForm([
+                    Forms\Components\TextInput::make('size')
+                      ->label('حجم جديد')
+                      ->required(),
+                  ])
+                  ->afterStateUpdated(function ($old, $state) {
+                    $removedIds = array_diff($old ?? [], $state ?? []);
+
+                    foreach ($removedIds as $id) {
+                      $size = Size::find($id);
+                      if ($size && $size->productVariants()->count() === 0) {
+                        $size->delete();
+                      }
+                    }
+                  }),
 
                 Forms\Components\Select::make('temp_materials')
                   ->label('المواد')
                   ->multiple()
                   ->searchable()
                   ->preload()
-                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                  ->live()
+                  ->options(Material::all()->mapWithKeys(function ($item) {
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
                   }))
-                  ->dehydrated(false),
+                  ->dehydrated(false)
+                  ->createOptionUsing(function (array $data) {
+                    $newMaterial = Material::create([
+                      'material' => [
+                        app()->getLocale() => $data['material_name'],
+                        'en' => $data['material_name'],
+                      ],
+                    ]);
+                    return $newMaterial->id;
+                  })
+                  ->createOptionForm([
+                    Forms\Components\TextInput::make('material_name')
+                      ->label('مادة جديدة')
+                      ->required(),
+                  ])
+                  ->afterStateUpdated(function ($old, $state) {
+                    $removedIds = array_diff($old ?? [], $state ?? []);
+
+                    foreach ($removedIds as $id) {
+                      $material = Material::find($id);
+                      if ($material && $material->productVariants()->count() === 0) {
+                        $material->delete();
+                      }
+                    }
+                  }),
+
               ]),
             Forms\Components\Actions::make([
               Forms\Components\Actions\Action::make('generate_variants')
