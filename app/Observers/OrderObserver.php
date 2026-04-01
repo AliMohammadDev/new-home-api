@@ -19,41 +19,44 @@ class OrderObserver
   /**
    * Handle the Order "updated" event.
    */
+
   public function updated(Order $order): void
   {
-    if ($order->isDirty('status') && $order->status === 'cancelled' && $order->getOriginal('status') !== 'cancelled') {
-      DB::transaction(function () use ($order) {
-        foreach ($order->orderItems as $item) {
-          if ($item->productVariant) {
-            $item->productVariant->increment('stock_quantity', $item->quantity);
-          }
-        }
-      });
-    }
+    if ($order->isDirty('status')) {
+      $newStatus = $order->status;
+      $oldStatus = $order->getOriginal('status');
 
-    if ($order->isDirty('status') && $order->getOriginal('status') === 'cancelled' && $order->status !== 'cancelled') {
-      DB::transaction(function () use ($order) {
-        foreach ($order->orderItems as $item) {
-          if ($item->productVariant) {
-            $item->productVariant->decrement('stock_quantity', $item->quantity);
-          }
-        }
-      });
-    }
-
-    if ($order->isDirty('status') && $order->status === 'completed' && $order->getOriginal('status') !== 'completed') {
       $netAmount = $order->orderItems->sum('total');
+      $treasure = CompanyTreasure::where('name', 'صندوق مبيعات المتجر الالكتروني')->first();
 
-      if ($netAmount > 0) {
-        $treasure = CompanyTreasure::where('name', 'صندوق مبيعات المتجر الالكتروني')->first();
+      DB::transaction(function () use ($order, $newStatus, $oldStatus, $netAmount, $treasure) {
 
-        if ($treasure) {
-          $treasure->increment('money', $netAmount);
+
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+          foreach ($order->orderItems as $item) {
+            if ($item->productVariant) {
+              $item->productVariant->decrement('stock_quantity', $item->quantity);
+            }
+          }
+          if ($treasure && $netAmount > 0) {
+            $treasure->increment('money', $netAmount);
+          }
         }
-      }
+
+        if ($oldStatus === 'completed' && $newStatus !== 'completed') {
+          foreach ($order->orderItems as $item) {
+            if ($item->productVariant) {
+              $item->productVariant->increment('stock_quantity', $item->quantity);
+            }
+          }
+          if ($treasure && $netAmount > 0) {
+            $treasure->decrement('money', $netAmount);
+          }
+        }
+
+      });
     }
   }
-
 
   /**
    * Handle the Order "deleted" event.
