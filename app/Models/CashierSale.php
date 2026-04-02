@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CashierSale extends Model
 {
+
+  use SoftDeletes;
   protected $fillable = [
     'cashier_sales_fatora_id',
     'product_variant_id',

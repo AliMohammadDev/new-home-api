@@ -25,6 +25,7 @@ return new class extends Migration {
       $table->decimal('delivery_fee', 10, 2)->default(0);
       $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
       $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+      $table->softDeletes();
       $table->timestamps();
     });
   }

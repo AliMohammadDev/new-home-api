@@ -18,11 +18,11 @@ return new class extends Migration {
       $table->foreignIdFor(ProductVariant::class)->constrained();
       $table->foreignIdFor(Warehouse::class)->constrained();
       $table->foreignIdFor(User::class)->constrained();
-
       $table->timestamp('arrival_time');
       $table->integer('amount');
       $table->string('unit_name')->nullable();
       $table->integer('unit_capacity')->default(1);
+      $table->softDeletes();
       $table->timestamps();
     });
   }

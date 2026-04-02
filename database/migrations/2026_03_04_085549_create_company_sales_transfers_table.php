@@ -20,8 +20,7 @@ return new class extends Migration {
       $table->date('date');
       $table->decimal('quantity');
       $table->text('note')->nullable();
-
-
+      $table->softDeletes();
       $table->timestamps();
     });
   }
