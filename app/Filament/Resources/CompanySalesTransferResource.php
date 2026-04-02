@@ -46,9 +46,10 @@ class CompanySalesTransferResource extends Resource
         Forms\Components\Select::make('trans_type')
           ->label('نوع العملية')
           ->options([
-            'deposit' => 'إيداع',
-            'withdraw' => 'سحب',
-          ])->required(),
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
+          ])
+          ->required(),
 
 
         Forms\Components\TextInput::make('name')
@@ -97,28 +98,36 @@ class CompanySalesTransferResource extends Resource
           ->searchable()
           ->placeholder('بدون بيان'),
 
-        Tables\Columns\BadgeColumn::make('trans_type')
+        Tables\Columns\TextColumn::make('trans_type')
           ->label('نوع العملية')
+          ->badge()
           ->formatStateUsing(fn(string $state): string => match ($state) {
-            'deposit' => 'إيداع',
-            'withdraw' => 'سحب',
-            'withdrawal' => 'سحب',
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
             default => $state,
           })
-          ->colors([
-            'success' => 'deposit',
-            'danger' => fn($state) => in_array($state, ['withdraw', 'withdrawal']),
-          ])
-          ->icons([
-            'heroicon-m-arrow-trending-up' => 'deposit',
-            'heroicon-m-arrow-trending-down' => fn($state) => in_array($state, ['withdraw', 'withdrawal']),
-          ]),
+          ->color(fn(string $state): string => match ($state) {
+            'deposit' => 'success',
+            'withdraw' => 'danger',
+            default => 'gray',
+          })
+          ->icon(fn(string $state): string => match ($state) {
+            'deposit' => 'heroicon-m-arrow-trending-up',
+            'withdraw' => 'heroicon-m-arrow-trending-down',
+            default => 'heroicon-m-minus',
+          }),
+
 
         Tables\Columns\TextColumn::make('quantity')
           ->numeric()
           ->money('USD', locale: 'en_US')
           ->sortable()
-          ->label('المبلغ'),
+          ->label('المبلغ')
+          ->summarize(
+            Tables\Columns\Summarizers\Sum::make()
+              ->label('الإجمالي')
+              ->money('USD', locale: 'en_US')
+          ),
 
         Tables\Columns\TextColumn::make('date')
           ->date()
@@ -129,8 +138,8 @@ class CompanySalesTransferResource extends Resource
         Tables\Filters\SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
-            'deposit' => 'إيداع',
-            'withdraw' => 'سحب',
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
           ]),
 
         Tables\Filters\SelectFilter::make('sales_point_id')

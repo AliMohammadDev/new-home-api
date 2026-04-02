@@ -49,7 +49,7 @@ class FinancialReportController extends Controller
       'online' => $details['online']->sum('total_amount'),
       'treasure' => CompanyTreasure::sum('money'),
       'transfers_in' => $details['transfers']->where('trans_type', 'deposit')->sum('quantity'),
-      'transfers_out' => $details['transfers']->where('trans_type', 'withdrawal')->sum('quantity'),
+      'transfers_out' => $details['transfers']->where('trans_type', 'withdraw')->sum('quantity'),
     ];
     $totals['transfers_net'] = $totals['transfers_in'] - $totals['transfers_out'];
     $totals['net_profit'] = ($totals['cashier'] + $totals['online']) - $totals['imports'];

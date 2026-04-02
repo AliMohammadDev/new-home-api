@@ -138,7 +138,7 @@
             </tr>
 
             <tr>
-                <td>سحوبات نقاط البيع (Withdrawals)</td>
+                <td>سحوبات نقاط البيع (withdraw)</td>
                 <td style="text-align: center;">تحويل داخلي</td>
                 <td style="text-align: left;">{{ number_format($totals['transfers_out'], 2) }} $</td>
             </tr>

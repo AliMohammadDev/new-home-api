@@ -32,7 +32,7 @@ class ProductImportItemObserver
       CompanyEntry::create([
         'company_treasure_id' => $mainTreasure->id,
         'user_id' => auth()->id() ?? 1,
-        'trans_type' => 'withdrawal',
+        'trans_type' => 'withdraw',
         'amount' => $calculatedTotal,
         'name' => "شراء بضاعة: " . ($variant?->product?->name['ar'] ?? 'صنف مستورد'),
       ]);
@@ -70,7 +70,7 @@ class ProductImportItemObserver
         CompanyEntry::create([
           'company_treasure_id' => $mainTreasure->id,
           'user_id' => auth()->id() ?? 1,
-          'trans_type' => 'withdrawal',
+          'trans_type' => 'withdraw',
           'amount' => $newTotal,
           'name' => "تعديل تكلفة استيراد: " . ($variant?->product?->name['ar'] ?? 'صنف'),
         ]);

@@ -15,7 +15,7 @@ return new class extends Migration {
       $table->id();
       $table->foreignIdFor(CompanyTreasure::class)->constrained();
       $table->foreignId('user_id')->constrained();
-      $table->enum('trans_type', ['deposit', 'withdrawal']);
+      $table->enum('trans_type', ['deposit', 'withdraw']);
       $table->string('name');
       $table->double('amount');
       $table->timestamps();

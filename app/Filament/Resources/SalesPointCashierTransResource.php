@@ -45,7 +45,6 @@ class SalesPointCashierTransResource extends Resource
             ->live()
             ->afterStateUpdated(function (Forms\Set $set, $state) {
               $set('sales_point_cashier_id', null);
-
               if (!auth()->user()->hasRole('super_admin') && $state) {
                 $managerId = SalesPointManager::where('user_id', auth()->id())
                   ->where('sales_point_id', $state)
@@ -85,7 +84,6 @@ class SalesPointCashierTransResource extends Resource
               $salesPointId = $get('sales_point_id');
               if (!$salesPointId)
                 return [];
-
               return SalesPointCashier::query()
                 ->where('sales_point_id', $salesPointId)
                 ->with('user')
@@ -94,7 +92,18 @@ class SalesPointCashierTransResource extends Resource
             })
             ->searchable()
             ->required()
-            ->disabled(fn(Forms\Get $get) => !$get('sales_point_id')),
+            ->disabled(fn(Forms\Get $get) => !$get('sales_point_id'))
+            ->live()
+            ->afterStateUpdated(function ($state, Forms\Set $set) {
+              if (!$state) {
+                $set('current_cashier_balance', 0);
+                return;
+              }
+
+              $balance = SalesPointCashier::where('id', $state)->value('daily_limit') ?? 0;
+
+              $set('current_cashier_balance', number_format($balance, 2));
+            }),
 
 
 
@@ -111,9 +120,10 @@ class SalesPointCashierTransResource extends Resource
           Forms\Components\Select::make('trans_type')
             ->label('نوع العملية')
             ->options([
-              'deposit' => 'إيداع',
-              'withdrawal' => 'سحب',
-            ])->required(),
+              'deposit' => 'دائن',
+              'withdraw' => 'مدين',
+            ])
+            ->required(),
 
           Forms\Components\TextInput::make('amount')
             ->label('المبلغ')
@@ -129,6 +139,16 @@ class SalesPointCashierTransResource extends Resource
                 }
               },
             ]),
+
+
+          Forms\Components\TextInput::make('current_cashier_balance')
+            ->label('رصيد الصندوق الحالي')
+            ->prefix('$')
+            ->readonly()
+            ->numeric()
+            ->placeholder('اختر كاشير لرؤية الرصيد')
+            ->extraInputAttributes(['style' => 'font-weight: bold; color: #10b981;'])
+            ->dehydrated(false),
 
           Forms\Components\Textarea::make('note')
             ->label('ملاحظات إضافية')
@@ -165,28 +185,31 @@ class SalesPointCashierTransResource extends Resource
       Tables\Columns\TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
-        ->color(fn(string $state): string => match ($state) {
-          'deposit' => 'success',
-          'withdrawal', 'withdraw' => 'danger',
-          'transfer' => 'warning',
-          default => 'gray',
-        })
         ->formatStateUsing(fn(string $state): string => match ($state) {
-          'deposit' => 'إيداع',
-          'withdrawal', 'withdraw' => 'سحب',
-          'transfer' => 'تحويل',
+          'deposit' => 'دائن',
+          'withdraw' => 'مدين',
           default => $state,
         })
-        ->icons([
-          'heroicon-m-arrow-trending-up' => 'deposit',
-          'heroicon-m-arrow-trending-down' => fn($state) => in_array($state, ['withdrawal', 'withdraw']),
-          'heroicon-m-arrows-right-left' => 'transfer',
-        ]),
+        ->color(fn(string $state): string => match ($state) {
+          'deposit' => 'success',
+          'withdraw' => 'danger',
+          default => 'gray',
+        })
+        ->icon(fn(string $state): string => match ($state) {
+          'deposit' => 'heroicon-m-arrow-trending-up',
+          'withdraw' => 'heroicon-m-arrow-trending-down',
+          default => 'heroicon-m-minus',
+        }),
 
       Tables\Columns\TextColumn::make('amount')
         ->label('الكمية')
         ->money('USD', locale: 'en_US')
-        ->sortable(),
+        ->sortable()
+        ->summarize([
+          Tables\Columns\Summarizers\Sum::make()
+            ->label('الإجمالي')
+            ->money('USD', locale: 'en_US'),
+        ]),
 
     ])
       ->defaultSort('created_at', 'DESC')
@@ -195,7 +218,7 @@ class SalesPointCashierTransResource extends Resource
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'إيداع',
-            'withdrawal' => 'سحب',
+            'withdraw' => 'سحب',
           ]),
 
         Tables\Filters\SelectFilter::make('sales_point_id')

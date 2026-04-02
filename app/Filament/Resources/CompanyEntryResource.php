@@ -47,8 +47,8 @@ class CompanyEntryResource extends Resource
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
               ->options([
-                'deposit' => 'إيداع',
-                'withdrawal' => 'سحب',
+                'deposit' => 'دائن',
+                'withdraw' => 'مدين',
               ])
               ->required()
               ->native(false),
@@ -80,36 +80,46 @@ class CompanyEntryResource extends Resource
         ->label('الموظف')
         ->searchable()
         ->sortable(),
+
       Tables\Columns\TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
         ->formatStateUsing(fn(string $state): string => match ($state) {
-          'deposit' => 'إيداع',
-          'withdrawal' => 'سحب',
+          'deposit' => 'دائن',
+          'withdraw' => 'مدين',
           default => $state,
         })
         ->color(fn(string $state): string => match ($state) {
           'deposit' => 'success',
-          'withdrawal' => 'danger',
+          'withdraw' => 'danger',
           default => 'gray',
         })
         ->icon(fn(string $state): string => match ($state) {
           'deposit' => 'heroicon-m-arrow-trending-up',
-          'withdrawal' => 'heroicon-m-arrow-trending-down',
+          'withdraw' => 'heroicon-m-arrow-trending-down',
           default => 'heroicon-m-minus',
         }),
+
+
       Tables\Columns\TextColumn::make('name')
         ->label('البيان')
         ->searchable(),
-      Tables\Columns\TextColumn::make('amount')->label('المبلغ')->money('USD', locale: 'en_US'),
+      Tables\Columns\TextColumn::make('amount')
+        ->label('المبلغ')
+        ->money('USD', locale: 'en_US')
+        ->summarize([
+          Tables\Columns\Summarizers\Sum::make()
+            ->label('الإجمالي')
+            ->money('USD', locale: 'en_US'),
+        ]),
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
         Tables\Filters\SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
-            'deposit' => 'إيداع',
-            'withdrawal' => 'سحب',
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
           ]),
         Tables\Filters\SelectFilter::make('company_treasure_id')
           ->label('الصندوق')

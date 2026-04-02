@@ -56,7 +56,7 @@ class CompanyTreasureResource extends Resource
           ->form([
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
-              ->options(['deposit' => 'إيداع', 'withdrawal' => 'سحب'])
+              ->options(['deposit' => 'إيداع', 'withdraw' => 'سحب'])
               ->required(),
             Forms\Components\TextInput::make('name')
               ->label('البيان / السبب')

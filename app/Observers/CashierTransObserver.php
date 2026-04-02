@@ -20,7 +20,7 @@ class CashierTransObserver
       $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
       $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
 
-    } elseif ($salesPointCashierTrans->trans_type === 'withdrawal') {
+    } elseif ($salesPointCashierTrans->trans_type === 'withdraw') {
       $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
       $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
     }

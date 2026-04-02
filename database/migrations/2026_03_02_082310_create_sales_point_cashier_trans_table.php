@@ -19,7 +19,7 @@ return new class extends Migration {
       $table->foreignIdFor(SalesPoint::class)->constrained();
       $table->foreignIdFor(SalesPointManager::class)->constrained();
       $table->foreignIdFor(SalesPointCashier::class)->constrained();
-      $table->enum('trans_type', ['deposit', 'withdrawal'])->default('deposit');
+      $table->enum('trans_type', ['deposit', 'withdraw'])->default('deposit');
 
       $table->decimal('amount', 10, 2)->default(0);
 
