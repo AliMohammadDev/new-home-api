@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyEntryResource extends Resource
 {
@@ -134,14 +133,10 @@ class CompanyEntryResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-
-
         Tables\Actions\DeleteAction::make()
           ->label('أرشفة'),
-
         Tables\Actions\RestoreAction::make()
           ->label('استعادة'),
-
         Tables\Actions\ForceDeleteAction::make()
           ->label('حذف نهائي')
           ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
@@ -158,13 +153,10 @@ class CompanyEntryResource extends Resource
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-
           Tables\Actions\DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-
           Tables\Actions\RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
             ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
@@ -177,12 +169,12 @@ class CompanyEntryResource extends Resource
                   ->danger()
                   ->send();
 
-                $action->halt(); // يوقف العملية للجميع
+                $action->halt();
               }
             }),
         ]),
-      ])
-    ;
+      ]);
+
   }
   public static function getRelations(): array
   {

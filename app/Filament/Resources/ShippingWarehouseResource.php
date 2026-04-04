@@ -3,17 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ShippingWarehouseResource\Pages;
-use App\Models\ProductVariant;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\ShippingWarehouse;
-use App\Models\WarehouseReturn;
-use Filament\Forms;
+use App\Models\ProductVariant;
+use Filament\Resources\Resource;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\Resource;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class ShippingWarehouseResource extends Resource
 {
@@ -93,7 +93,6 @@ class ShippingWarehouseResource extends Resource
             ->disabled()
             ->dehydrated()
             ->required(),
-
 
           Forms\Components\TextInput::make('unit_name')
             ->label('اسم الوحدة')
@@ -199,52 +198,53 @@ class ShippingWarehouseResource extends Resource
         Tables\Filters\SelectFilter::make('warehouse_id')
           ->label('تصفية حسب المستودع')
           ->relationship('warehouse', 'name'),
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->trueLabel('السجلات المؤرشفة فقط')
+          ->falseLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->amount > 0) {
+              Notification::make()
+                ->title('فشل الحذف النهائي')
+                ->body("لا يمكن حذف هذه الشحنة نهائياً لأن الكمية المسجلة بها ({$record->amount}) لم يتم تصفيرها أو استردادها.")
+                ->danger()
+                ->send();
 
-        Tables\Actions\Action::make('return_items')
-          ->label('استرجاع مرتجع')
-          ->icon('heroicon-o-arrow-uturn-left')
-          ->color('warning')
-          ->modalHeading('تسجيل مرتجع من المستودع')
-          ->modalSubmitActionLabel('إتمام الإرجاع')
-          ->form([
-            Forms\Components\TextInput::make('return_amount')
-              ->label('الكمية المرتجعة')
-              ->numeric()
-              ->required()
-              ->maxValue(fn($record) => $record->amount)
-              ->hint(fn($record) => "الكمية المتاحة حالياً: {$record->amount}"),
-
-            Forms\Components\Textarea::make('reason')
-              ->label('سبب الإرجاع')
-              ->required(),
-          ])
-          ->action(function (ShippingWarehouse $record, array $data): void {
-            WarehouseReturn::create([
-              'product_variant_id' => $record->product_variant_id,
-              'warehouse_id' => $record->warehouse_id,
-              'user_id' => auth()->id(),
-              'amount' => $data['return_amount'],
-              'reason' => $data['reason'],
-            ]);
-
-            if ($record->amount <= $data['return_amount']) {
-              $record->delete();
-            } else {
-              $record->decrement('amount', $data['return_amount']);
+              $action->halt();
             }
-          })
-          ->requiresConfirmation()
-          ->successNotificationTitle('تم تسجيل المرتجع وتحديث المخزون بنجاح')
-
-
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\DeleteBulkAction::make()->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()->label('استعادة المحدد'),
+
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('amount', '>', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('إجراء غير مسموح')
+                  ->body('بعض الشحنات المختارة لا تزال تحتوي على كميات. يجب تصفير الكميات قبل الحذف النهائي.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
         ]),
       ]);
   }
