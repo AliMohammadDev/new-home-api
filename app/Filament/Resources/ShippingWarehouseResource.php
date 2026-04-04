@@ -200,8 +200,8 @@ class ShippingWarehouseResource extends Resource
           ->relationship('warehouse', 'name'),
         Tables\Filters\TrashedFilter::make()
           ->label('حالة السجلات')
-          ->trueLabel('السجلات المؤرشفة فقط')
-          ->falseLabel('السجلات النشطة فقط')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
           ->placeholder('الكل')
           ->native(false),
       ])

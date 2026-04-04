@@ -7,6 +7,7 @@ use App\Models\CompanySalesTransfer;
 use App\Models\CompanyTreasure;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -166,28 +167,53 @@ class CompanySalesTransferResource extends Resource
               $indicators[] = 'إلى: ' . $data['until'];
             return $indicators;
           }),
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make()
-          ->label('حذف')
-          ->modalHeading('حذف التحويل المالي')
-          ->modalDescription('هل أنت متأكد من حذف هذا التحويل؟ سيؤثر هذا على سجلات المحاسبة.')
-          ->before(function (Tables\Actions\DeleteAction $action, CompanySalesTransfer $record) {
-            if ($record->sales_point_id) {
-              \Filament\Notifications\Notification::make()
-                ->danger()
-                ->title('فشل الحذف')
-                ->body('لا يمكن حذف تحويلات نقاط البيع بعد تسجيلها لضمان دقة الرصيد المالي. يرجى مراجعة الإدارة.')
-                ->persistent()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->quantity != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
                 ->send();
-
               $action->halt();
             }
           }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('quantity', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
         ]),
       ]);
   }
@@ -210,7 +236,10 @@ class CompanySalesTransferResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery()->with(['salesPoint']);
+
+    $query = parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['salesPoint']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

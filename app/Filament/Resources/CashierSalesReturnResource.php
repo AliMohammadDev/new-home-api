@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 
@@ -175,7 +176,6 @@ class CashierSalesReturnResource extends Resource
             ->money('USD', locale: 'en_US')
         ),
 
-
       Tables\Columns\TextColumn::make('cashier.user.name')
         ->label('بواسطة الكاشير')
         ->searchable(query: function (Builder $query, string $search): Builder {
@@ -184,11 +184,57 @@ class CashierSalesReturnResource extends Resource
           });
         }),
     ])
-      ->filters([])
+      ->filters([
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+      ])
+
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->quantity != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('quantity', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
+        ]),
       ]);
   }
   public static function getRelations(): array
@@ -209,7 +255,9 @@ class CashierSalesReturnResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery()->with(['variant.product', 'cashier.user', 'fatora']);
+    $query = parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['variant.product', 'cashier.user', 'fatora']);
     $user = auth()->user();
 
     if ($user->hasRole('super_admin')) {

@@ -7,6 +7,7 @@ use App\Models\CashierReturnFatora;
 use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -64,7 +65,12 @@ class CashierReturnFatoraResource extends Resource
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        //
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
       ])
       ->actions([
 
@@ -77,13 +83,47 @@ class CashierReturnFatoraResource extends Resource
 
         Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make()
-          ->modalHeading('حذف فاتورة المرتجع')
-          ->modalDescription('سيتم خصم الكميات المرتجعة من المستودع وإعادة المبالغ لعهدة الكاشير، هل أنت متأكد؟')
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if (round((float) $record->full_price, 2) > 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('لا يمكن حذف الفاتورة نهائياً لأن رصيدها (' . $record->full_price . ') لم يتم تصفيره.')
+                ->danger()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
-
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $hasBalance = $records->contains(fn($record) => round((float) $record->full_price, 2) > 0);
+
+              if ($hasBalance) {
+                Notification::make()
+                  ->title('إجراء محظور')
+                  ->body('بعض الفواتير المختارة تحتوي على مبالغ. يجب تصفير كافة الفواتير قبل الحذف النهائي.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
+
+
           Tables\Actions\BulkAction::make('print_selected')
             ->label('طباعة الفواتير المحددة')
             ->icon('heroicon-o-printer')
@@ -120,7 +160,10 @@ class CashierReturnFatoraResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery()->with(['cashier.user', 'cashier.salesPoint']);
+    $query = parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['cashier.user', 'cashier.salesPoint']);
+
     $user = auth()->user();
 
     if ($user->hasRole('super_admin')) {

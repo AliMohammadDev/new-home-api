@@ -9,6 +9,7 @@ use App\Models\SalesPointCashierTrans;
 use App\Models\SalesPointManager;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -234,28 +235,56 @@ class SalesPointCashierTransResource extends Resource
             return $query
               ->when($data['from'], fn($q) => $q->whereDate('date', '>=', $data['from']))
               ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
-          })
+          }),
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-
         Tables\Actions\DeleteAction::make()
-          ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashierTrans $record) {
-            if ($record->salesPoint()->exists()) {
-              \Filament\Notifications\Notification::make()
-                ->danger()
-                ->title('لا يمكن حذف التحويل')
-                ->body('هذا التحويل مرتبط بنقطة بيع وسجلات محاسبية.')
-                ->persistent()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->amount != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
                 ->send();
-
               $action->halt();
             }
           }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('amount', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
         ]),
       ]);
   }
@@ -278,11 +307,13 @@ class SalesPointCashierTransResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $user = auth()->user();
-    $query = parent::getEloquentQuery()->with([
-      'salesPoint',
-      'manager.user',
-      'cashier.user'
-    ]);
+    $query = parent::getEloquentQuery()
+      ->withTrashed()
+      ->with([
+        'salesPoint',
+        'manager.user',
+        'cashier.user'
+      ]);
 
     if ($user->hasRole('super_admin')) {
       return $query;

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WarehouseReturnResource\Pages;
 use App\Models\ProductVariant;
+use App\Models\ShippingWarehouse;
 use App\Models\WarehouseReturn;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -94,7 +95,6 @@ class WarehouseReturnResource extends Resource
               $warehouseId = $get('warehouse_id');
               if (!$warehouseId)
                 return [];
-
               return ProductVariant::query()
                 ->whereHas('shippingWarehouses', function ($q) use ($warehouseId) {
                   $q->where('warehouse_id', $warehouseId);
@@ -146,7 +146,6 @@ class WarehouseReturnResource extends Resource
             ->dehydrated(false)
             ->afterStateHydrated(function (Set $set, Get $get, $record) {
               if ($record && $record->unit_capacity > 0) {
-
                 $set('units_count', (int) ($record->amount / $record->unit_capacity));
               }
             })
@@ -155,6 +154,7 @@ class WarehouseReturnResource extends Resource
               $set('amount', (int) $state * $capacity);
             }),
 
+            
           Forms\Components\TextInput::make('amount')
             ->label('إجمالي الكمية (قطع)')
             ->numeric()
@@ -162,16 +162,31 @@ class WarehouseReturnResource extends Resource
             ->live()
             ->hint(function (Get $get) {
               $variantId = $get('product_variant_id');
-              if (!$variantId)
-                return null;
+              $warehouseId = $get('warehouse_id');
 
-              $stock = ProductVariant::find($variantId)?->stock_quantity ?? 0;
-              return "المتوفر في المستودع الرئيسي: " . $stock;
+              if (!$variantId || !$warehouseId) {
+                return null;
+              }
+              $subStock = ShippingWarehouse::where('product_variant_id', $variantId)
+                ->where('warehouse_id', $warehouseId)
+                ->sum('amount') ?? 0;
+              return "المتوفر في هذا المستودع: {$subStock}";
             })
             ->hintColor('info')
-            ->maxValue(fn(Get $get) => ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 99999)
+            ->maxValue(function (Get $get) {
+              $variantId = $get('product_variant_id');
+              $warehouseId = $get('warehouse_id');
+
+              if (!$variantId || !$warehouseId) {
+                return 99999;
+              }
+
+              return ShippingWarehouse::where('product_variant_id', $variantId)
+                ->where('warehouse_id', $warehouseId)
+                ->sum('amount') ?? 0;
+            })
             ->validationMessages([
-              'max' => 'عذراً، الكمية المطلوبة غير متوفرة. المتاح هو :max فقط.',
+              'max' => 'عذراً، الكمية المطلوبة غير متوفرة في هذا المستودع. المتاح هو :max فقط.',
             ]),
 
           Forms\Components\DateTimePicker::make('arrival_time')
@@ -230,8 +245,8 @@ class WarehouseReturnResource extends Resource
           ->relationship('warehouse', 'name'),
         Tables\Filters\TrashedFilter::make()
           ->label('حالة السجلات')
-          ->trueLabel('السجلات المؤرشفة فقط')
-          ->falseLabel('السجلات النشطة فقط')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
           ->placeholder('الكل')
           ->native(false),
       ])

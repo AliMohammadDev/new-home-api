@@ -39,12 +39,4 @@ class WarehouseReturnObserver
     }
   }
 
-
-  public function restored(WarehouseReturn $warehouseReturn): void
-  {
-    $variant = $warehouseReturn->productVariant;
-    if ($variant) {
-      $variant->increment('stock_quantity', $warehouseReturn->amount);
-    }
-  }
 }
