@@ -63,15 +63,26 @@ class ShippingWarehouseResource extends Resource
 
           Forms\Components\Select::make('product_variant_id')
             ->label('المنتج (النوع)')
-            ->relationship(
-              name: 'productVariant',
-              titleAttribute: 'id',
-              modifyQueryUsing: fn($query) => $query->with('product')
-            )
+            ->relationship('productVariant', 'sku')
             ->getOptionLabelFromRecordUsing(function ($record) {
               $productName = $record->product?->name['ar'] ?? 'منتج غير معروف';
               return "{$productName} - {$record->sku} (المتوفر: {$record->stock_quantity})";
             })
+            ->getSearchResultsUsing(function (string $search) {
+              return ProductVariant::query()
+                ->where('sku', 'like', "%{$search}%")
+                ->orWhereHas('product', function ($query) use ($search) {
+                  $query->where('name->ar', 'like', "%{$search}%");
+                })
+                ->limit(50)
+                ->get()
+                ->mapWithKeys(function ($record) {
+                  $productName = $record->product?->name['ar'] ?? 'منتج غير معروف';
+                  return [$record->id => "{$productName} - {$record->sku}"];
+                });
+            })
+            ->searchable()
+            ->preload()
             ->live()
             ->required(),
 

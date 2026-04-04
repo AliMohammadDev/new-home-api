@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
+use App\Models\WarehouseReturn;
 use App\Observers\CashierReturnFatoraObserver;
 use App\Observers\CashierSaleObserver;
 use App\Observers\CashierSalesFatoraObserver;
@@ -22,6 +23,7 @@ use App\Observers\CompanySalesTransferObserver;
 use App\Observers\OrderObserver;
 use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
+use App\Observers\WarehouseReturnObserver;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +59,8 @@ class AppServiceProvider extends ServiceProvider
     CashierSalesFatora::observe(CashierSalesFatoraObserver::class);
     CashierReturnFatora::observe(CashierReturnFatoraObserver::class);
     ShippingWarehouse::observe(ShippingWarehouseObserver::class);
+    WarehouseReturn::observe(WarehouseReturnObserver::class);
+
     CashierSalesReturn::observe(CashierSalesReturnObserver::class);
     SalesPointCashierTrans::observe(CashierTransObserver::class);
     CompanySalesTransfer::observe(CompanySalesTransferObserver::class);

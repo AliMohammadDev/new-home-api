@@ -3,11 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WarehouseReturn extends Model
 {
-  protected $fillable = ['product_variant_id', 'warehouse_id', 'user_id', 'amount', 'reason'];
+  use SoftDeletes;
+  protected $fillable = [
+    'product_variant_id',
+    'user_id',
+    'warehouse_id',
+    'arrival_time',
+    'amount',
+    'unit_name',
+    'unit_capacity'
+  ];
 
+  protected $casts = [
+    'expected_arrival' => 'datetime',
+  ];
   public function productVariant()
   {
     return $this->belongsTo(ProductVariant::class);

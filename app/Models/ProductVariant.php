@@ -130,4 +130,9 @@ class ProductVariant extends Model
       ->withTimestamps();
   }
 
+  public function shippingWarehouses()
+  {
+    return $this->hasMany(ShippingWarehouse::class, 'product_variant_id');
+  }
+
 }

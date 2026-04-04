@@ -3,10 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyEntryResource\Pages;
-use App\Filament\Resources\CompanyEntryResource\RelationManagers;
 use App\Models\CompanyEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -124,17 +124,62 @@ class CompanyEntryResource extends Resource
         Tables\Filters\SelectFilter::make('company_treasure_id')
           ->label('الصندوق')
           ->relationship('treasure', 'name'),
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->trueLabel('السجلات المؤرشفة فقط')
+          ->falseLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
+
+
         Tables\Actions\DeleteAction::make()
-          ->requiresConfirmation()
-          ->modalHeading('حذف الحركة المالية')
-          ->modalDescription('عند حذف الحركة، سيتم إعادة الرصيد إلى ما كان عليه في الصندوق. هل أنت متأكد؟'),
+          ->label('أرشفة'),
+
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->amount != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('amount', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt(); // يوقف العملية للجميع
+              }
+            }),
         ]),
       ])
     ;
@@ -149,6 +194,7 @@ class CompanyEntryResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     return parent::getEloquentQuery()
+      ->withTrashed()
       ->with(['treasure', 'user']);
   }
 
