@@ -274,19 +274,16 @@ class ShippingWarehouseResource extends Resource
     if ($user->hasRole('super_admin')) {
       return $query;
     }
-
     if (
       $user->hasRole('main_warehouse_manager')
     ) {
       return $query;
     }
-
     if (
       $user->hasRole('sub_warehouse_manager')
     ) {
       return $query->where('user_id', $user->id);
     }
-
     return $query->whereRaw('1 = 0');
   }
 

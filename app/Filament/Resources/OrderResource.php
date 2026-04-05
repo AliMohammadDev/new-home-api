@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 
 class OrderResource extends Resource
 {
@@ -109,7 +110,6 @@ class OrderResource extends Resource
           ->sortable()
           ->searchable(),
 
-
         TextColumn::make('deliveryCompany.name')
           ->label('شركة التوصيل')
           ->badge()
@@ -167,6 +167,14 @@ class OrderResource extends Resource
             'completed' => 'مكتمل',
             'cancelled' => 'ملغي',
           ]),
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+
       ])
       ->actions([
         Tables\Actions\ViewAction::make()
@@ -178,12 +186,46 @@ class OrderResource extends Resource
           ->label('تأكيد الطلب')
           ->color('warning')
           ->icon('heroicon-m-check-circle'),
+
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->total_amount != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->recordUrl(
         fn(Order $record): string => Pages\ViewOrder::getUrl([$record->id]),
       )
       ->bulkActions([
-        Tables\Actions\DeleteBulkAction::make(),
+        Tables\Actions\DeleteBulkAction::make()
+          ->label('أرشفة المحدد'),
+        Tables\Actions\RestoreBulkAction::make()
+          ->label('استعادة المحدد'),
+        Tables\Actions\ForceDeleteBulkAction::make()
+          ->label('حذف نهائي للمحدد')
+          ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            $invalidRecords = $records->where('total_amount', '!=', 0);
+            if ($invalidRecords->count() > 0) {
+              Notification::make()
+                ->title('لا يمكن الحذف النهائي')
+                ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                ->danger()
+                ->send();
+              $action->halt();
+            }
+          }),
       ]);
   }
 

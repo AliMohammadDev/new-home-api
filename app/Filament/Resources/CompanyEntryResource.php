@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 class CompanyEntryResource extends Resource
 {
   protected static ?string $model = CompanyEntry::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
   protected static ?string $navigationGroup = 'الإدارة المالية';
   protected static ?string $navigationLabel = 'حركات الصناديق';

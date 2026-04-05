@@ -8,12 +8,11 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditCashierSalesFatora extends EditRecord
 {
-    protected static string $resource = CashierSalesFatoraResource::class;
+  protected static string $resource = CashierSalesFatoraResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+    ];
+  }
 }

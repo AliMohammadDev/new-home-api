@@ -8,12 +8,11 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditCompanySalesTransfer extends EditRecord
 {
-    protected static string $resource = CompanySalesTransferResource::class;
+  protected static string $resource = CompanySalesTransferResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+    ];
+  }
 }

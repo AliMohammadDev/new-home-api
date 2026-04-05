@@ -17,7 +17,6 @@ class EditShippingWarehouse extends EditRecord
         ->label('رجوع ')
         ->url($this->getResource()::getUrl('index'))
         ->color('gray'),
-      Actions\DeleteAction::make(),
     ];
   }
 }

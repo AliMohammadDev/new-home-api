@@ -123,6 +123,7 @@ class SalesPointResource extends Resource
   {
     return [
       RelationManagers\ManagersRelationManager::class,
+      RelationManagers\CashierRelationManager::class,
     ];
   }
 

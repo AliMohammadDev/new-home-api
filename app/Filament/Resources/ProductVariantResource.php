@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductVariantResource\Pages;
+use App\Filament\Resources\ProductVariantResource\RelationManagers\WarehousesRelationManager;
 use App\Models\Material;
 use App\Models\Product;
 use Filament\Tables\Columns\TextColumn;
@@ -43,7 +44,7 @@ class ProductVariantResource extends Resource
         Forms\Components\Section::make('تعديل بيانات الخيار')
           ->visible(fn($context) => in_array($context, ['edit', 'view']))
           ->schema([
-            Forms\Components\Grid::make(4)
+            Forms\Components\Grid::make(3)
               ->schema([
                 Forms\Components\Select::make('color_id')
                   ->label('اللون')
@@ -86,7 +87,13 @@ class ProductVariantResource extends Resource
                   ->helperText('يمكنك إدخال رقم الباركود الدولي (EAN/UPC) هنا')
                   ->live(),
 
-                Forms\Components\Grid::make(4)
+                Forms\Components\ViewField::make('barcode_visual')
+                  ->label('الباركود الحالي (للمسح)')
+                  ->view('filament.forms.components.barcode-display')
+                  ->columnSpan(1)
+                  ->visible(fn($record) => filled($record?->barcode)),
+
+                Forms\Components\Grid::make(3)
                   ->schema([
                     Forms\Components\TextInput::make('price')->label('السعر'),
                     Forms\Components\TextInput::make('discount')->label('الخصم %'),
@@ -96,11 +103,6 @@ class ProductVariantResource extends Resource
                       ->numeric()
                       ->required(),
 
-                    Forms\Components\ViewField::make('barcode_visual')
-                      ->label('الباركود الحالي (للمسح)')
-                      ->view('filament.forms.components.barcode-display')
-                      ->columnSpan(1)
-                      ->visible(fn($record) => filled($record?->barcode)),
                   ]),
               ]),
 
@@ -207,7 +209,7 @@ class ProductVariantResource extends Resource
                       ->prefix('$'),
                   ]),
               ])
-              ->grid(2)
+              ->grid(1)
               ->columnSpanFull()
               ->defaultItems(0)
               ->createItemButtonLabel('إضافة باقة سعر جديدة'),
@@ -498,8 +500,7 @@ class ProductVariantResource extends Resource
           ->sortable()
           ->copyable()
           ->copyMessage('تم نسخ الرمز')
-          ->weight('bold')
-        ,
+          ->weight('bold'),
 
 
         Tables\Columns\TextColumn::make('packages_count')
@@ -575,7 +576,9 @@ class ProductVariantResource extends Resource
 
   public static function getRelations(): array
   {
-    return [];
+    return [
+      WarehousesRelationManager::class,
+    ];
   }
 
   public static function getPages(): array
