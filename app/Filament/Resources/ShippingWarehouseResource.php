@@ -130,6 +130,7 @@ class ShippingWarehouseResource extends Resource
             ->numeric()
             ->required()
             ->live()
+            ->readOnly()
             ->hint(function (Get $get) {
               $variantId = $get('product_variant_id');
               if (!$variantId)

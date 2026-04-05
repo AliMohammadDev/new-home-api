@@ -154,12 +154,13 @@ class WarehouseReturnResource extends Resource
               $set('amount', (int) $state * $capacity);
             }),
 
-            
+
           Forms\Components\TextInput::make('amount')
             ->label('إجمالي الكمية (قطع)')
             ->numeric()
             ->required()
             ->live()
+            ->readOnly()
             ->hint(function (Get $get) {
               $variantId = $get('product_variant_id');
               $warehouseId = $get('warehouse_id');
