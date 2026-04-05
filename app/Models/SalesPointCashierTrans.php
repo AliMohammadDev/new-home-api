@@ -17,6 +17,7 @@ class SalesPointCashierTrans extends Model
     'name',
     'date',
     'amount',
+    'waste',
     'note'
   ];
 

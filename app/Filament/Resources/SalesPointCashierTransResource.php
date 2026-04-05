@@ -141,6 +141,14 @@ class SalesPointCashierTransResource extends Resource
               },
             ]),
 
+          Forms\Components\TextInput::make('waste')
+            ->label('كمية الهدر (إن وجد)')
+            ->numeric()
+            ->default(0)
+            ->nullable()
+            ->prefixIcon('heroicon-m-variable')
+            ->helperText('أدخل كمية الهدر أو التالف في هذه العملية إن وجدت.'),
+
 
           Forms\Components\TextInput::make('current_cashier_balance')
             ->label('رصيد الصندوق الحالي')
@@ -211,6 +219,21 @@ class SalesPointCashierTransResource extends Resource
             ->label('الإجمالي')
             ->money('USD', locale: 'en_US'),
         ]),
+
+      Tables\Columns\TextColumn::make('waste')
+        ->label('الهدر')
+        ->numeric(decimalPlaces: 2, locale: 'en')
+        ->color('warning')
+        ->sortable()
+        ->placeholder('0.00')
+        ->summarize([
+          Tables\Columns\Summarizers\Sum::make()
+            ->label('إجمالي الهدر')
+            ->numeric(locale: 'en'),
+        ]),
+
+
+
 
     ])
       ->defaultSort('created_at', 'DESC')

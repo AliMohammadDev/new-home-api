@@ -21,6 +21,7 @@ return new class extends Migration {
       $table->foreignIdFor(SalesPointCashier::class)->constrained();
       $table->enum('trans_type', ['deposit', 'withdraw'])->default('deposit');
       $table->decimal('amount', 10, 2)->default(0);
+      $table->decimal('waste', 10, 2)->nullable();
       $table->date('date');
       $table->softDeletes();
       $table->text('note')->nullable();
