@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesPointManagerResource\Pages;
 use App\Filament\Resources\SalesPointManagerResource\RelationManagers;
+use App\Filament\Resources\SalesPointManagerResource\RelationManagers\SalesPointRelationManager;
 use App\Models\SalesPointManager;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -56,18 +57,6 @@ class SalesPointManagerResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('salesPoint.name')
-          ->label('نقطة البيع')
-          ->sortable()
-          ->searchable()
-          ->badge()
-          ->color('info'),
-
-        Tables\Columns\TextColumn::make('phone')
-          ->label('الهاتف')
-          ->formatStateUsing(fn(string $state): string => "📞 " . $state)
-          ->extraAttributes(['class' => 'font-mono']),
-
 
         Tables\Columns\TextColumn::make('user.name')
           ->label('اسم المدير')
@@ -78,6 +67,22 @@ class SalesPointManagerResource extends Resource
         Tables\Columns\TextColumn::make('user.email')
           ->label('البريد الإلكتروني')
           ->color('gray'),
+
+
+        Tables\Columns\TextColumn::make('phone')
+          ->label('الهاتف')
+          ->formatStateUsing(fn(string $state): string => "📞 " . $state)
+          ->extraAttributes(['class' => 'font-mono']),
+
+
+
+
+        Tables\Columns\TextColumn::make('salesPoint.name')
+          ->label('نقطة البيع')
+          ->sortable()
+          ->searchable()
+          ->badge()
+          ->color('info'),
 
 
 
@@ -114,10 +119,12 @@ class SalesPointManagerResource extends Resource
       ]);
   }
 
+
+
   public static function getRelations(): array
   {
     return [
-      //
+      SalesPointRelationManager::class
     ];
   }
 

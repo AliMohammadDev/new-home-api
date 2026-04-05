@@ -80,6 +80,11 @@ class SalesPointCashierResource extends Resource
           ->searchable()
           ->badge(),
 
+        Tables\Columns\TextColumn::make('daily_limit')
+          ->label('حد الصندوق')
+          ->money('USD', locale: 'en_US')
+        ,
+
         Tables\Columns\TextColumn::make('shift_type')
           ->label('الوردية')
           ->badge()
@@ -98,10 +103,7 @@ class SalesPointCashierResource extends Resource
             default => $state,
           }),
 
-        Tables\Columns\TextColumn::make('daily_limit')
-          ->label('حد الصندوق')
-          ->money('USD', locale: 'en_US')
-        ,
+
       ])
       ->filters([
         Tables\Filters\SelectFilter::make('sales_point_id')
