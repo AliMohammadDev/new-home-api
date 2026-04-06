@@ -14,7 +14,6 @@ class WarehouseReturnObserver
     if ($variant) {
       $variant->increment('stock_quantity', $warehouseReturn->amount);
     }
-
     $this->updateSubWarehouseStock($warehouseReturn, $warehouseReturn->amount);
   }
 
@@ -25,12 +24,10 @@ class WarehouseReturnObserver
       $oldAmount = $warehouseReturn->getOriginal('amount');
       $newAmount = $warehouseReturn->amount;
       $difference = $newAmount - $oldAmount;
-
       $variant = $warehouseReturn->productVariant;
       if ($variant) {
         $variant->increment('stock_quantity', $difference);
       }
-
       $this->updateSubWarehouseStock($warehouseReturn, $difference);
     }
   }
@@ -53,8 +50,14 @@ class WarehouseReturnObserver
       ->where('product_variant_id', $return->product_variant_id)
       ->first();
 
+    // if ($stockEntry) {
+    //   $stockEntry->decrement('amount', $amount);
+    // }
+
     if ($stockEntry) {
-      $stockEntry->decrement('amount', $amount);
+      ShippingWarehouse::withoutEvents(function () use ($stockEntry, $amount) {
+        $stockEntry->decrement('amount', $amount);
+      });
     }
   }
 

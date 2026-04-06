@@ -51,7 +51,7 @@ class ShippingWarehouseObserver
   public function restored(ShippingWarehouse $shippingWarehouse): void
   {
     //
-  }   
+  }
 
   /**
    * Handle the ShippingWarehouse "force deleted" event.

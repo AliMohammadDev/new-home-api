@@ -61,6 +61,9 @@ class AdminPanelProvider extends PanelProvider
 
         NavigationGroup::make()
           ->label('إدارة المستخدمين'),
+
+        NavigationGroup::make()
+          ->label('الإعدادات المتقدمة'),
       ])
       ->login()
       ->brandName('المنزل الحديث')

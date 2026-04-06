@@ -113,8 +113,6 @@ class WarehouseReturnResource extends Resource
                 });
             }),
 
-
-
           Forms\Components\Select::make('user_id')
             ->label('المستخدم المسؤول')
             ->relationship('user', 'name')
@@ -122,7 +120,6 @@ class WarehouseReturnResource extends Resource
             ->disabled()
             ->dehydrated()
             ->required(),
-
 
           Forms\Components\TextInput::make('unit_name')
             ->label('اسم الوحدة')
