@@ -79,7 +79,6 @@ class ProductVariantsRelationManager extends RelationManager
         Tables\Columns\TextColumn::make('discount')
           ->label('الخصم')
           ->formatStateUsing(fn($state) => number_format($state, 0) . '%')
-          ->suffix('%')
           ->badge()
           ->color(fn($state) => $state > 0 ? 'danger' : 'gray')
           ->sortable(),
