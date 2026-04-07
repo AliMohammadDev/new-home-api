@@ -2,136 +2,165 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\CashierSale;
-use App\Models\Product;
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use App\Models\ProductVariant;
+use App\Models\SalesPoint;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class SalesOverview extends Page implements HasTable
 {
   use InteractsWithTable;
-  use HasPageShield;
+
   protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
   protected static ?string $navigationGroup = 'التقارير والإحصائيات';
   protected static ?string $navigationLabel = 'ملخص المبيعات العام';
-  protected static ?string $title = 'تقرير حركة مبيعات المواد';
+  protected static ?string $title = 'تقرير حركة مبيعات المواد (شامل نقاط البيع)';
 
   protected static string $view = 'filament.pages.sales-overview';
+
+  public ?string $activeTab = 'all';
 
   public function table(Table $table): Table
   {
     return $table
-      ->query(CashierSale::query()->with(['variant.product', 'cashier.salesPoint']))
-      ->columns([
-        Tables\Columns\TextColumn::make('variant.product.name')
-          ->label('المنتج')
-          ->formatStateUsing(fn($record) => $record->variant?->product?->translated_name ?? 'بدون اسم')
+      ->query(function () {
+        $cashierSales = DB::table('cashier_sales')
+          ->join('sales_point_cashiers', 'cashier_sales.sales_point_cashier_id', '=', 'sales_point_cashiers.id')
+          ->join('sales_points', 'sales_point_cashiers.sales_point_id', '=', 'sales_points.id')
+          ->select([
+            'cashier_sales.product_variant_id',
+            'cashier_sales.quantity as sale_qty',
+            'cashier_sales.full_price as sale_price',
+            'cashier_sales.created_at as sale_date',
+            'sales_points.name as sales_point_name',
+            'sales_points.id as sales_point_id',
+            DB::raw("'cashier' as source")
+          ]);
 
-          ->searchable(query: function (Builder $query, string $search): Builder {
-            return $query->whereHas('variant', function ($q) use ($search) {
-              $q->where('sku', 'like', "%{$search}%")
-                ->orWhereHas('product', function ($productQuery) use ($search) {
-                  $productQuery->where('name->ar', 'like', "%{$search}%")
-                    ->orWhere('name->en', 'like', "%{$search}%");
-                });
-            });
+        $onlineSales = DB::table('order_items')
+          ->join('orders', 'order_items.order_id', '=', 'orders.id')
+          ->where('orders.status', 'completed')
+          ->whereNull('orders.deleted_at')
+          ->select([
+            'order_items.product_variant_id',
+            'order_items.quantity as sale_qty',
+            'order_items.total as sale_price',
+            'order_items.created_at as sale_date',
+            DB::raw("'المتجر الإلكتروني' as sales_point_name"),
+            DB::raw("0 as sales_point_id"),
+            DB::raw("'online' as source")
+          ]);
+
+        $unionQuery = $cashierSales->unionAll($onlineSales);
+
+        return ProductVariant::query()
+          ->joinSub($unionQuery, 'combined_sales', function ($join) {
+            $join->on('product_variants.id', '=', 'combined_sales.product_variant_id');
           })
+          ->with(['product', 'color', 'size'])
+          ->select([
+            'product_variants.*',
+            'combined_sales.sale_qty',
+            'combined_sales.sale_price',
+            'combined_sales.sale_date',
+            'combined_sales.sales_point_name',
+            'combined_sales.sales_point_id',
+            'combined_sales.source',
+          ]);
+      })
+      ->columns([
+        Tables\Columns\TextColumn::make('product.name')
+          ->label('المنتج')
+          ->formatStateUsing(fn($record) => $record->product?->translated_name ?? 'بدون اسم')
+          ->description(fn($record) => "SKU: {$record->sku}")
+          ->searchable(),
 
-          ->weight('bold')
-          ->description(fn($record) => " SKU: " . $record->variant?->sku)
-          ->color('primary'),
-        Tables\Columns\TextColumn::make('variant.color.color')
-          ->label('اللون / المقاس')
-          ->formatStateUsing(fn($record) => ($record->variant->color?->color ?? '-') . ' / ' . ($record->variant->size?->size ?? '-'))
-          ->iconColor(fn($record) => $record->variant->color?->color ?? 'gray')
-          ->badge()
-          ->color('gray'),
-        Tables\Columns\TextColumn::make('cashier.salesPoint.name')
+        Tables\Columns\TextColumn::make('sales_point_name')
           ->label('نقطة البيع')
           ->badge()
-          ->color('info')
+          ->color(fn($state) => $state === 'المتجر الإلكتروني' ? 'success' : 'info')
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('quantity')
-          ->label('الكمية')
-          ->numeric(
-            decimalPlaces: 0,
-            locale: 'en',
-          )
-          ->alignCenter()
-          ->weight('bold')
-          ->iconColor('warning')
-          ->summarize(
-            Tables\Columns\Summarizers\Sum::make()
-              ->label('الإجمالي')
-              ->numeric(locale: 'en')
-          ),
+        Tables\Columns\TextColumn::make('variant_details')
+          ->label('اللون / المقاس')
+          ->getStateUsing(fn($record) => ($record->color?->color ?? '-') . ' / ' . ($record->size?->size ?? '-'))
+          ->badge()
+          ->color('gray'),
 
-        Tables\Columns\TextColumn::make('full_price')
-          ->label('القيمة الإجمالية')
-          ->money('USD', locale: 'en_US')
+        Tables\Columns\TextColumn::make('sale_qty')
+          ->label('الكمية')
+          ->numeric(locale: 'en')
+          ->alignCenter()
+          ->summarize(Tables\Columns\Summarizers\Sum::make()->label('إجمالي')->numeric(locale: 'en')),
+
+        Tables\Columns\TextColumn::make('sale_price')
+          ->label('المبلغ')
+          ->money('USD', locale: 'en')
           ->color('success')
           ->weight('bold')
-          ->sortable()
           ->summarize(
             Tables\Columns\Summarizers\Sum::make()
-              ->label('مجموع المبيعات')
-              ->money('USD', locale: 'en_US')
+              ->label('المجموع')
+              ->numeric(locale: 'en')
+              ->money('USD', locale: 'en')
           ),
 
-        Tables\Columns\TextColumn::make('created_at')
-          ->label('وقت البيع')
-          ->dateTime('d/M H:i')
-          ->description(fn($record) => $record->created_at->diffForHumans())
-          ->sortable()
-          ->color('gray'),
+        Tables\Columns\TextColumn::make('sale_date')
+          ->label('التاريخ')
+          ->dateTime('d/m/Y H:i')
+          ->sortable(),
       ])
       ->filters([
-        SelectFilter::make('sales_point')
-          ->label('نقطة البيع')
-          ->relationship('cashier.salesPoint', 'name'),
-
-        SelectFilter::make('product_id')
-          ->label('المنتج المبيع')
-          ->options(
-            Product::all()
-              ->pluck('translated_name', 'id')
-              ->toArray()
-          )
-          ->query(function (Builder $query, array $data) {
-            if ($data['value']) {
-              $query->whereHas('variant', function ($q) use ($data) {
-                $q->where('product_id', $data['value']);
-              });
-            }
+        SelectFilter::make('sales_point_id')
+          ->label('تصفية حسب نقطة البيع')
+          ->options(function () {
+            $points = SalesPoint::pluck('name', 'id')->toArray();
+            return [0 => 'المتجر الإلكتروني'] + $points;
           })
-          ->searchable()
-          ->preload(),
+          ->query(
+            fn(Builder $query, array $data) => $query
+              ->when($data['value'] !== null, fn($q) => $q->where('combined_sales.sales_point_id', $data['value']))
+          ),
 
-        Filter::make('created_at')
+        Tables\Filters\Filter::make('sale_date')
           ->form([
             DatePicker::make('from')->label('من تاريخ'),
             DatePicker::make('until')->label('إلى تاريخ'),
           ])
           ->query(
-            fn(Builder $query, array $data): Builder => $query
-              ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
-              ->when($data['until'], fn($q) => $q->whereDate('created_at', '<=', $data['until']))
+            fn(Builder $query, array $data) => $query
+              ->when($data['from'], fn($q) => $q->whereDate('combined_sales.sale_date', '>=', $data['from']))
+              ->when($data['until'], fn($q) => $q->whereDate('combined_sales.sale_date', '<=', $data['until']))
           )
       ])
-      ->defaultSort('created_at', 'desc')
       ->groups([
-        Tables\Grouping\Group::make('cashier.salesPoint.name')
+        Tables\Grouping\Group::make('sales_point_name')
           ->label('نقطة البيع')
           ->collapsible(),
-      ]);
+      ])
+      ->modifyQueryUsing(function (Builder $query) {
+        return match ($this->activeTab) {
+          'cashier' => $query->where('source', 'cashier'),
+          'online' => $query->where('source', 'online'),
+          default => $query,
+        };
+      })
+      ->defaultSort('sale_date', 'desc');
+  }
+
+  public function getTabs(): array
+  {
+    return [
+      'all' => 'الكل',
+      'cashier' => 'مبيعات الكاشير',
+      'online' => 'مبيعات الموقع',
+    ];
   }
 }
