@@ -233,9 +233,6 @@ class ProductImportItemResource extends Resource
               }
             }),
         ]),
-
-
-
       ]);
   }
 
@@ -252,7 +249,7 @@ class ProductImportItemResource extends Resource
   {
     return parent::getEloquentQuery()
       ->withTrashed()
-      ->with(['productImport', 'productVariant.product', 'user']);
+      ->with(['productImport', 'productVariant.product', 'user', 'payments']);
   }
 
   protected static function updateTotal($set, $get)

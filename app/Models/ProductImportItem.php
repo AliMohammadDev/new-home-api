@@ -42,4 +42,21 @@ class ProductImportItem extends Model
   {
     return $this->belongsTo(ProductVariant::class);
   }
+
+
+  public function payments()
+  {
+    return $this->hasMany(SupplierPayment::class);
+  }
+
+  public function getTotalPaidAttribute(): float
+  {
+    return (float) $this->payments()->sum('amount');
+  }
+
+  public function getRemainingAmountAttribute(): float
+  {
+    return max(0, (float) $this->total_cost - $this->total_paid);
+  }
+
 }

@@ -68,7 +68,10 @@ class CompanyEntryResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('created_at')->label('التاريخ')->dateTime(),
+      Tables\Columns\TextColumn::make('created_at')
+        ->label('التاريخ')
+        ->searchable()
+        ->dateTime(),
       Tables\Columns\TextColumn::make('treasure.name')
         ->label('الصندوق')
         ->searchable()
@@ -105,11 +108,7 @@ class CompanyEntryResource extends Resource
       Tables\Columns\TextColumn::make('amount')
         ->label('المبلغ')
         ->money('USD', locale: 'en_US')
-        ->summarize([
-          Tables\Columns\Summarizers\Sum::make()
-            ->label('الإجمالي')
-            ->money('USD', locale: 'en_US'),
-        ]),
+
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
@@ -133,7 +132,7 @@ class CompanyEntryResource extends Resource
           ->native(false),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
+        // Tables\Actions\EditAction::make(),
         Tables\Actions\DeleteAction::make()
           ->label('أرشفة'),
         Tables\Actions\RestoreAction::make()

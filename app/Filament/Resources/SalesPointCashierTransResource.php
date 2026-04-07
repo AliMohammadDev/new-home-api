@@ -231,10 +231,6 @@ class SalesPointCashierTransResource extends Resource
             ->label('إجمالي الهدر')
             ->numeric(locale: 'en'),
         ]),
-
-
-
-
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([

@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Filament\Resources\SupplierPaymentResource\Pages;
+
+use App\Filament\Resources\SupplierPaymentResource;
+use Filament\Actions;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateSupplierPayment extends CreateRecord
+{
+  protected static string $resource = SupplierPaymentResource::class;
+
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\Action::make('back')
+        ->label('رجوع')
+        ->color('gray')
+        ->url($this->getResource()::getUrl('index')),
+    ];
+  }
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
+}

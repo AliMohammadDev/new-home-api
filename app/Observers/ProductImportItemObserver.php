@@ -2,8 +2,6 @@
 
 namespace App\Observers;
 
-use App\Models\CompanyEntry;
-use App\Models\CompanyTreasure;
 use App\Models\ProductImportItem;
 
 class ProductImportItemObserver
@@ -18,24 +16,6 @@ class ProductImportItemObserver
     $variant = $productImportItem->productVariant;
     if ($variant) {
       $variant->increment('stock_quantity', $productImportItem->quantity);
-    }
-
-    $price = (float) ($productImportItem->price ?? 0);
-    $shipping = (float) ($productImportItem->shipping_price ?? 0);
-    $quantity = (float) ($productImportItem->quantity ?? 0);
-    $discount = (float) ($productImportItem->discount ?? 0);
-
-    $calculatedTotal = (($price + $shipping) * $quantity) - $discount;
-
-    $mainTreasure = CompanyTreasure::first();
-    if ($mainTreasure && $calculatedTotal > 0) {
-      CompanyEntry::create([
-        'company_treasure_id' => $mainTreasure->id,
-        'user_id' => auth()->id() ?? 1,
-        'trans_type' => 'withdraw',
-        'amount' => $calculatedTotal,
-        'name' => "شراء بضاعة: " . ($variant?->product?->name['ar'] ?? 'صنف مستورد'),
-      ]);
     }
   }
 
@@ -52,31 +32,6 @@ class ProductImportItemObserver
       $difference = $newQty - $oldQty;
       $variant->increment('stock_quantity', $difference);
     }
-
-    if ($productImportItem->wasChanged('total_cost')) {
-      $mainTreasure = CompanyTreasure::first();
-      $oldTotal = $productImportItem->getOriginal('total_cost');
-      $newTotal = $productImportItem->total_cost;
-
-      if ($mainTreasure) {
-        CompanyEntry::create([
-          'company_treasure_id' => $mainTreasure->id,
-          'user_id' => auth()->id() ?? 1,
-          'trans_type' => 'deposit',
-          'amount' => $oldTotal,
-          'name' => "تصحيح تكلفة استيراد (مبلغ قديم)",
-        ]);
-
-        CompanyEntry::create([
-          'company_treasure_id' => $mainTreasure->id,
-          'user_id' => auth()->id() ?? 1,
-          'trans_type' => 'withdraw',
-          'amount' => $newTotal,
-          'name' => "تعديل تكلفة استيراد: " . ($variant?->product?->name['ar'] ?? 'صنف'),
-        ]);
-      }
-    }
-
   }
 
   /**
@@ -87,17 +42,6 @@ class ProductImportItemObserver
     $variant = $productImportItem->productVariant;
     if ($variant) {
       $variant->decrement('stock_quantity', $productImportItem->quantity);
-    }
-
-    $mainTreasure = CompanyTreasure::first();
-    if ($mainTreasure && $productImportItem->total_cost > 0) {
-      CompanyEntry::create([
-        'company_treasure_id' => $mainTreasure->id,
-        'user_id' => auth()->id() ?? 1,
-        'trans_type' => 'deposit',
-        'amount' => $productImportItem->total_cost,
-        'name' => "إلغاء عملية استيراد وإعادة المبلغ للخزينة",
-      ]);
     }
   }
 
