@@ -29,7 +29,7 @@
         <x-filament::section class="rounded-2xl transition-all hover:scale-[1.01]">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-primary-50 dark:bg-primary-950/30 rounded-xl">
-                    <x-heroicon-o-home-modern class="w-7 h-7 text-primary-600 dark:text-primary-400" />
+                    <x-heroicon-o-home-modern class="w-7 h-7" />
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">المخزون الرئيسي (الحالي)</p>
@@ -65,15 +65,37 @@
             </div>
         </x-filament::section>
 
-        <x-filament::section class="rounded-2xl transition-all hover:scale-[1.01]">
+        <x-filament::section class="rounded-2xl transition-all hover:scale-[1.01] border-r-4 border-r-success-500">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-success-50 dark:bg-success-950/30 rounded-xl">
                     <x-heroicon-o-shopping-cart class="w-7 h-7 text-success-600 dark:text-success-400" />
                 </div>
-                <div>
+                <div class="flex-1">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي المواد المباعة</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                        {{ number_format($totals['sold_items'] ?? 0) }}</p>
+                    <div class="flex items-baseline gap-2">
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ number_format($totals['sold_items'] ?? 0) }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <div class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-warning-500"></span>
+                            <span class="text-[11px] font-medium text-gray-600 dark:text-gray-400">كاشير:</span>
+                            <span class="text-[11px] font-bold text-gray-900 dark:text-white"
+                                style="font-family: 'Inter', sans-serif;">
+                                {{ number_format($totals['cashier_sold'] ?? 0) }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-success-500"></span>
+                            <span class="text-[11px] font-medium text-gray-600 dark:text-gray-400">متجر:</span>
+                            <span class="text-[11px] font-bold text-gray-900 dark:text-white"
+                                style="font-family: 'Inter', sans-serif;">
+                                {{ number_format($totals['online_sold'] ?? 0) }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </x-filament::section>

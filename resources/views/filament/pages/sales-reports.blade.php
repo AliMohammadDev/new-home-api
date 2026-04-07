@@ -15,7 +15,6 @@
             </div>
             <x-filament::button type="submit" icon="heroicon-m-funnel" class="mb-1">
                 تحديث البيانات
-
             </x-filament::button>
         </form>
     </x-filament::section>
@@ -23,6 +22,21 @@
 
     <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <x-filament::section
+                class="rounded-2xl transition-all hover:scale-[1.02] shadow-sm bg-emerald-50/5 dark:bg-emerald-900/10 border-emerald-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-emerald-600 dark:text-emerald-400 text-sm font-bold uppercase">الخزينة</p>
+                        <p class="text-2xl font-black mt-1 font-mono text-emerald-700 dark:text-emerald-300">
+                            ${{ number_format($totals['treasure'], 2) }}
+                        </p>
+                    </div>
+                    <div class="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 transition">
+                        <x-heroicon-o-currency-dollar class="w-6 h-6" />
+                    </div>
+                </div>
+            </x-filament::section>
 
             <x-filament::section
                 class="rounded-2xl transition-all hover:scale-[1.02] border-r-4 border-r-danger-500 shadow-sm">
@@ -126,20 +140,7 @@
                 </div>
             </x-filament::section>
 
-            <x-filament::section
-                class="rounded-2xl transition-all hover:scale-[1.02] shadow-sm bg-emerald-50/5 dark:bg-emerald-900/10 border-emerald-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-emerald-600 dark:text-emerald-400 text-sm font-bold uppercase">الخزينة</p>
-                        <p class="text-2xl font-black mt-1 font-mono text-emerald-700 dark:text-emerald-300">
-                            ${{ number_format($totals['treasure'], 2) }}
-                        </p>
-                    </div>
-                    <div class="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 transition">
-                        <x-heroicon-o-currency-dollar class="w-6 h-6" />
-                    </div>
-                </div>
-            </x-filament::section>
+
         </div>
 
         <x-filament::section class="rounded-2xl shadow-sm overflow-hidden" padding="none">

@@ -13,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 class SalesOverview extends Page implements HasTable
 {
@@ -21,7 +22,7 @@ class SalesOverview extends Page implements HasTable
   protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
   protected static ?string $navigationGroup = 'التقارير والإحصائيات';
   protected static ?string $navigationLabel = 'ملخص المبيعات العام';
-  protected static ?string $title = 'تقرير حركة مبيعات المواد (شامل نقاط البيع)';
+  protected static ?string $title = 'تقرير حركة مبيعات المواد';
 
   protected static string $view = 'filament.pages.sales-overview';
 
@@ -64,7 +65,7 @@ class SalesOverview extends Page implements HasTable
           ->joinSub($unionQuery, 'combined_sales', function ($join) {
             $join->on('product_variants.id', '=', 'combined_sales.product_variant_id');
           })
-          ->with(['product', 'color', 'size'])
+          ->with(['product', 'color', 'size', 'images'])
           ->select([
             'product_variants.*',
             'combined_sales.sale_qty',
@@ -76,11 +77,37 @@ class SalesOverview extends Page implements HasTable
           ]);
       })
       ->columns([
+        Tables\Columns\ImageColumn::make('variant_images')
+          ->label('صور المنتج')
+          ->circular()
+          ->stacked()
+          ->getStateUsing(function ($record) {
+            if (!$record->images || $record->images->isEmpty()) {
+              return null;
+            }
+            return $record->images->map(function ($img) use ($record) {
+              return str_contains($img->image, 'product_variants/')
+                ? $img->image
+                : "product_variants/{$record->id}/{$img->image}";
+            })->toArray();
+          })
+          ->disk('public'),
+
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
           ->formatStateUsing(fn($record) => $record->product?->translated_name ?? 'بدون اسم')
           ->description(fn($record) => "SKU: {$record->sku}")
           ->searchable(),
+
+        Tables\Columns\TextColumn::make('barcode')
+          ->label('الباركود')
+          ->formatStateUsing(fn($state) => $state ? new HtmlString(
+            "<div class='flex flex-col items-center justify-center gap-1'>" .
+            \DNS1D::getBarcodeHTML((string) $state, 'C128', 1.2, 22) .
+            "<span class='text-[10px] font-mono'>$state</span></div>"
+          ) : '-')
+          ->html()
+          ->alignCenter(),
 
         Tables\Columns\TextColumn::make('sales_point_name')
           ->label('نقطة البيع')
@@ -88,9 +115,9 @@ class SalesOverview extends Page implements HasTable
           ->color(fn($state) => $state === 'المتجر الإلكتروني' ? 'success' : 'info')
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('variant_details')
-          ->label('اللون / المقاس')
-          ->getStateUsing(fn($record) => ($record->color?->color ?? '-') . ' / ' . ($record->size?->size ?? '-'))
+        Tables\Columns\TextColumn::make('specs')
+          ->label('المواصفات')
+          ->getStateUsing(fn($record) => "{$record->color?->color} / {$record->size?->size}")
           ->badge()
           ->color('gray'),
 
