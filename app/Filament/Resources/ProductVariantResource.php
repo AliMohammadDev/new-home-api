@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ProductVariantExporter;
 use App\Filament\Resources\ProductVariantResource\Pages;
 use App\Filament\Resources\ProductVariantResource\RelationManagers\WarehousesRelationManager;
 use App\Models\Material;
@@ -12,11 +13,14 @@ use Illuminate\Support\Facades\App;
 use Filament\Resources\Resource;
 use App\Models\ProductVariant;
 use App\Models\Size;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Illuminate\Support\Str;
 use Filament\Tables\Table;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Forms;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 
 class ProductVariantResource extends Resource
 {
@@ -560,6 +564,9 @@ class ProductVariantResource extends Resource
         Tables\Actions\ForceDeleteAction::make()
           ->label('حذف نهائي'),
       ])
+      ->headerActions([
+        ExportAction::make()->exporter(ProductVariantExporter::class)->label('تصدير الى Excel')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make()
@@ -571,6 +578,7 @@ class ProductVariantResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد'),
         ]),
+        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->label('تصدير الى Excel')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 
