@@ -208,7 +208,6 @@ class CashierSaleResource extends Resource
           ->placeholder('الكل')
           ->native(false),
       ])
-
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),

@@ -19,6 +19,7 @@ return new class extends Migration {
       $table->enum('trans_type', ['deposit', 'withdraw']);
       $table->string('payment_method');
       $table->text('notes')->nullable();
+      $table->softDeletes();
       $table->timestamps();
     });
   }
