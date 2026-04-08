@@ -258,9 +258,7 @@ class ProductImportItemResource extends Resource
     $shipping = (float) ($get('shipping_price') ?? 0);
     $quantity = (float) ($get('quantity') ?? 0);
     $discount = (float) ($get('discount') ?? 0);
-
     $total = (($price + $shipping) * $quantity) - $discount;
-
     $set('total_cost', number_format(max(0, $total), 2, '.', ''));
   }
 }

@@ -47,24 +47,34 @@ class CompanyTreasureResource extends Resource
         ->description(fn(CompanyTreasure $record): string => $record->money < 0 ? 'رصيد سالب!' : ''),
     ])
       ->defaultSort('created_at', 'DESC')
-
       ->actions([
         Tables\Actions\Action::make('add_entry')
-          ->label('إيداع / سحب')
+          ->label('دائن / مدين')
           ->icon('heroicon-o-arrows-right-left')
           ->color('warning')
           ->form([
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
-              ->options(['deposit' => 'إيداع', 'withdraw' => 'سحب'])
-              ->required(),
+              ->options(['deposit' => 'دائن', 'withdraw' => 'مدين'])
+              ->required()
+              ->live(),
             Forms\Components\TextInput::make('name')
               ->label('البيان / السبب')
               ->required(),
             Forms\Components\TextInput::make('amount')
               ->label('المبلغ')
               ->numeric()
-              ->required(),
+              ->required()
+              ->prefix('$')
+              ->rules([
+                fn(Forms\Get $get, $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
+                  if ($get('trans_type') === 'withdraw' && $value > $record->money) {
+                    $fail("عذراً، الرصيد المتاح في هذا الصندوق هو ({$record->money}$) فقط.");
+                  }
+                },
+              ])
+              ->maxValue(fn(Forms\Get $get, $record) => $get('trans_type') === 'withdraw' ? $record->money : null)
+              ->helperText(fn(Forms\Get $get, $record) => $get('trans_type') === 'withdraw' ? "الرصيد المتاح: {$record->money}$" : null),
           ])
           ->action(function (CompanyTreasure $record, array $data) {
             $record->entries()->create([
@@ -75,7 +85,10 @@ class CompanyTreasureResource extends Resource
             ]);
 
 
-
+            \Filament\Notifications\Notification::make()
+              ->title('تمت العملية بنجاح')
+              ->success()
+              ->send();
           }),
         Tables\Actions\EditAction::make(),
       ]);

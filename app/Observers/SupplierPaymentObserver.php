@@ -30,12 +30,33 @@ class SupplierPaymentObserver
    */
   public function updated(SupplierPayment $supplierPayment): void
   {
-    if ($supplierPayment->wasChanged('amount')) {
+    if ($supplierPayment->wasChanged(['amount', 'product_import_item_id'])) {
       $mainTreasure = CompanyTreasure::first();
-      $oldAmount = $supplierPayment->getOriginal('amount');
-      $newAmount = $supplierPayment->amount;
-      // company entry
 
+      if ($mainTreasure) {
+        $oldAmount = $supplierPayment->getOriginal('amount');
+        $newAmount = $supplierPayment->amount;
+
+        if ($oldAmount > 0) {
+          CompanyEntry::create([
+            'company_treasure_id' => $mainTreasure->id,
+            'user_id' => auth()->id() ?? 1,
+            'trans_type' => 'deposit',
+            'amount' => $oldAmount,
+            'name' => "تصحيح دفعة مورد (إعادة المبلغ السابق)",
+          ]);
+        }
+
+        if ($newAmount > 0) {
+          CompanyEntry::create([
+            'company_treasure_id' => $mainTreasure->id,
+            'user_id' => auth()->id() ?? 1,
+            'trans_type' => 'withdraw',
+            'amount' => $newAmount,
+            'name' => "تعديل دفعة مورد: " . ($supplierPayment->productImportItem->productImport->supplier_name ?? 'مورد'),
+          ]);
+        }
+      }
     }
   }
 
@@ -45,13 +66,14 @@ class SupplierPaymentObserver
   public function deleted(SupplierPayment $supplierPayment): void
   {
     $mainTreasure = CompanyTreasure::first();
+
     if ($mainTreasure && $supplierPayment->amount > 0) {
       CompanyEntry::create([
         'company_treasure_id' => $mainTreasure->id,
         'user_id' => auth()->id() ?? 1,
         'trans_type' => 'deposit',
         'amount' => $supplierPayment->amount,
-        'name' => "إلغاء دفعة مورد وإعادة المبلغ للخزينة",
+        'name' => "إلغاء دفعة مورد (حذف) - إعادة المبلغ للخزينة",
       ]);
     }
   }

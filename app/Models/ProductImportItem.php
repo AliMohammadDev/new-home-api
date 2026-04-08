@@ -51,12 +51,15 @@ class ProductImportItem extends Model
 
   public function getTotalPaidAttribute(): float
   {
-    return (float) $this->payments()->sum('amount');
+    $deposit = (float) $this->payments()->where('trans_type', 'deposit')->sum('amount');
+    $withdraw = (float) $this->payments()->where('trans_type', 'withdraw')->sum('amount');
+
+    return $deposit - $withdraw;
   }
 
   public function getRemainingAmountAttribute(): float
   {
-    return max(0, (float) $this->total_cost - $this->total_paid);
+    return (float) $this->total_cost - $this->total_paid;
   }
 
 }
