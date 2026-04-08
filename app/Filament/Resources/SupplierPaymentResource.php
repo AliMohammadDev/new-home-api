@@ -221,7 +221,7 @@ class SupplierPaymentResource extends Resource
         Tables\Actions\ForceDeleteAction::make()
           ->label('حذف نهائي')
           ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
-            if ($record->quantity != 0) {
+            if ($record->amount != 0) {
               Notification::make()
                 ->title('غير مسموح')
                 ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
@@ -240,7 +240,7 @@ class SupplierPaymentResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
             ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
-              $invalidRecords = $records->where('quantity', '!=', 0);
+              $invalidRecords = $records->where('amount', '!=', 0);
 
               if ($invalidRecords->count() > 0) {
                 Notification::make()
