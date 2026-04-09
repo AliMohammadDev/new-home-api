@@ -136,14 +136,14 @@ class CashierSalesFatoraResource extends Resource
               $ids = $records->pluck('id')->toArray();
               $url = route('fatora.print', ['ids' => $ids]);
 
-                $livewire->js("window.open('{$url}', '_blank')");
+              $livewire->js("window.open('{$url}', '_blank')");
             }),
         ]),
         ExportBulkAction::make()->exporter(CashierSalesFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierSalesFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

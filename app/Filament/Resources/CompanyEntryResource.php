@@ -181,7 +181,7 @@ class CompanyEntryResource extends Resource
       ])
       ->headerActions([
         ExportAction::make()->exporter(CompanyEntryExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
 

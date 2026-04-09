@@ -262,7 +262,7 @@ class CashierSaleResource extends Resource
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierSaleExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
 
       ]);
   }

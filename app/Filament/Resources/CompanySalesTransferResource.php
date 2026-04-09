@@ -219,11 +219,11 @@ class CompanySalesTransferResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(CompanySalesTransferExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(CompanySalesTransferExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(CompanySalesTransferExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
   }
