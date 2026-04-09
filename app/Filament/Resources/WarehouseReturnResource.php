@@ -66,7 +66,13 @@ class WarehouseReturnResource extends Resource
             ->searchable()
             ->preload()
             ->live()
-            ->required(),
+            ->required()
+
+            ->afterStateUpdated(function (Set $set) {
+              $set('product_variant_id', null);
+              $set('amount', 0);
+              $set('units_count', 0);
+            }),
 
           Forms\Components\Select::make('product_variant_id')
             ->label('المنتج (المتوفر في هذا المستودع)')
@@ -90,6 +96,13 @@ class WarehouseReturnResource extends Resource
                 })->with('product');
               }
             )
+
+            ->afterStateUpdated(function (Set $set) {
+              $set('amount', 0);
+              $set('units_count', 0);
+            })
+
+
             ->getOptionLabelFromRecordUsing(function ($record) {
               $productName = $record->product?->name['ar'] ?? 'منتج غير معروف';
               return "{$productName} - {$record->sku}";
@@ -292,11 +305,11 @@ class WarehouseReturnResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(WarehouseReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(WarehouseReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(WarehouseReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 
