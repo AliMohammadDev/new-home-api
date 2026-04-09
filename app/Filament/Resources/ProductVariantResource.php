@@ -216,7 +216,7 @@ class ProductVariantResource extends Resource
               ->grid(1)
               ->columnSpanFull()
               ->defaultItems(0)
-              ->createItemButtonLabel('إضافة باقة سعر جديدة'),
+              ->addActionLabel('إضافة باقة سعر جديدة')
           ]),
 
         Forms\Components\Section::make('أدوات التوليد السريع')

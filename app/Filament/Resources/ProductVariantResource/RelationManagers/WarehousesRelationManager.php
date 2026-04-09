@@ -14,7 +14,7 @@ use Filament\Tables;
 class WarehousesRelationManager extends RelationManager
 {
   protected static string $relationship = 'warehouses';
-  protected static ?string $title = 'توزع المخزون في المستودعات';
+  protected static ?string $title = 'توزع المخزون في المستودعات المصغرة  ';
 
   public function form(Form $form): Form
   {

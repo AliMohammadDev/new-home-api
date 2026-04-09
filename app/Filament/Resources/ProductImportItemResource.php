@@ -173,6 +173,20 @@ class ProductImportItemResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
+        Tables\Actions\EditAction::make()
+          ->color(fn($record) => $record->payments()->exists() ? 'gray' : 'primary')
+          ->icon(fn($record) => $record->payments()->exists() ? 'heroicon-m-lock-closed' : 'heroicon-m-pencil-square')
+          ->before(function (Tables\Actions\EditAction $action, $record) {
+            if ($record->payments()->exists()) {
+              Notification::make()
+                ->title('السجل مقفل ماليًا')
+                ->body('لا يمكن التعديل بسبب وجود دفعات مسجلة.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
+
         Tables\Actions\Action::make('print')
           ->label('طباعة')
           ->icon('heroicon-o-printer')
@@ -181,7 +195,7 @@ class ProductImportItemResource extends Resource
           ->url(fn($record) => route('product.import.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
 
-        Tables\Actions\EditAction::make(),
+
         Tables\Actions\DeleteAction::make()
           ->label('أرشفة'),
         Tables\Actions\RestoreAction::make()
@@ -202,7 +216,6 @@ class ProductImportItemResource extends Resource
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-
           Tables\Actions\BulkAction::make('print_selected')
             ->label('طباعة المحدد (PDF)')
             ->icon('heroicon-o-printer')
@@ -258,9 +271,7 @@ class ProductImportItemResource extends Resource
     $shipping = (float) ($get('shipping_price') ?? 0);
     $quantity = (float) ($get('quantity') ?? 0);
     $discount = (float) ($get('discount') ?? 0);
-
     $total = (($price + $shipping) * $quantity) - $discount;
-
     $set('total_cost', number_format(max(0, $total), 2, '.', ''));
   }
 }

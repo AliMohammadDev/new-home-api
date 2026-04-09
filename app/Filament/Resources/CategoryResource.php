@@ -88,6 +88,10 @@ class CategoryResource extends Resource
           ->searchable()
           ->limit(50),
 
+        Tables\Columns\TextColumn::make('products_count')
+          ->counts('products')
+          ->label('عدد المنتجات'),
+
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()

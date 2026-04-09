@@ -16,9 +16,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+<<<<<<< HEAD
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+=======
+use Filament\Notifications\Notification;
+>>>>>>> 7c23fe8045b5d467b56dbcd449c277da1851bc91
 
 class SupplierPaymentResource extends Resource
 {
@@ -49,47 +53,69 @@ class SupplierPaymentResource extends Resource
               ->afterStateUpdated(function ($state, Set $set) {
                 if (!$state)
                   return;
-
                 $importItem = ProductImportItem::find($state);
                 if ($importItem) {
                   $set('amount', $importItem->remaining_amount);
+                  $set('remaining_balance_display', 0);
                 }
-              })
-              ->hint(function (Get $get) {
-                $id = $get('product_import_item_id');
-                if (!$id)
-                  return null;
-
-                $item = ProductImportItem::find($id);
-                if (!$item)
-                  return null;
-
-                return "إجمالي الفاتورة: {$item->total_cost}$ | المتبقي بذمتك: {$item->remaining_amount}$";
-              })
-              ->hintColor('danger')
-              ->hintIcon('heroicon-m-information-circle'),
+              }),
 
             Forms\Components\TextInput::make('amount')
               ->label('المبلغ المراد دفعه الآن')
               ->numeric()
               ->prefix('$')
               ->required()
-              ->live()
-              ->maxValue(function (Get $get) {
+              ->live(onBlur: false)
+              ->maxValue(function (Get $get, $record) {
                 $id = $get('product_import_item_id');
                 if (!$id)
                   return 1000000;
+                $item = ProductImportItem::find($id);
+                if (!$item)
+                  return 0;
+                $currentPaymentAmount = $record ? $record->amount : 0;
+                return (float) $item->remaining_amount + (float) $currentPaymentAmount;
+              })
+              ->afterStateUpdated(function ($state, Get $get, Set $set, $record) {
+                $id = $get('product_import_item_id');
+                if (!$id)
+                  return;
+                $item = ProductImportItem::find($id);
+                if (!$item)
+                  return;
+
+                $originalRemaining = (float) $item->remaining_amount + ($record ? (float) $record->amount : 0);
+                $newRemaining = $originalRemaining - (float) $state;
+
+                $set('remaining_balance_display', number_format($newRemaining, 2, '.', ''));
+              }),
+
+            Forms\Components\TextInput::make('remaining_balance_display')
+              ->label('الرصيد المتبقي بعد هذه العملية')
+              ->prefix('$')
+              ->readOnly()
+              ->dehydrated(false)
+              ->extraInputAttributes([
+                'class' => 'text-danger-600 font-bold bg-gray-50 dark:bg-gray-800',
+                'style' => 'color: #dc2626;'
+              ])
+              ->placeholder(function (Get $get, $record) {
+                $id = $get('product_import_item_id');
+                if (!$id)
+                  return '0.00';
 
                 $item = ProductImportItem::find($id);
-                return $item ? $item->remaining_amount : 0;
-              })
-              ->helperText('لا يمكنك دفع مبلغ أكبر من المتبقي على الفاتورة.'),
+                if (!$item)
+                  return '0.00';
 
+                $currentAmountInInput = (float) $get('amount');
+                $originalRemaining = (float) $item->remaining_amount + ($record ? (float) $record->amount : 0);
+                return number_format($originalRemaining - $currentAmountInInput, 2, '.', '');
+              }),
             Forms\Components\DatePicker::make('payment_date')
               ->label('تاريخ الدفع')
               ->default(now())
               ->required(),
-
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
               ->options([
@@ -126,11 +152,7 @@ class SupplierPaymentResource extends Resource
             });
           }),
 
-        TextColumn::make('amount')
-          ->label('المبلغ')
-          ->money('USD', locale: 'en_US')
-          ->sortable()
-          ->summarize(Tables\Columns\Summarizers\Sum::make()->label('الإجمالي')->money('USD', locale: 'en_US')),
+
 
         TextColumn::make('payment_method')
           ->label('الطريقة')
@@ -160,23 +182,25 @@ class SupplierPaymentResource extends Resource
             'withdraw' => 'heroicon-m-arrow-trending-down',
             default => 'heroicon-m-minus',
           }),
+
+        TextColumn::make('amount')
+          ->label('المبلغ المدفوع')
+          ->money('USD', locale: 'en_US')
+          ->sortable()
+          ->summarize(Tables\Columns\Summarizers\Sum::make()->label('الإجمالي')->money('USD', locale: 'en_US')),
+
         TextColumn::make('payment_date')
           ->label('تاريخ الدفع')
           ->date('Y-m-d')
           ->sortable(),
-
-
       ])
       ->filters([
-
         Tables\Filters\SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'إيداع',
             'withdraw' => 'سحب',
           ]),
-
-
         SelectFilter::make('payment_method')
           ->label('طريقة الدفع')
           ->options([
@@ -197,11 +221,44 @@ class SupplierPaymentResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->amount != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('amount', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
         ]),
           ExportBulkAction::make()->exporter(SupplierPaymentExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])

@@ -117,7 +117,7 @@ class User extends Authenticatable implements FilamentUser
     if (!$this->is_active) {
       return false;
     }
-    return $this->roles()->where('name', '!=', 'customer')->exists();
+    return $this->roles->contains(fn($role) => $role->name !== 'customer');
   }
 
   public function salesPoints()
