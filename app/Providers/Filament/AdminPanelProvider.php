@@ -37,35 +37,44 @@ class AdminPanelProvider extends PanelProvider
       ->sidebarCollapsibleOnDesktop()
       ->navigationGroups([
         NavigationGroup::make()
-          ->label('إدارة المنتجات'),
+          ->label('إدارة المنتجات')
+          ->icon('heroicon-o-shopping-bag'),
 
         NavigationGroup::make()
-          ->label('إدارة الطلبات'),
+          ->label('إدارة الطلبات')
+          ->icon('heroicon-o-clipboard-document-check'),
 
         NavigationGroup::make()
-          ->label('نقاط البيع (POS)'),
+          ->label('نقاط البيع (POS)')
+          ->icon('heroicon-o-computer-desktop'),
 
         NavigationGroup::make()
-          ->label('إدارة المبيعات'),
+          ->label('إدارة المبيعات')
+          ->icon('heroicon-o-presentation-chart-line'),
 
         NavigationGroup::make()
-          ->label('شحن و استيراد'),
+          ->label('شحن و استيراد')
+          ->icon('heroicon-o-truck'),
 
         NavigationGroup::make()
-          ->label('إدارة التوصيل'),
+          ->label('إدارة التوصيل')
+          ->icon('heroicon-o-map-pin'),
 
         NavigationGroup::make()
-          ->icon('heroicon-o-banknotes')
-          ->label('الإدارة المالية'),
+          ->label('الإدارة المالية')
+          ->icon('heroicon-o-banknotes'),
 
         NavigationGroup::make()
-          ->label('التقارير والإحصائيات'),
+          ->label('التقارير والإحصائيات')
+          ->icon('heroicon-o-chart-bar'),
 
         NavigationGroup::make()
-          ->label('إدارة المستخدمين'),
+          ->label('إدارة المستخدمين')
+          ->icon('heroicon-o-users'),
 
         NavigationGroup::make()
-          ->label('الإعدادات المتقدمة'),
+          ->label('الإعدادات المتقدمة')
+          ->icon('heroicon-o-cog-6-tooth'),
       ])
       ->login()
       ->brandName('المنزل الحديث')
