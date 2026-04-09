@@ -38,7 +38,11 @@ class CompanyTreasureResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('name')->label('الصندوق')->sortable()->searchable(),
+      Tables\Columns\TextColumn::make('name')
+        ->label('الصندوق')
+        ->sortable()
+        ->searchable(),
+
       Tables\Columns\TextColumn::make('money')
         ->label('الرصيد المتوفر')
         ->money('USD', locale: 'en_US')

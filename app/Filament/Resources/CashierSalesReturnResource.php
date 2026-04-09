@@ -69,6 +69,7 @@ class CashierSalesReturnResource extends Resource
                 return [];
               }
               return $cashier->salesPoint->warehouse->productVariants()
+                ->with('product')
                 ->get()
                 ->mapWithKeys(function ($variant) {
                   $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';

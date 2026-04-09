@@ -138,7 +138,7 @@ class SalesPointResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['warehouse']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;

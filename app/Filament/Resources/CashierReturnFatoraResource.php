@@ -136,10 +136,11 @@ class CashierReturnFatoraResource extends Resource
             ->label('طباعة الفواتير المحددة')
             ->icon('heroicon-o-printer')
             ->color('success')
-            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('fatora.print', [
-                'ids' => $records->pluck('id')->toArray()
-              ]);
+            ->action(function (\Illuminate\Database\Eloquent\Collection $records, $livewire) {
+              $ids = $records->pluck('id')->toArray();
+              $url = route('fatora.print', ['ids' => $ids]);
+
+              $livewire->js("window.open('{$url}', '_blank')");
             }),
         ]),
 
