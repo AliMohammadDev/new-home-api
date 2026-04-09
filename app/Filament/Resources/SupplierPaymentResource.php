@@ -16,13 +16,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-<<<<<<< HEAD
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-=======
 use Filament\Notifications\Notification;
->>>>>>> 7c23fe8045b5d467b56dbcd449c277da1851bc91
 
 class SupplierPaymentResource extends Resource
 {
