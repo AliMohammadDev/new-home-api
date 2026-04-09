@@ -31,7 +31,8 @@ class CompanyTreasureResource extends Resource
         ->label('الرصيد الحالي')
         ->numeric()
         ->default(0)
-        ->required()
+        ->readOnly()
+        ->extraInputAttributes(['class' => 'bg-gray-100 font-bold']),
     ]);
   }
 
