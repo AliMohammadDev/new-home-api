@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
     ]);
 
 
-    $allImports = ProductImport::factory(10)->create();
+    $allImports = ProductImport::factory(5)->create();
 
     $colors = Color::factory(6)->create();
     $sizes = Size::factory(4)->create();
