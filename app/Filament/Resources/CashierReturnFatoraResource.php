@@ -102,14 +102,14 @@ class CashierReturnFatoraResource extends Resource
               $action->halt();
             }
           }),
-        ExportBulkAction::make()->exporter(CashierReturnFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierReturnFatoraExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
+          ExportBulkAction::make()->exporter(CashierReturnFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
 
           Tables\Actions\DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
