@@ -506,14 +506,10 @@ class ProductVariantResource extends Resource
           ->copyMessage('تم نسخ الرمز')
           ->weight('bold'),
 
-
         Tables\Columns\TextColumn::make('packages_count')
           ->label('باقات الأسعار')
-          ->getStateUsing(function ($record) {
-            $count = $record->packages()->count();
-
-            return $count > 0 ? "{$count} باقات" : '-';
-          })
+          ->counts('packages')
+          ->formatStateUsing(fn($state) => $state > 0 ? "{$state} باقات" : '-')
           ->badge()
           ->color(fn($state): string => $state !== '-' ? 'success' : 'gray')
           ->alignCenter(),
