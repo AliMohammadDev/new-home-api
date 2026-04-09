@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Exports\CompanyEntryExporter;
 use App\Filament\Resources\CompanyEntryResource\Pages;
 use App\Models\CompanyEntry;
-use Faker\Provider\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -182,7 +181,7 @@ class CompanyEntryResource extends Resource
       ])
       ->headerActions([
         ExportAction::make()->exporter(CompanyEntryExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
 

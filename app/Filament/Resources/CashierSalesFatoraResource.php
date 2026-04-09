@@ -132,17 +132,18 @@ class CashierSalesFatoraResource extends Resource
             ->label('طباعة الفواتير المحددة')
             ->icon('heroicon-o-printer')
             ->color('success')
-            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('fatora.print', [
-                'ids' => $records->pluck('id')->toArray()
-              ]);
+            ->action(function (\Illuminate\Database\Eloquent\Collection $records, $livewire) {
+              $ids = $records->pluck('id')->toArray();
+              $url = route('fatora.print', ['ids' => $ids]);
+
+                $livewire->js("window.open('{$url}', '_blank')");
             }),
         ]),
         ExportBulkAction::make()->exporter(CashierSalesFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierSalesFatoraExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

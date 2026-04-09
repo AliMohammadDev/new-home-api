@@ -9,7 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class CartItemsRelationManager extends RelationManager
 {
@@ -29,16 +29,35 @@ class CartItemsRelationManager extends RelationManager
   public function table(Table $table): Table
   {
     return $table
+
+      ->modifyQueryUsing(fn(Builder $query) => $query->with([
+        'productVariant.product',
+        'productVariant.color',
+        'productVariant.size',
+        'productVariant.material',
+      ]))
+
       ->columns([
         TextColumn::make('productVariant.product.name')
-          ->label('المنتج'),
+          ->label('المنتج')
+          ->getStateUsing(fn($record) => $record->productVariant->product->name[app()->getLocale()] ?? $record->productVariant->product->name['en'])
+          ->description(fn($record) => "SKU: " . $record->productVariant->sku)
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('productVariant.product', function (Builder $q) use ($search) {
+              $q->where('name->' . app()->getLocale(), 'like', "%{$search}%")
+                ->orWhere('name->en', 'like', "%{$search}%");
+            });
+          }),
 
         TextColumn::make('quantity')
-          ->label('الكمية'),
+          ->label('الكمية')
+          ->badge(),
 
-        TextColumn::make('productVariant.color.color')
+        Tables\Columns\ColorColumn::make('productVariant.color.hex_code')
           ->label('اللون')
-          ->placeholder('-'),
+          ->placeholder('-')
+          ->copyable()
+          ->copyMessage('تم نسخ كود اللون'),
 
         TextColumn::make('productVariant.size.size')
           ->label('الحجم')
@@ -50,11 +69,15 @@ class CartItemsRelationManager extends RelationManager
 
         TextColumn::make('productVariant.price')
           ->label('السعر الأصلي')
-          ->money('USD', locale: 'en_US'),
+          ->money('USD', locale: 'en_US')
+          ->color('gray')
+          ->size('sm'),
 
         TextColumn::make('productVariant.discount')
           ->label('الخصم')
-          ->suffix('%')
+          ->formatStateUsing(fn($state) => number_format((float) $state, 0, '.', '') . '%')
+          ->badge()
+          ->color('danger')
           ->placeholder('0%'),
 
         TextColumn::make('productVariant.final_price')
@@ -67,11 +90,35 @@ class CartItemsRelationManager extends RelationManager
           ->getStateUsing(fn($record) => $record->quantity * round($record->productVariant->price * (1 - $record->productVariant->discount / 100), 2))
           ->money('USD', locale: 'en_US'),
 
+        TextColumn::make('productVariant.final_price')
+          ->label('السعر بعد الخصم')
+          ->money('USD', locale: 'en_US'),
+
+        TextColumn::make('total_price')
+          ->label('الإجمالي')
+          ->getStateUsing(fn($record) => $record->quantity * $record->productVariant->final_price)
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success'),
+
         TextColumn::make('created_at')
           ->label('أضيف بتاريخ')
           ->since(),
       ])
-      ->filters([])
+      ->filters([
+
+        Tables\Filters\SelectFilter::make('product')
+          ->label('تصفية حسب المنتج')
+          ->relationship('productVariant.product', 'id')
+          ->getOptionLabelFromRecordUsing(fn(Model $record) => $record->name[app()->getLocale()] ?? $record->name['en'])
+          ->searchable()
+          ->preload(),
+
+        Tables\Filters\SelectFilter::make('color')
+          ->relationship('productVariant.color', 'color')
+          ->label('اللون'),
+
+      ])
       ->actions([])
       ->headerActions([])
       ->bulkActions([]);

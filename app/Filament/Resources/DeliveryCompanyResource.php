@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DeliveryCompanyResource extends Resource
 {
@@ -69,9 +70,9 @@ class DeliveryCompanyResource extends Resource
           ->sortable(),
 
         Tables\Columns\TextColumn::make('phone')
-          ->label('الهاتف'),
-
-
+          ->label('الهاتف')
+          ->copyable()
+          ->icon('heroicon-m-phone'),
 
         Tables\Columns\IconColumn::make('is_active')
           ->label('نشط')
@@ -103,6 +104,12 @@ class DeliveryCompanyResource extends Resource
     return [
       //
     ];
+  }
+
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()->with('user');
   }
 
   public static function getPages(): array

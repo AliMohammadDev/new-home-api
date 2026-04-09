@@ -6,6 +6,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use App\Models\ProductVariant;
 use Filament\Tables\Table;
 use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 
 class ProductVariantsRelationManager extends RelationManager
@@ -16,6 +17,7 @@ class ProductVariantsRelationManager extends RelationManager
   public function table(Table $table): Table
   {
     return $table
+      ->modifyQueryUsing(fn(Builder $query) => $query->with(['product', 'color', 'size', 'material']))
       ->columns([
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
@@ -82,15 +84,18 @@ class ProductVariantsRelationManager extends RelationManager
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
+
           Tables\Actions\BulkAction::make('print_selected')
             ->label('طباعة المحدد كـ PDF')
             ->icon('heroicon-m-printer')
             ->color('success')
-            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('supplier.print', [
-                'ids' => $records->pluck('id')->toArray()
-              ]);
+            ->action(function (\Illuminate\Database\Eloquent\Collection $records, $livewire) {
+              $ids = $records->pluck('id')->toArray();
+              $url = route('supplier.print', ['ids' => $ids]);
+
+              $livewire->js("window.open('{$url}', '_blank')");
             }),
+
         ]),
       ]);
   }

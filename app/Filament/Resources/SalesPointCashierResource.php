@@ -69,6 +69,7 @@ class SalesPointCashierResource extends Resource
   {
 
     return $table
+      ->modifyQueryUsing(fn(Builder $query) => $query->with(['user', 'salesPoint']))
       ->columns([
         Tables\Columns\TextColumn::make('user.name')
           ->label('الكاشير')

@@ -70,6 +70,7 @@ class CashierSaleResource extends Resource
                 return [];
               }
               return $cashier->salesPoint->warehouse->productVariants()
+                ->with('product')
                 ->get()
                 ->mapWithKeys(function ($variant) {
                   $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
@@ -171,6 +172,11 @@ class CashierSaleResource extends Resource
   public static function table(Table $table): Table
   {
     return $table
+      ->modifyQueryUsing(fn(Builder $query) => $query->with([
+        'variant.product',
+        'cashier.user',
+        'fatora'
+      ]))
       ->columns([
         Tables\Columns\TextColumn::make('fatora.id')->label('رقم الفاتورة')->sortable(),
 
@@ -259,7 +265,7 @@ class CashierSaleResource extends Resource
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierSaleExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

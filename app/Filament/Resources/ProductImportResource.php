@@ -88,6 +88,16 @@ class ProductImportResource extends Resource
         Tables\Columns\TextColumn::make('notes')
           ->label('ملاحظة')
           ->toggleable(isToggledHiddenByDefault: true),
+
+
+        Tables\Columns\TextColumn::make('total_import_cost')
+          ->label('إجمالي المشتريات')
+          ->getStateUsing(fn($record) => $record->productVariants->sum(function ($variant) {
+            return ($variant->pivot->price * $variant->pivot->quantity) + $variant->pivot->shipping_price;
+          }))
+          ->money('USD', locale: 'en')->sortable(),
+
+
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([

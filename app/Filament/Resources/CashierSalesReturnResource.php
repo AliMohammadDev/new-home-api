@@ -69,6 +69,7 @@ class CashierSalesReturnResource extends Resource
                 return [];
               }
               return $cashier->salesPoint->warehouse->productVariants()
+                ->with('product')
                 ->get()
                 ->mapWithKeys(function ($variant) {
                   $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
@@ -239,11 +240,11 @@ class CashierSalesReturnResource extends Resource
               }
             }),
         ]),
-              ExportBulkAction::make()->exporter(CashierSalesReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(CashierSalesReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(CashierSalesReturnExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
   public static function getRelations(): array

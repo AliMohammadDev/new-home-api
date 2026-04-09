@@ -104,6 +104,11 @@ class OrderResource extends Resource
   public static function table(Table $table): Table
   {
     return $table
+      ->query(
+        Order::query()
+          ->with(['user', 'deliveryCompany'])
+          ->withSum('orderItems as items_subtotal_sum', 'total')
+      )
       ->columns([
         TextColumn::make('id')
           ->label('رقم الطلب')
@@ -136,11 +141,11 @@ class OrderResource extends Resource
           ->sortable()
           ->searchable(),
 
-        TextColumn::make('items_subtotal')
+        TextColumn::make('items_subtotal_sum')
           ->label('صافي المنتجات')
-          ->getStateUsing(function (Order $record) {
-            return $record->orderItems->sum('total');
-          })
+          // ->getStateUsing(function (Order $record) {
+          //   return $record->orderItems->sum('total');
+          // })
           ->money('USD', locale: 'en_US')
           ->color('success')
           ->sortable(),
@@ -230,11 +235,11 @@ class OrderResource extends Resource
               $action->halt();
             }
           }),
-          ExportBulkAction::make()->exporter(OrderExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(OrderExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(OrderExporter::class)
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
   }

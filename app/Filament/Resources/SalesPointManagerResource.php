@@ -70,6 +70,7 @@ class SalesPointManagerResource extends Resource
 
 
         Tables\Columns\TextColumn::make('phone')
+          ->url(fn($state) => "tel:{$state}")
           ->label('الهاتف')
           ->formatStateUsing(fn(string $state): string => "📞 " . $state)
           ->extraAttributes(['class' => 'font-mono']),
@@ -139,7 +140,7 @@ class SalesPointManagerResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()->with(['user', 'salesPoint']);
 
     if (auth()->user()->hasRole('super_admin')) {
       return $query;
