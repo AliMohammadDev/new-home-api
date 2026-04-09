@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
       ->default()
       ->id('admin')
       ->path('admin')
+      ->sidebarCollapsibleOnDesktop()
       ->navigationGroups([
         NavigationGroup::make()
           ->label('إدارة المنتجات'),
@@ -54,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
           ->label('إدارة التوصيل'),
 
         NavigationGroup::make()
+          ->icon('heroicon-o-banknotes')
           ->label('الإدارة المالية'),
 
         NavigationGroup::make()

@@ -12,6 +12,8 @@ class OrdersCountWidget extends ChartWidget
 {
   use HasWidgetShield;
 
+  protected static bool $isLazy = true;
+
   protected int|string|array $columnSpan = 1;
   protected static ?string $heading = 'عدد الطلبات حسب اليوم';
 
