@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CompanyEntryExporter;
 use App\Filament\Resources\CompanyEntryResource\Pages;
 use App\Models\CompanyEntry;
+use Faker\Provider\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -11,6 +13,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CompanyEntryResource extends Resource
 {
@@ -173,7 +178,13 @@ class CompanyEntryResource extends Resource
               }
             }),
         ]),
+        ExportBulkAction::make()->exporter(CompanyEntryExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CompanyEntryExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
+
 
   }
   public static function getRelations(): array

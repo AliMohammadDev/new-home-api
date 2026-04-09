@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CashierSaleExporter;
 use App\Filament\Resources\CashierSaleResource\Pages;
 use App\Models\CashierSale;
 use App\Models\ProductVariant;
@@ -14,6 +15,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CashierSaleResource extends Resource
 {
@@ -229,6 +233,7 @@ class CashierSaleResource extends Resource
             }
           }),
       ])
+
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make()
@@ -251,6 +256,11 @@ class CashierSaleResource extends Resource
               }
             }),
         ]),
+        ExportBulkAction::make()->exporter(CashierSaleExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CashierSaleExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

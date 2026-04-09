@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CashierSalesFatoraExporter;
 use App\Filament\Resources\CashierSalesFatoraResource\Pages;
 use App\Filament\Resources\CashierSalesFatoraResource\RelationManagers\ItemsRelationManager;
 use App\Models\CashierSalesFatora;
@@ -13,7 +14,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CashierSalesFatoraResource extends Resource
 {
@@ -104,7 +107,7 @@ class CashierSalesFatoraResource extends Resource
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          
+
           Tables\Actions\DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
           Tables\Actions\RestoreBulkAction::make()
@@ -135,9 +138,11 @@ class CashierSalesFatoraResource extends Resource
               ]);
             }),
         ]),
-
-
-
+        ExportBulkAction::make()->exporter(CashierSalesFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CashierSalesFatoraExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

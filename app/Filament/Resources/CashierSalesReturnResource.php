@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CashierSalesReturnExporter;
 use App\Filament\Resources\CashierSalesReturnResource\Pages;
 use App\Models\CashierSalesReturn;
 use App\Models\ProductVariant;
@@ -14,6 +15,9 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CashierSalesReturnResource extends Resource
 {
@@ -235,6 +239,11 @@ class CashierSalesReturnResource extends Resource
               }
             }),
         ]),
+              ExportBulkAction::make()->exporter(CashierSalesReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CashierSalesReturnExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
   public static function getRelations(): array

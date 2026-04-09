@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\WarehouseReturnExporter;
 use App\Filament\Resources\WarehouseReturnResource\Pages;
 use App\Models\ProductVariant;
 use App\Models\ShippingWarehouse;
@@ -15,7 +16,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class WarehouseReturnResource extends Resource
 {
@@ -289,6 +292,11 @@ class WarehouseReturnResource extends Resource
               }
             }),
         ]),
+          ExportBulkAction::make()->exporter(WarehouseReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(WarehouseReturnExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

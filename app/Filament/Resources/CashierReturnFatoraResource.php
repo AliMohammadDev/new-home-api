@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CashierReturnFatoraExporter;
 use App\Filament\Resources\CashierReturnFatoraResource\Pages;
 use App\Models\CashierReturnFatora;
 use App\Models\SalesPointCashier;
@@ -12,7 +13,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CashierReturnFatoraResource extends Resource
 {
@@ -99,6 +102,11 @@ class CashierReturnFatoraResource extends Resource
               $action->halt();
             }
           }),
+        ExportBulkAction::make()->exporter(CashierReturnFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CashierReturnFatoraExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([

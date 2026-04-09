@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\SalesPointCashierTransExporter;
 use App\Filament\Resources\SalesPointCashierTransResource\Pages;
 use App\Models\SalesPoint;
 use App\Models\SalesPointCashier;
@@ -14,6 +15,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class SalesPointCashierTransResource extends Resource
 {
@@ -305,7 +309,13 @@ class SalesPointCashierTransResource extends Resource
               }
             }),
         ]),
+          ExportBulkAction::make()->exporter(SalesPointCashierTransExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(SalesPointCashierTransExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
+
   }
   public static function getRelations(): array
   {

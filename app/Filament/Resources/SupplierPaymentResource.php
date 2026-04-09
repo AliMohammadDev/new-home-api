@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\SupplierPaymentExporter;
 use App\Filament\Resources\SupplierPaymentResource\Pages;
 use App\Models\ProductImportItem;
 use App\Models\SupplierPayment;
@@ -15,6 +16,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class SupplierPaymentResource extends Resource
 {
@@ -199,6 +203,11 @@ class SupplierPaymentResource extends Resource
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make(),
         ]),
+          ExportBulkAction::make()->exporter(SupplierPaymentExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(SupplierPaymentExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

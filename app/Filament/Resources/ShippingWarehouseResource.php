@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ShippingWarehouseExporter;
 use App\Filament\Resources\ShippingWarehouseResource\Pages;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\ShippingWarehouse;
@@ -14,6 +15,9 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class ShippingWarehouseResource extends Resource
 {
@@ -247,7 +251,13 @@ class ShippingWarehouseResource extends Resource
               }
             }),
         ]),
+          ExportBulkAction::make()->exporter(ShippingWarehouseExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(ShippingWarehouseExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
+
   }
 
   public static function getRelations(): array

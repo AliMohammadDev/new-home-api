@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\App;
 use Filament\Resources\Resource;
 use App\Models\ProductVariant;
 use App\Models\Size;
-use Filament\Actions\Exports\Enums\ExportFormat;
 use Illuminate\Support\Str;
 use Filament\Tables\Table;
 use Filament\Forms\Form;
@@ -21,6 +20,7 @@ use Filament\Tables;
 use Filament\Forms;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class ProductVariantResource extends Resource
 {
@@ -565,7 +565,8 @@ class ProductVariantResource extends Resource
           ->label('حذف نهائي'),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(ProductVariantExporter::class)->label('تصدير الى Excel')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportAction::make()->exporter(ProductVariantExporter::class)
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -578,7 +579,7 @@ class ProductVariantResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد'),
         ]),
-        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->label('تصدير الى Excel')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 
