@@ -232,7 +232,6 @@ class CashierSaleResource extends Resource
             }
           }),
       ])
-
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make()
@@ -243,22 +242,20 @@ class CashierSaleResource extends Resource
             ->label('حذف نهائي للمحدد')
             ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
               $invalidRecords = $records->where('quantity', '!=', 0);
-
               if ($invalidRecords->count() > 0) {
                 Notification::make()
                   ->title('لا يمكن الحذف النهائي')
                   ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
                   ->danger()
                   ->send();
-
                 $action->halt();
               }
             }),
         ]),
-        ExportBulkAction::make()->exporter(CashierSaleExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(CashierSaleExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(CashierSaleExporter::class)
+        ExportAction::make()->exporter(CashierSaleExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }

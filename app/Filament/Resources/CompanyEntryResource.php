@@ -178,10 +178,10 @@ class CompanyEntryResource extends Resource
               }
             }),
         ]),
-        ExportBulkAction::make()->exporter(CompanyEntryExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(CompanyEntryExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(CompanyEntryExporter::class)
+        ExportAction::make()->exporter(CompanyEntryExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 

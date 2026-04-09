@@ -14,13 +14,13 @@ class CompanySalesTransferExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('sales_point_id'),
-            ExportColumn::make('trans_type'),
-            ExportColumn::make('name'),
-            ExportColumn::make('date'),
-            ExportColumn::make('quantity'),
-            ExportColumn::make('note'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('sales_point_id')->label('رقم معرف نقطةالمبيع'),
+            ExportColumn::make('trans_type')->label('نوع التحويل'),
+            ExportColumn::make('name')->label('اسم البيان'),
+            ExportColumn::make('date')->label('التاريخ'),
+            ExportColumn::make('quantity')->label('الكمية'),
+            ExportColumn::make('note')->label('ملاحظات'),
         ];
     }
 

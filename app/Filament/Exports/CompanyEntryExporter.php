@@ -14,12 +14,12 @@ class CompanyEntryExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('company_treasure_id'),
-            ExportColumn::make('user_id'),
-            ExportColumn::make('trans_type'),
-            ExportColumn::make('name'),
-            ExportColumn::make('amount'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('company_treasure_id')->label('رقم معرف صندوق الشركة'),
+            ExportColumn::make('user_id')->label('رقم معرف المستخدم'),
+            ExportColumn::make('trans_type')->label('نوع التحويل'),
+            ExportColumn::make('name')->label('اسم البيان'),
+            ExportColumn::make('amount')->label('المبلغ'),
         ];
     }
 

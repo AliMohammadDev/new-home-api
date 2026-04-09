@@ -14,11 +14,11 @@ class ProductImportExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('supplier_name'),
-            ExportColumn::make('supplier_phone'),
-            ExportColumn::make('address'),
-            ExportColumn::make('notes'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('supplier_name')->label('اسم المورد'),
+            ExportColumn::make('supplier_phone')->label('رقم هاتف المورد'),
+            ExportColumn::make('address')->label('العنوان'),
+            ExportColumn::make('notes')->label('ملاحظات'),
         ];
     }
 

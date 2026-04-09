@@ -309,10 +309,10 @@ class SalesPointCashierTransResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(SalesPointCashierTransExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ExportBulkAction::make()->exporter(SalesPointCashierTransExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(SalesPointCashierTransExporter::class)
+        ExportAction::make()->exporter(SalesPointCashierTransExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 

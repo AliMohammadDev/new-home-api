@@ -14,14 +14,14 @@ class ShippingWarehouseExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('product_variant_id'),
-            ExportColumn::make('user_id'),
-            ExportColumn::make('warehouse_id'),
-            ExportColumn::make('arrival_time'),
-            ExportColumn::make('amount'),
-            ExportColumn::make('unit_name'),
-            ExportColumn::make('unit_capacity'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
+            ExportColumn::make('user_id')->label('رقم معرف المستخدم'),
+            ExportColumn::make('warehouse_id')->label('رقم معرف المستودع'),
+            ExportColumn::make('arrival_time')->label('الوقت المستهدف'),
+            ExportColumn::make('amount')->label('الكمية'),
+            ExportColumn::make('unit_name')->label('اسم الوحدة'),
+            ExportColumn::make('unit_capacity')->label('سعة الوحدة'),
         ];
     }
 

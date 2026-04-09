@@ -239,10 +239,10 @@ class CashierSalesReturnResource extends Resource
               }
             }),
         ]),
-              ExportBulkAction::make()->exporter(CashierSalesReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+              ExportBulkAction::make()->exporter(CashierSalesReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(CashierSalesReturnExporter::class)
+        ExportAction::make()->exporter(CashierSalesReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }

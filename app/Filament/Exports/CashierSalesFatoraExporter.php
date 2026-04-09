@@ -14,10 +14,10 @@ class CashierSalesFatoraExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('sales_point_cashier_id'),
-            ExportColumn::make('date'),
-            ExportColumn::make('full_price'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('sales_point_cashier_id')->label('رقم معرف كاشير نقطة المبيع'),
+            ExportColumn::make('date')->label('التاريخ'),
+            ExportColumn::make('full_price')->label('السعر الإجمالي'),
         ];
     }
 

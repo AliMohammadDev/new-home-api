@@ -14,13 +14,13 @@ class CashierSalesReturnExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('cashier_return_fatora_id'),
-            ExportColumn::make('product_variant_id'),
-            ExportColumn::make('sales_point_cashier_id'),
-            ExportColumn::make('quantity'),
-            ExportColumn::make('price'),
-            ExportColumn::make('full_price'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('cashier_return_fatora_id')->label('رقم معرف فاتورة المرتجع'),
+            ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
+            ExportColumn::make('sales_point_cashier_id')->label('رقم معرف كاشير نقطة المبيع'),
+            ExportColumn::make('quantity')->label('الكمية'),
+            ExportColumn::make('price')->label('السعر الإفرادي'),
+            ExportColumn::make('full_price')->label('السعر الإجمالي'),
         ];
     }
 

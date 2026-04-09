@@ -14,12 +14,12 @@ class OrderItemExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('order_id'),
-            ExportColumn::make('product_variant_id'),
-            ExportColumn::make('quantity'),
-            ExportColumn::make('price'),
-            ExportColumn::make('total'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('order_id')->label('رقم معرف الطلب'),
+            ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
+            ExportColumn::make('quantity')->label('الكمية'),
+            ExportColumn::make('price')->label('السعر الإفرادي'),
+            ExportColumn::make('total')->label('السعر الإجمالي'),
         ];
     }
 

@@ -230,10 +230,10 @@ class OrderResource extends Resource
               $action->halt();
             }
           }),
-          ExportBulkAction::make()->exporter(OrderExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ExportBulkAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(OrderExporter::class)
+        ExportAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 

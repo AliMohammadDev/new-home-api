@@ -561,7 +561,7 @@ class ProductVariantResource extends Resource
           ->label('حذف نهائي'),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(ProductVariantExporter::class)
+        ExportAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->bulkActions([
@@ -575,7 +575,7 @@ class ProductVariantResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد'),
         ]),
-        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

@@ -14,13 +14,13 @@ class SupplierPaymentExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('product_import_item_id'),
-            ExportColumn::make('amount'),
-            ExportColumn::make('payment_date'),
-            ExportColumn::make('payment_method'),
-            ExportColumn::make('trans_type'),
-            ExportColumn::make('notes'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('product_import_item_id')->label('رقم معرف عملية الاستيراد'),
+            ExportColumn::make('amount')->label('المبلغ'),
+            ExportColumn::make('payment_date')->label('تاريخ الدفع'),
+            ExportColumn::make('payment_method')->label('طريقة الدفع'),
+            ExportColumn::make('trans_type')->label('نوع التحويل'),
+            ExportColumn::make('notes')->label('ملاحظات'),
         ];
     }
 

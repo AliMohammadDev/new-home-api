@@ -292,10 +292,10 @@ class WarehouseReturnResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(WarehouseReturnExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ExportBulkAction::make()->exporter(WarehouseReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(WarehouseReturnExporter::class)
+        ExportAction::make()->exporter(WarehouseReturnExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }

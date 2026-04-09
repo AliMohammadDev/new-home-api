@@ -14,11 +14,11 @@ class ProductExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id'),
-            ExportColumn::make('name'),
-            ExportColumn::make('body'),
-            ExportColumn::make('category_id'),
-            ExportColumn::make('is_featured'),
+            ExportColumn::make('id')->label('رقم تسلسلي'),
+            ExportColumn::make('name')->label('اسم المنتج'),
+            ExportColumn::make('body')->label('وصف المنتج'),
+            ExportColumn::make('category_id')->label('رقم معرف التصنيف'),
+            ExportColumn::make('is_featured')->label('منتج مميز'),
         ];
     }
 

@@ -138,10 +138,10 @@ class CashierSalesFatoraResource extends Resource
               ]);
             }),
         ]),
-        ExportBulkAction::make()->exporter(CashierSalesFatoraExporter::class)->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(CashierSalesFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(CashierSalesFatoraExporter::class)
+        ExportAction::make()->exporter(CashierSalesFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
         ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
