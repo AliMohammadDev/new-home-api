@@ -82,6 +82,7 @@ class ProductImportResource extends Resource
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ التسجيل')
           ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
 

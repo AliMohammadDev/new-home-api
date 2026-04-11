@@ -163,7 +163,9 @@ class OrderResource extends Resource
           ->counts('orderItems'),
         TextColumn::make('created_at')
           ->label('تاريخ الطلب')
+
           ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable(),
       ])
       ->defaultSort('created_at', 'desc')
@@ -235,11 +237,11 @@ class OrderResource extends Resource
               $action->halt();
             }
           }),
-          ExportBulkAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
   }

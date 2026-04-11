@@ -70,6 +70,8 @@ class CartResource extends Resource
 
         TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
+          ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable()
           ->searchable()
           ->dateTime(),

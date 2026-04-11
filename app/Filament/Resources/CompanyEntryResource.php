@@ -75,7 +75,9 @@ class CompanyEntryResource extends Resource
       Tables\Columns\TextColumn::make('created_at')
         ->label('التاريخ')
         ->searchable()
-        ->dateTime(),
+        ->dateTime('Y-m-d H:i')
+        ->timezone('Asia/Riyadh'),
+
       Tables\Columns\TextColumn::make('treasure.name')
         ->label('الصندوق')
         ->searchable()

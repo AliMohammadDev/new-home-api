@@ -54,5 +54,13 @@ class EditRole extends EditRecord
     });
 
     $this->record->syncPermissions($permissionModels);
+
+
+    $this->record->touch(); // يقوم بتحديث updated_at يدوياً للحظة الحالية
+  }
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
   }
 }

@@ -176,6 +176,8 @@ class SalesPointCashierTransResource extends Resource
       Tables\Columns\TextColumn::make('date')
         ->label('التاريخ')
         ->date()
+        ->dateTime('Y-m-d H:i')
+        ->timezone('Asia/Riyadh')
         ->sortable(),
 
       Tables\Columns\TextColumn::make('salesPoint.name')
@@ -309,11 +311,11 @@ class SalesPointCashierTransResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(SalesPointCashierTransExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(SalesPointCashierTransExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(SalesPointCashierTransExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
 
   }

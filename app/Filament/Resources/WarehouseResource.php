@@ -90,7 +90,8 @@ class WarehouseResource extends Resource
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإضافة')
-          ->dateTime()
+          ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
