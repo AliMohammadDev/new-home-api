@@ -14,12 +14,20 @@ class OrderResource extends JsonResource
    */
   public function toArray(Request $request): array
   {
+
+    $total = (float) $this->total_amount;
+    $shipping = (float) $this->shipping_fee;
+    $delivery = (float) $this->delivery_fee;
+    $calculatedSubtotal = $total - $shipping - $delivery;
+
+
     return [
       'id' => $this->id,
       'total_amount' => $this->total_amount,
       'shipping_fee' => $this->shipping_fee,
       'delivery_fee' => $this->delivery_fee,
-      'subtotal' => $this->total_amount - $this->shipping_fee - $this->delivery_fee,
+      // 'subtotal' => $this->total_amount - $this->shipping_fee - $this->delivery_fee,
+      'subtotal' => round($calculatedSubtotal, 2),
       'payment_method' => $this->payment_method,
       'status' => $this->status,
       'created_at' => $this->created_at_formatted,
