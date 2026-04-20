@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\App;
 class CategoryResource extends Resource
 {
   protected static ?string $model = Category::class;
-  protected static ?int $navigationSort = 6;
+  protected static ?int $navigationSort = 1;
   protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
   protected static ?string $navigationLabel = 'أصناف';
   protected static ?string $pluralModelLabel = 'أصناف';
@@ -71,12 +71,15 @@ class CategoryResource extends Resource
           ->conversion('default')
           ->label('الصورة')
           ->circular(),
-
         Tables\Columns\TextColumn::make('name')
           ->label('الاسم')
           ->getStateUsing(fn(Category $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->sortable()
-          ->searchable(),
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            $locale = App::getLocale();
+            return $query->where("name->$locale", 'like', "%{$search}%")
+              ->orWhere("name->en", 'like', "%{$search}%");
+          }),
 
         Tables\Columns\TextColumn::make('description')
           ->label('الوصف')
@@ -84,6 +87,10 @@ class CategoryResource extends Resource
           ->sortable()
           ->searchable()
           ->limit(50),
+
+        Tables\Columns\TextColumn::make('products_count')
+          ->counts('products')
+          ->label('عدد المنتجات'),
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
@@ -99,9 +106,12 @@ class CategoryResource extends Resource
             Forms\Components\TextInput::make('name')->label('اسم التصنيف'),
           ])
           ->query(function (Builder $query, array $data) {
-            return $query->when($data['name'] ?? null, function ($q, $name) {
+            return $query->when($data['name'], function ($q, $name) {
               $locale = App::getLocale();
-              $q->where("name->$locale", 'like', "%$name%");
+              return $q->where(function ($subQuery) use ($name, $locale) {
+                $subQuery->where("name->$locale", 'like', "%$name%")
+                  ->orWhere("name->en", 'like', "%$name%");
+              });
             });
           }),
       ])

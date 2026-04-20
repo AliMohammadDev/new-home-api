@@ -24,7 +24,7 @@ class CompanySalesTransferObserver
         CompanyEntry::create([
           'company_treasure_id' => $mainTreasure->id,
           'user_id' => auth()->id() ?? 1,
-          'trans_type' => 'withdrawal',
+          'trans_type' => 'withdraw',
           'amount' => $companySalesTransfer->quantity,
           'name' => "تحويل إلى نقطة بيع: " . $salesPoint->name,
         ]);
@@ -75,7 +75,7 @@ class CompanySalesTransferObserver
           CompanyEntry::create([
             'company_treasure_id' => $mainTreasure->id,
             'user_id' => auth()->id() ?? 1,
-            'trans_type' => 'withdrawal',
+            'trans_type' => 'withdraw',
             'amount' => $oldQuantity,
             'name' => "تصحيح توريد ملغى من: " . $oldSalesPoint->name,
           ]);
@@ -89,7 +89,7 @@ class CompanySalesTransferObserver
           CompanyEntry::create([
             'company_treasure_id' => $mainTreasure->id,
             'user_id' => auth()->id() ?? 1,
-            'trans_type' => 'withdrawal',
+            'trans_type' => 'withdraw',
             'amount' => $companySalesTransfer->quantity,
             'name' => "تحويل معدل لـ: " . $newSalesPoint->name,
           ]);
@@ -135,7 +135,7 @@ class CompanySalesTransferObserver
         CompanyEntry::create([
           'company_treasure_id' => $mainTreasure->id,
           'user_id' => auth()->id() ?? 1,
-          'trans_type' => 'withdrawal',
+          'trans_type' => 'withdraw',
           'amount' => $companySalesTransfer->quantity,
           'name' => "إلغاء توريد وحذف سجل من: " . $salesPoint->name,
         ]);

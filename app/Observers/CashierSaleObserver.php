@@ -123,7 +123,7 @@ class CashierSaleObserver
     }
 
     if ($cashierSale->cashier) {
-      $cashierSale->cashier->increment('daily_limit', $cashierSale->full_price);
+      $cashierSale->cashier->decrement('daily_limit', $cashierSale->full_price);
     }
 
     $salesPoint = $cashierSale->cashier?->salesPoint;

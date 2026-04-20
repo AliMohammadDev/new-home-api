@@ -25,6 +25,7 @@ return new class extends Migration {
       $table->decimal('quantity', 15, 2);
       $table->decimal('price', 15, 2);
       $table->decimal('full_price', 15, 2);
+      $table->softDeletes();
       $table->timestamps();
     });
   }

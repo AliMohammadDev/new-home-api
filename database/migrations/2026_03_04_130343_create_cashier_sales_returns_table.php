@@ -19,14 +19,12 @@ return new class extends Migration {
       $table->foreignIdFor(CashierReturnFatora::class)
         ->constrained()
         ->cascadeOnDelete();
-
       $table->foreignIdFor(ProductVariant::class)->constrained();
       $table->foreignIdFor(SalesPointCashier::class)->constrained();
-
       $table->decimal('quantity', 15, 2);
       $table->decimal('price', 15, 2);
       $table->decimal('full_price', 15, 2);
-
+      $table->softDeletes();
       $table->timestamps();
     });
   }

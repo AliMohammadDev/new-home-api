@@ -18,10 +18,9 @@ return new class extends Migration {
       $table->foreignIdFor(SalesPointCashier::class)
         ->constrained()
         ->cascadeOnDelete();
-
       $table->date('date');
       $table->double('full_price');
-
+      $table->softDeletes();
       $table->timestamps();
     });
   }

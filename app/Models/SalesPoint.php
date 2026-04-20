@@ -25,6 +25,13 @@ class SalesPoint extends Model
 
   public function managers()
   {
-    return $this->belongsToMany(User::class, 'sales_point_managers');
+    return $this->belongsToMany(User::class, 'sales_point_managers')
+      ->withPivot(['id', 'phone'])
+      ->withTimestamps();
+  }
+
+  public function cashier()
+  {
+    return $this->hasMany(SalesPointCashier::class);
   }
 }

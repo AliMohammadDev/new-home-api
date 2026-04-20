@@ -84,7 +84,6 @@ class OrderService
           'price' => $actualPrice,
           'total' => $actualPrice * $item->quantity,
         ]);
-        $item->productVariant->decrement('stock_quantity', $item->quantity);
       }
 
       $cart->cartItems()->delete();

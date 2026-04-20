@@ -11,13 +11,12 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WarehouseResource extends Resource
 {
   protected static ?string $model = Warehouse::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-building-library';
+  protected static ?int $navigationSort = 3;
   protected static ?string $navigationLabel = ' مستودعات مصغرة';
   protected static ?string $pluralModelLabel = 'مستودعات مصغرة';
   protected static ?string $modelLabel = 'مستودعات مصغرة';
@@ -27,8 +26,16 @@ class WarehouseResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Card::make()
+        Forms\Components\Section::make()
           ->schema([
+            Forms\Components\Select::make('user_id')
+              ->label('المسؤول عن المستودع')
+              ->relationship('user', 'name')
+              ->default(auth()->id())
+              ->required()
+              ->searchable()
+              ->preload(),
+
             Forms\Components\TextInput::make('name')
               ->label('اسم المستودع')
               ->required()
@@ -47,7 +54,8 @@ class WarehouseResource extends Resource
               ->label('العنوان التفصيلي')
               ->required()
               ->columnSpanFull(),
-          ])->columns(2),
+          ])
+          ->columns(2),
       ]);
   }
 
@@ -60,14 +68,21 @@ class WarehouseResource extends Resource
           ->searchable()
           ->sortable(),
 
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('المسؤول')
+          ->searchable()
+          ->sortable(),
+
         Tables\Columns\TextColumn::make('city')
           ->label('المدينة')
           ->badge()
           ->color('info')
+          ->searchable()
           ->sortable(),
 
         Tables\Columns\TextColumn::make('address')
           ->label('العنوان التفصيلي')
+          ->limit(30)
           ->sortable(),
         Tables\Columns\TextColumn::make('phone')
           ->label('الهاتف')
@@ -75,11 +90,45 @@ class WarehouseResource extends Resource
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإضافة')
-          ->dateTime()
+          ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
-      ->defaultSort('created_at', 'DESC');
+      ->defaultSort('created_at', 'DESC')
+      ->filters([
+        Tables\Filters\SelectFilter::make('city')
+          ->label('تصفية حسب المدينة')
+          ->options(fn() => \App\Models\Warehouse::pluck('city', 'city')->unique()->toArray()),
+
+        Tables\Filters\SelectFilter::make('user_id')
+          ->label('تصفية حسب المسؤول')
+          ->relationship('user', 'name')
+          ->visible(fn() => auth()->user()->hasRole('super_admin'))
+          ->searchable()
+          ->preload(),
+      ])
+      ->actions([
+        Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->before(function (Tables\Actions\DeleteAction $action, Warehouse $record) {
+            if ($record->productVariants()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المستودع')
+                ->body('هذا المستودع يحتوي على مخزون بضائع حالياً. يجب تفريغ المستودع أو نقله قبل الحذف.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make(),
+        ]),
+      ]);
   }
 
   public static function getRelations(): array
@@ -96,5 +145,28 @@ class WarehouseResource extends Resource
       'create' => Pages\CreateWarehouse::route('/create'),
       'edit' => Pages\EditWarehouse::route('/{record}/edit'),
     ];
+  }
+
+
+
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery()->with(['user']);
+    $user = auth()->user();
+
+    if ($user->hasRole('super_admin')) {
+      return $query;
+    }
+
+    if ($user->hasRole('main_warehouse_manager')) {
+      return $query;
+    }
+
+    if ($user->hasRole('sub_warehouse_manager')) {
+      return $query->where('user_id', $user->id);
+    }
+
+    return $query->whereRaw('1 = 0');
   }
 }

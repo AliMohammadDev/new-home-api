@@ -54,6 +54,7 @@ class CashierSalesReturnObserver
         $warehouse->productVariants()->attach($cashierSalesReturn->product_variant_id, [
           'amount' => $cashierSalesReturn->quantity,
           'arrival_time' => now(),
+          'user_id' => auth()->id() ?? $cashierSalesReturn->cashier?->user_id,
         ]);
       }
 

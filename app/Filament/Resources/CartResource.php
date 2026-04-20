@@ -66,14 +66,15 @@ class CartResource extends Resource
         TextColumn::make('cart_items_count')
           ->label('عدد المنتجات')
           ->counts('cartItems')
-          ->sortable()
-          ->searchable(),
+          ->sortable(),
 
         TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
+          ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
           ->sortable()
           ->searchable()
-          ->since(),
+          ->dateTime(),
       ])
       ->defaultSort('created_at', 'desc')
       ->actions([

@@ -13,6 +13,7 @@ class SalesPointSeeder extends Seeder
   {
     $warehouses = Warehouse::all();
 
+
     $salesPointsData = [
       ['name' => 'فرع المزة الرئيسي', 'location' => 'دمشق - أوتوستراد المزة', 'phone' => '0112233445'],
       ['name' => 'نقطة بيع الشعلان', 'location' => 'دمشق - شارع الشعلان', 'phone' => '0115566778'],
@@ -21,7 +22,12 @@ class SalesPointSeeder extends Seeder
       ['name' => 'نقطة اللاذقية الكورنيش', 'location' => 'اللاذقية - الكورنيش الغربي', 'phone' => '0412211334'],
     ];
 
-    $users = User::limit(10)->get();
+    $managers = User::role('sales_point_manager')->get();
+
+    if ($managers->isEmpty()) {
+      $this->command->error('لم يتم العثور على مستخدمين بدور sales_point_manager. تأكد من إنشائهم أولاً.');
+      return;
+    }
 
     foreach ($salesPointsData as $data) {
       $sp = SalesPoint::create([
@@ -32,17 +38,13 @@ class SalesPointSeeder extends Seeder
         'is_active' => true,
       ]);
 
-      if ($users->count() > 0) {
-        $randomManagers = $users->random(rand(1, min(2, $users->count())));
+      $randomManager = $managers->random();
 
-        foreach ($randomManagers as $user) {
-          $sp->managers()->attach($user->id, [
-            'phone' => '09' . rand(30, 99) . rand(100, 999) . rand(100, 999),
-            'created_at' => now(),
-            'updated_at' => now(),
-          ]);
-        }
-      }
+      $sp->managers()->attach($randomManager->id, [
+        'phone' => '09' . rand(30, 99) . rand(100, 999) . rand(100, 999),
+        'created_at' => now(),
+        'updated_at' => now(),
+      ]);
     }
   }
 }

@@ -17,14 +17,18 @@ class CashierSeeder extends Seeder
     $salesPoints = SalesPoint::all();
     $users = User::whereDoesntHave('salesPoints')->limit(5)->get();
 
-    foreach ($users as $index => $user) {
+    $cashierUsers = User::role('sales_point_cashier')
+      ->whereDoesntHave('salesPoints')
+      ->get();
+
+    foreach ($cashierUsers as $index => $user) {
       SalesPointCashier::create([
         'sales_point_id' => $salesPoints->random()->id,
         'user_id' => $user->id,
-        'shift_type' => $index % 2 == 0 ? 'صباحي' : 'مسائي',
+        'shift_type' => $index % 2 == 0 ? 'صباحية' : 'مسائية',
         'daily_limit' => 0,
       ]);
     }
   }
-  
+
 }

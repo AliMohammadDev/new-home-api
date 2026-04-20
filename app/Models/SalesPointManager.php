@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SalesPointManager extends Model
 {
+
+
   protected $fillable = [
     'sales_point_id',
     'user_id',
@@ -21,4 +23,9 @@ class SalesPointManager extends Model
   {
     return $this->belongsTo(User::class);
   }
-}
+
+  public function cashierTransactions()
+  {
+    return $this->hasMany(SalesPointCashierTrans::class, 'sales_point_manager_id');
+  }
+}   

@@ -23,6 +23,9 @@ Route::get('/shipping/print', [ShippingWarehouseController::class, 'print'])->na
 Route::get('/print-supplier-imports', [SupplierImportController::class, 'print'])
   ->name('supplier.print');
 
+  Route::get('/print-supplier-product-imports', [SupplierImportController::class, 'showProductImport'])
+    ->name('product.import.print');
+
 
 Route::get('/print-fatora', [FatoraPrintController::class, 'print'])
   ->name('fatora.print');

@@ -10,12 +10,16 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Filament\Resources\ProductImportResource\RelationManagers\ProductVariantsRelationManager;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class ProductImportResource extends Resource
 {
   protected static ?string $model = ProductImport::class;
 
   protected static ?string $navigationIcon = 'heroicon-o-users';
+  protected static ?int $navigationSort = 1;
   protected static ?string $navigationLabel = 'الموردين';
   protected static ?string $pluralModelLabel = ' الموردين';
   protected static ?string $modelLabel = ' مورد';
@@ -61,6 +65,7 @@ class ProductImportResource extends Resource
         Tables\Columns\TextColumn::make('address')
           ->label('العنوان')
           ->icon('heroicon-m-map-pin')
+          ->searchable()
           ->color('gray'),
 
         Tables\Columns\TextColumn::make('supplier_phone')
@@ -71,33 +76,68 @@ class ProductImportResource extends Resource
           ->label('عدد الأصناف')
           ->counts('productVariants')
           ->badge()
+          ->counts('productVariants')
           ->color('info'),
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ التسجيل')
           ->dateTime('Y-m-d H:i')
+          ->timezone('Asia/Riyadh')
+          ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
 
         Tables\Columns\TextColumn::make('notes')
           ->label('ملاحظة')
           ->toggleable(isToggledHiddenByDefault: true),
+
+
+        Tables\Columns\TextColumn::make('total_import_cost')
+          ->label('إجمالي المشتريات')
+          ->getStateUsing(fn($record) => $record->productVariants->sum(function ($variant) {
+            return ($variant->pivot->price * $variant->pivot->quantity) + $variant->pivot->shipping_price;
+          }))
+          ->money('USD', locale: 'en')->sortable(),
+
+
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\Filter::make('import_date')
+        Tables\Filters\Filter::make('created_at')
           ->form([
-            Forms\Components\DatePicker::make('from')->label('من تاريخ'),
-            Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
+            Forms\Components\DatePicker::make('from')->label('من تاريخ التسجيل'),
+            Forms\Components\DatePicker::make('until')->label('إلى تاريخ التسجيل'),
           ])
           ->query(
             fn($query, array $data) => $query
-              ->when($data['from'], fn($q) => $q->whereDate('import_date', '>=', $data['from']))
-              ->when($data['until'], fn($q) => $q->whereDate('import_date', '<=', $data['until']))
+              ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
+              ->when($data['until'], fn($q) => $q->whereDate('created_at', '<=', $data['until']))
           )
+          ->indicateUsing(function (array $data): array {
+            $indicators = [];
+            if ($data['from'] ?? null)
+              $indicators[] = 'من: ' . $data['from'];
+            if ($data['until'] ?? null)
+              $indicators[] = 'إلى: ' . $data['until'];
+            return $indicators;
+          }),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\ViewAction::make(),
+        Tables\Actions\ViewAction::make()->label('عرض'),
+        Tables\Actions\EditAction::make()->label('تعديل'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, ProductImport $record) {
+            if ($record->productVariants()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المورد')
+                ->body('هذا المورد مرتبط بعمليات استيراد وأصناف موجودة في النظام. يجب حذف التبعيات أولاً.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
       ]);

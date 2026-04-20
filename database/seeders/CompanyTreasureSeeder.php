@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\CompanyFund;
 use App\Models\CompanyTreasure;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CompanyTreasureSeeder extends Seeder
@@ -17,7 +15,14 @@ class CompanyTreasureSeeder extends Seeder
     CompanyTreasure::updateOrCreate(
       ['name' => 'الصندوق الرئيسي'],
       [
-        'money' => 5000,
+        'money' => 100000,
+      ]
+    );
+
+    CompanyTreasure::updateOrCreate(
+      ['name' => 'صندوق مبيعات المتجر الالكتروني'],
+      [
+        'money' => 0,
       ]
     );
   }

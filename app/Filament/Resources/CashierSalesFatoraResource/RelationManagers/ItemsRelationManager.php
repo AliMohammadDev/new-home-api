@@ -43,10 +43,11 @@ class ItemsRelationManager extends RelationManager
 
         Tables\Columns\TextColumn::make('variant.discount')
           ->label('الخصم')
-          ->money('USD', locale: 'en_US'),
+          ->formatStateUsing(fn($state) => fmod($state, 1) == 0 ? (int) $state : $state)
+          ->suffix('%'),
 
         Tables\Columns\TextColumn::make('full_price')
-          ->label('الإجمالي الفرعي')
+          ->label('الإجمالي بعد الخصم')
           ->money('USD', locale: 'en_US')
           ->summarize(
             Tables\Columns\Summarizers\Sum::make()

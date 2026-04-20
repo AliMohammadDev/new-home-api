@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ProductImportItemResource\Pages;
 
 use App\Filament\Resources\ProductImportItemResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditProductImportItem extends EditRecord
@@ -17,7 +18,20 @@ class EditProductImportItem extends EditRecord
         ->label('رجوع')
         ->color('gray')
         ->url($this->getResource()::getUrl('index')),
-      Actions\DeleteAction::make(),
     ];
+  }
+
+  protected function beforeFill(): void
+  {
+    if ($this->record->payments()->exists()) {
+      Notification::make()
+        ->title('وصول مرفوض')
+        ->body('لا يمكن تعديل عمليات استيراد لها دفعات مسجلة.')
+        ->danger()
+        ->persistent()
+        ->send();
+
+      $this->redirect($this->getResource()::getUrl('index'));
+    }
   }
 }

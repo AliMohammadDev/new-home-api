@@ -2,6 +2,7 @@
 
 use App\Models\Cart;
 use App\Models\Checkout;
+use App\Models\DeliveryCompany;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,10 +19,13 @@ return new class extends Migration {
       $table->foreignIdFor(Cart::class)->constrained();
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
       $table->foreignIdFor(Checkout::class)->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(DeliveryCompany::class)->nullable()->constrained();
       $table->decimal('total_amount', 10, 2);
       $table->decimal('shipping_fee', 10, 2)->default(0);
+      $table->decimal('delivery_fee', 10, 2)->default(0);
       $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
       $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+      $table->softDeletes();
       $table->timestamps();
     });
   }

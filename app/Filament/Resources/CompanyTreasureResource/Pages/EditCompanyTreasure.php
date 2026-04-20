@@ -8,12 +8,11 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditCompanyTreasure extends EditRecord
 {
-    protected static string $resource = CompanyTreasureResource::class;
+  protected static string $resource = CompanyTreasureResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+    ];
+  }
 }

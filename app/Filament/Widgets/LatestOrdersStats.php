@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -31,6 +32,7 @@ class LatestOrdersStats extends BaseWidget
         ->descriptionIcon('heroicon-m-arrow-trending-up')
         ->chart([5, 10, 8, 15, 12, 20, 25])
         ->color('success')
+        ->url(OrderResource::getUrl('index'))
         ->extraAttributes([
           'class' => 'ring-2 ring-success-500/50',
         ]),
@@ -41,6 +43,7 @@ class LatestOrdersStats extends BaseWidget
         ->descriptionIcon('heroicon-m-pause-circle')
         ->chart([15, 12, 18, 10, 15, 8, 12])
         ->color('warning')
+        ->url(OrderResource::getUrl('index'))
         ->extraAttributes([
           'class' => 'ring-2 ring-warning-500/50',
         ]),
@@ -48,7 +51,9 @@ class LatestOrdersStats extends BaseWidget
       Stat::make('معدل التحصيل', number_format($stats->completed_sum, 0) . ' $')
         ->description('إجمالي السيولة النقدية الحالية')
         ->descriptionIcon('heroicon-m-currency-dollar')
+        ->chart([15, 12, 18, 10, 15, 8, 12])
         ->color('primary')
+        ->url(OrderResource::getUrl('index'))
         ->extraAttributes([
           'class' => 'cursor-pointer',
           'wire:click' => '$dispatch("status-filter", { status: "completed" })',

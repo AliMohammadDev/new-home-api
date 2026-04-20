@@ -3,15 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
+  use SoftDeletes;
+
   protected $fillable = [
     'user_id',
     'cart_id',
     'checkout_id',
     'total_amount',
+    'delivery_company_id',
     'shipping_fee',
+    'delivery_fee',
     'payment_method',
     'status'
   ];
@@ -39,5 +44,10 @@ class Order extends Model
   public function getCreatedAtFormattedAttribute()
   {
     return $this->created_at->format('H:i d, M Y');
+  }
+
+  public function deliveryCompany()
+  {
+    return $this->belongsTo(DeliveryCompany::class);
   }
 }

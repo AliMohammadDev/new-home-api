@@ -1,20 +1,18 @@
 <?php
 
-namespace App\Filament\Resources\CashierSaleResource\Pages;
-
-use App\Filament\Resources\CashierSaleResource;
+namespace App\Filament\Pages;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
-use Filament\Resources\Pages\Page;
 use App\Models\SalesPointCashier;
 use App\Models\CashierSale;
-
+use Filament\Pages\Page;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class CashierPos extends Page
 {
 
-  protected static string $resource = CashierSaleResource::class;
+  use HasPageShield;
   protected static string $view = 'filament.resources.cashier-sale-resource.pages.cashier-pos';
-
+  protected static ?string $slug = 'cashier-sales/pos';
   protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
   protected static ?string $navigationGroup = 'إدارة المبيعات';
   protected static ?string $navigationLabel = 'شاشة الكاشير (POS)';
@@ -22,11 +20,16 @@ class CashierPos extends Page
 
   protected static ?string $title = 'نقطة البيع السريع';
 
-  public static function shouldRegisterNavigation(array $parameters = []): bool
-  {
-    return true;
-  }
+  // public static function shouldRegisterNavigation(array $parameters = []): bool
+  // {
+  //   return true;
+  // }
 
+
+  // public static function isAuthorized(): bool
+  // {
+  //   return auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier']);
+  // }
 
   public string $barcode = '';
   public array $cart = [];
@@ -89,10 +92,6 @@ class CashierPos extends Page
 
     $this->barcode = '';
   }
-
-
-
-
 
 
   public function removeItem($index)

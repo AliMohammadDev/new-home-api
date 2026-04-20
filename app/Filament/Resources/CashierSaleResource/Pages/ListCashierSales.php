@@ -17,7 +17,8 @@ class ListCashierSales extends ListRecords
         ->label('فتح الـ POS')
         ->icon('heroicon-o-calculator')
         ->color('warning')
-        ->url(static::getResource()::getUrl('pos')),
+        ->url(\App\Filament\Pages\CashierPos::getUrl()),
+
       Actions\CreateAction::make(),
     ];
   }

@@ -37,7 +37,7 @@ class MaterialResource extends Resource
               ]),
             Forms\Components\Tabs\Tab::make('Arabic')
               ->schema([
-                Forms\Components\TextInput::make('material;.ar')
+                Forms\Components\TextInput::make('material.ar')
                   ->label('اسم المادة (AR)')
                   ->required(),
               ]),
@@ -62,13 +62,13 @@ class MaterialResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
-        Tables\Filters\Filter::make('color')
-          ->label('بحث باللون')
+        Tables\Filters\Filter::make('material')
+          ->label('بحث بالمادة')
           ->form([
-            Forms\Components\TextInput::make('color')->label('اللون'),
+            Forms\Components\TextInput::make('material')->label('المادة'),
           ])
           ->query(function (Builder $query, array $data) {
-            return $query->when($data['color'] ?? null, fn($q, $color) => $q->where('color', 'like', "%$color%"));
+            return $query->when($data['material'] ?? null, fn($q, $color) => $q->where('material', 'like', "%$color%"));
           }),
       ])
       ->actions([

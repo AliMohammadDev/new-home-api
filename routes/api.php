@@ -89,7 +89,7 @@ Route::middleware(['setLocale'])->group(function () {
 | Authenticated User API
 |--------------------------------------------------------------------------
 */
-Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
+Route::middleware(['setLocale', 'auth:sanctum', 'CheckIfActive'])->group(function () {
 
   Route::post('/push-subscription', [PushSubscriptionController::class, 'store']);
 
@@ -128,7 +128,7 @@ Route::middleware(['setLocale', 'auth:sanctum'])->group(function () {
 | Admin API (AUTH + ADMIN)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin'])->group(function () {
+Route::middleware(['setLocale', 'auth:sanctum', 'role:admin|super_admin', 'CheckIfActive'])->group(function () {
 
   Route::apiResource('users', UserController::class);
 

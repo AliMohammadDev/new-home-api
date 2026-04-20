@@ -2,18 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ProductVariantExporter;
 use App\Filament\Resources\ProductVariantResource\Pages;
+use App\Filament\Resources\ProductVariantResource\RelationManagers\WarehousesRelationManager;
+use App\Models\Material;
 use App\Models\Product;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\App;
 use Filament\Resources\Resource;
 use App\Models\ProductVariant;
+use App\Models\Size;
 use Illuminate\Support\Str;
 use Filament\Tables\Table;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Forms;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class ProductVariantResource extends Resource
 {
@@ -41,18 +48,24 @@ class ProductVariantResource extends Resource
         Forms\Components\Section::make('تعديل بيانات الخيار')
           ->visible(fn($context) => in_array($context, ['edit', 'view']))
           ->schema([
-            Forms\Components\Grid::make(4)
+            Forms\Components\Grid::make(3)
               ->schema([
                 Forms\Components\Select::make('color_id')
                   ->label('اللون')
+                  ->searchable()
+                  ->preload()
                   ->options(\App\Models\Color::pluck('color', 'id'))
                   ->required(),
                 Forms\Components\Select::make('size_id')
                   ->label('الحجم')
                   ->options(\App\Models\Size::pluck('size', 'id'))
+                  ->searchable()
+                  ->preload()
                   ->required(),
                 Forms\Components\Select::make('material_id')
                   ->label('المادة')
+                  ->searchable()
+                  ->preload()
                   ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
@@ -66,11 +79,25 @@ class ProductVariantResource extends Resource
                   ->unique(ignoreRecord: true)
                   ->required()
                   ->live()
-                  ->helperText('هذا الرمز الإداري الخاص بالخيار'),
+                  ->helperText('هذا الرمز الإداري الخاص بالخيار')
+                  ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                  ->dehydrateStateUsing(fn($state) => strtoupper($state)),
 
+                Forms\Components\TextInput::make('barcode')
+                  ->label('الباركود (Barcode)')
+                  ->placeholder('أدخل رقم الباركود')
+                  ->prefixIcon('heroicon-m-qr-code')
+                  ->unique(ignoreRecord: true)
+                  ->helperText('يمكنك إدخال رقم الباركود الدولي (EAN/UPC) هنا')
+                  ->live(),
 
+                Forms\Components\ViewField::make('barcode_visual')
+                  ->label('الباركود الحالي (للمسح)')
+                  ->view('filament.forms.components.barcode-display')
+                  ->columnSpan(1)
+                  ->visible(fn($record) => filled($record?->barcode)),
 
-                Forms\Components\Grid::make(4)
+                Forms\Components\Grid::make(3)
                   ->schema([
                     Forms\Components\TextInput::make('price')->label('السعر'),
                     Forms\Components\TextInput::make('discount')->label('الخصم %'),
@@ -79,13 +106,6 @@ class ProductVariantResource extends Resource
                       ->label('الكمية الحالية')
                       ->numeric()
                       ->required(),
-
-                    Forms\Components\ViewField::make('barcode_visual')
-                      ->label('الباركود الحالي (للمسح)')
-                      ->view('filament.forms.components.barcode-display')
-                      ->columnSpan(1)
-                      ->visible(fn($record) => filled($record?->barcode)),
-
 
                   ]),
               ]),
@@ -131,7 +151,6 @@ class ProductVariantResource extends Resource
                     return $path ? basename((string) $path) : null;
                   }),
               ])
-
               ->saveRelationshipsUsing(function ($record, $state) {
                 $existingImages = $record->images;
                 $newItems = collect($state);
@@ -194,39 +213,94 @@ class ProductVariantResource extends Resource
                       ->prefix('$'),
                   ]),
               ])
-              ->grid(2)
+              ->grid(1)
               ->columnSpanFull()
               ->defaultItems(0)
-              ->createItemButtonLabel('إضافة باقة سعر جديدة'),
+              ->addActionLabel('إضافة باقة سعر جديدة')
           ]),
-
-
 
         Forms\Components\Section::make('أدوات التوليد السريع')
           ->visible(fn($context) => $context === 'create')
           ->schema([
             Forms\Components\Grid::make(3)
               ->schema([
-                Forms\Components\MultiSelect::make('temp_colors')
+                Forms\Components\Select::make('temp_colors')
                   ->label('الألوان')
+                  ->multiple()
                   ->options(\App\Models\Color::pluck('color', 'id'))
+                  ->searchable()
+                  ->preload()
+                  ->live()
                   ->dehydrated(false),
-                Forms\Components\MultiSelect::make('temp_sizes')
+
+                Forms\Components\Select::make('temp_sizes')
                   ->label('الأحجام')
+                  ->multiple()
                   ->options(\App\Models\Size::pluck('size', 'id'))
-                  ->dehydrated(false),
-                Forms\Components\MultiSelect::make('temp_materials')
+                  ->searchable()
+                  ->preload()
+                  ->live()
+                  ->dehydrated(false)
+                  ->createOptionUsing(function (array $data) {
+                    return Size::create(['size' => $data['size']])->id;
+                  })
+                  ->createOptionForm([
+                    Forms\Components\TextInput::make('size')
+                      ->label('حجم جديد')
+                      ->required(),
+                  ])
+                  ->afterStateUpdated(function ($old, $state) {
+                    $removedIds = array_diff($old ?? [], $state ?? []);
+
+                    foreach ($removedIds as $id) {
+                      $size = Size::find($id);
+                      if ($size && $size->productVariants()->count() === 0) {
+                        $size->delete();
+                      }
+                    }
+                  }),
+
+                Forms\Components\Select::make('temp_materials')
                   ->label('المواد')
-                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                  ->multiple()
+                  ->searchable()
+                  ->preload()
+                  ->live()
+                  ->options(Material::all()->mapWithKeys(function ($item) {
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
                   }))
-                  ->dehydrated(false),
+                  ->dehydrated(false)
+                  ->createOptionUsing(function (array $data) {
+                    $newMaterial = Material::create([
+                      'material' => [
+                        app()->getLocale() => $data['material_name'],
+                        'en' => $data['material_name'],
+                      ],
+                    ]);
+                    return $newMaterial->id;
+                  })
+                  ->createOptionForm([
+                    Forms\Components\TextInput::make('material_name')
+                      ->label('مادة جديدة')
+                      ->required(),
+                  ])
+                  ->afterStateUpdated(function ($old, $state) {
+                    $removedIds = array_diff($old ?? [], $state ?? []);
+
+                    foreach ($removedIds as $id) {
+                      $material = Material::find($id);
+                      if ($material && $material->productVariants()->count() === 0) {
+                        $material->delete();
+                      }
+                    }
+                  }),
+
               ]),
             Forms\Components\Actions::make([
               Forms\Components\Actions\Action::make('generate_variants')
                 ->label('توليد الخيارات تلقائياً')
-                ->icon('heroicon-m-sparkles')
+                ->icon('heroicon-o-sparkles')
                 ->color('success')
                 ->action(function ($get, $set) {
                   $colors = $get('temp_colors') ?? [];
@@ -243,7 +317,7 @@ class ProductVariantResource extends Resource
                           'color_id' => $colorId,
                           'size_id' => $sizeId,
                           'material_id' => $materialId,
-                          'stock_quantity' => 1,
+                          'stock_quantity' => 0,
                           'price' => 0,
                           'discount' => 0,
                           'packages' => [],
@@ -259,6 +333,8 @@ class ProductVariantResource extends Resource
         Forms\Components\Select::make('product_id')
           ->label('المنتج')
           ->relationship('product', 'id')
+          ->searchable()
+          ->preload()
           ->getOptionLabelFromRecordUsing(fn($record) => $record->name[app()->getLocale()] ?? $record->name['en'] ?? '')
           ->required()
           ->visible(fn($context) => $context === 'create')
@@ -268,19 +344,39 @@ class ProductVariantResource extends Resource
           ->label('قائمة الخيارات الناتجة')
           ->visible(fn($context) => $context === 'create')
           ->schema([
-            Forms\Components\Grid::make(3)
+            Forms\Components\Grid::make(2)
               ->schema([
-                Forms\Components\Select::make('color_id')->label('اللون')->options(\App\Models\Color::pluck('color', 'id'))->required(),
-                Forms\Components\Select::make('size_id')->label('الحجم')->options(\App\Models\Size::pluck('size', 'id'))->required(),
-                Forms\Components\Select::make('material_id')->label('المادة')->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
-                  $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
-                  return [$item->id => $name];
-                }))->required(),
+                Forms\Components\Select::make('color_id')->label('اللون')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Color::pluck('color', 'id'))->required(),
+                Forms\Components\Select::make('size_id')->label('الحجم')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Size::pluck('size', 'id'))->required(),
+                Forms\Components\Select::make('material_id')->label('المادة')
+                  ->searchable()
+                  ->preload()
+                  ->options(\App\Models\Material::all()->mapWithKeys(function ($item) {
+                    $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
+                    return [$item->id => $name];
+                  }))->required(),
                 Forms\Components\TextInput::make('sku')
                   ->label('SKU')
                   ->required()
-                  ->unique(table: 'product_variants', column: 'sku'),
+                  ->unique(table: 'product_variants', column: 'sku')
+                  ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                  ->dehydrateStateUsing(fn($state) => strtoupper($state)),
+
                 // Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
+
+                Forms\Components\TextInput::make('barcode')
+                  ->label('الباركود')
+                  ->unique(table: 'product_variants', column: 'barcode')
+                  ->prefixIcon('heroicon-m-qr-code')
+                  ->placeholder('barcode'),
+
+
                 Forms\Components\TextInput::make('price')->label('السعر الافتراضي')->numeric()->required(),
               ]),
 
@@ -289,7 +385,7 @@ class ProductVariantResource extends Resource
               ->schema([
                 Forms\Components\Grid::make(2)
                   ->schema([
-                    // Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
+                    Forms\Components\TextInput::make('quantity')->label('الكمية')->numeric()->required(),
                     Forms\Components\TextInput::make('price')->label('السعر')->numeric()->required(),
                   ]),
               ])
@@ -372,20 +468,25 @@ class ProductVariantResource extends Resource
             if (is_null($state) || $state === '') {
               return '0%';
             }
-
             $number = floatval($state);
-
             $formatted = rtrim(rtrim(number_format($number, 2), '0'), '.');
-
             if (intval($number) == $number) {
               $formatted = intval($number);
             }
-
             return $formatted . '%';
           })
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true)
           ->searchable(),
+
+        Tables\Columns\TextColumn::make('final_price')
+          ->label('السعر النهائي')
+          ->getStateUsing(fn($record) => $record->final_price)
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success')
+          ->description('السعر بعد تطبيق الخصم')
+          ->toggleable(isToggledHiddenByDefault: true),
 
         Tables\Columns\TextColumn::make('visual_barcode')
           ->label('الباركود والترميز')
@@ -403,17 +504,12 @@ class ProductVariantResource extends Resource
           ->sortable()
           ->copyable()
           ->copyMessage('تم نسخ الرمز')
-          ->weight('bold')
-        ,
-
+          ->weight('bold'),
 
         Tables\Columns\TextColumn::make('packages_count')
           ->label('باقات الأسعار')
-          ->getStateUsing(function ($record) {
-            $count = $record->packages()->count();
-
-            return $count > 0 ? "{$count} باقات" : '-';
-          })
+          ->counts('packages')
+          ->formatStateUsing(fn($state) => $state > 0 ? "{$state} باقات" : '-')
           ->badge()
           ->color(fn($state): string => $state !== '-' ? 'success' : 'gray')
           ->alignCenter(),
@@ -464,6 +560,10 @@ class ProductVariantResource extends Resource
         Tables\Actions\ForceDeleteAction::make()
           ->label('حذف نهائي'),
       ])
+      ->headerActions([
+        ExportAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
+        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make()
@@ -475,12 +575,15 @@ class ProductVariantResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد'),
         ]),
+        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 
   public static function getRelations(): array
   {
-    return [];
+    return [
+      WarehousesRelationManager::class,
+    ];
   }
 
   public static function getPages(): array

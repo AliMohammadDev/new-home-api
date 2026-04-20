@@ -15,6 +15,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class SalesPointResource extends Resource
 {
@@ -36,14 +38,12 @@ class SalesPointResource extends Resource
               ->required()
               ->maxLength(255),
 
-
             Forms\Components\Select::make('warehouse_id')
               ->label('المستودع التابع له')
               ->relationship('warehouse', 'name')
               ->required()
               ->searchable()
               ->preload(),
-
 
             TextInput::make('location')
               ->label('الموقع')
@@ -52,8 +52,6 @@ class SalesPointResource extends Resource
             TextInput::make('phone')
               ->label('رقم الهاتف')
               ->tel(),
-
-
 
             Toggle::make('is_active')
               ->label('حالة نقطة البيع')
@@ -125,6 +123,7 @@ class SalesPointResource extends Resource
   {
     return [
       RelationManagers\ManagersRelationManager::class,
+      RelationManagers\CashierRelationManager::class,
     ];
   }
 
@@ -135,5 +134,18 @@ class SalesPointResource extends Resource
       'create' => Pages\CreateSalesPoint::route('/create'),
       'edit' => Pages\EditSalesPoint::route('/{record}/edit'),
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    $query = parent::getEloquentQuery()->with(['warehouse']);
+
+    if (auth()->user()->hasRole('super_admin')) {
+      return $query;
+    }
+
+    return $query->whereHas('managers', function (Builder $subQuery) {
+      $subQuery->where('user_id', auth()->id());
+    });
   }
 }

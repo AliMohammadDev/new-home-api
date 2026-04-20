@@ -10,6 +10,9 @@ class WarehouseInventoryChart extends ChartWidget
 {
   use HasWidgetShield;
 
+
+  protected static bool $isLazy = true;
+
   protected static ?string $heading = 'توزيع كميات المنتجات في المستودعات';
   protected static ?int $sort = -6;
   protected int|string|array $columnSpan = 1;
@@ -21,13 +24,8 @@ class WarehouseInventoryChart extends ChartWidget
 
   protected function getData(): array
   {
-
-    $warehouses = Warehouse::with(['productVariants'])->get()->map(function ($warehouse) {
-      return [
-        'name' => $warehouse->name,
-        'total_amount' => $warehouse->productVariants->sum('pivot.amount'),
-      ];
-    });
+    $warehouses = Warehouse::withSum('productVariants as total_amount', 'shipping_warehouses.amount')
+      ->get();
 
     return [
       'datasets' => [

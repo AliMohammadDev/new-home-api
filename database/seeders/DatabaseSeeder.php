@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Mpdf\Tag\Del;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -35,6 +36,7 @@ class DatabaseSeeder extends Seeder
       'sub_warehouse_manager',
       'sales_point_manager',
       'sales_point_cashier',
+      'delivery_company',
       'customer'
     ];
 
@@ -44,15 +46,16 @@ class DatabaseSeeder extends Seeder
 
 
     $this->call([
+      AdminUserSeeder::class,
       CompanyTreasureSeeder::class,
       UserSeeder::class,
-      WarehouseSeeder::class,
       CategorySeeder::class,
       ProductSeeder::class,
+      WarehouseSeeder::class,
       ShippingCitySeeder::class,
-      AdminUserSeeder::class,
       SalesPointSeeder::class,
-      CashierSeeder::class
+      CashierSeeder::class,
+      DeliveryCompanySeeder::class,
     ]);
 
 

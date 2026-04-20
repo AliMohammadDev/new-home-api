@@ -27,12 +27,13 @@ class ProductVariant extends Model
     parent::boot();
 
     static::creating(function ($variant) {
-      if (empty($variant->sku)) {
+      if (!isset($variant->sku) || trim((string) $variant->sku) === '') {
         $variant->sku = self::generateUniqueSku();
       }
-      if (empty($variant->barcode)) {
-        $variant->barcode = self::generateUniqueBarcode();
-      }
+
+      // if (!isset($variant->barcode) || trim((string) $variant->barcode) === '') {
+      //   $variant->barcode = self::generateUniqueBarcode();
+      // }
     });
   }
 
@@ -127,6 +128,11 @@ class ProductVariant extends Model
     return $this->belongsToMany(Warehouse::class, 'shipping_warehouses')
       ->withPivot('arrival_time', 'amount')
       ->withTimestamps();
+  }
+
+  public function shippingWarehouses()
+  {
+    return $this->hasMany(ShippingWarehouse::class, 'product_variant_id');
   }
 
 }

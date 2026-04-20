@@ -6,14 +6,17 @@ use App\Filament\Resources\ProductImportItemResource\Pages;
 use App\Models\ProductImportItem;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductImportItemResource extends Resource
 {
   protected static ?string $model = ProductImportItem::class;
   protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+  protected static ?int $navigationSort = 2;
   protected static ?string $navigationLabel = 'عملية استيراد بضاعة';
   protected static ?string $pluralModelLabel = 'عملية استيراد بضاعة';
   protected static ?string $modelLabel = ' عملية ';
@@ -93,6 +96,7 @@ class ProductImportItemResource extends Resource
 
             Forms\Components\DateTimePicker::make('expected_arrival')
               ->label('موعد الوصول المتوقع')
+              ->required()
               ->displayFormat('Y-m-d H:i'),
           ])->columns(2),
       ]);
@@ -115,20 +119,40 @@ class ProductImportItemResource extends Resource
             return $product->name[app()->getLocale()] ?? $product->name['ar'] ?? $product->name['en'] ?? '-';
           })
           ->searchable(),
-
         Tables\Columns\TextColumn::make('user.name')
           ->label('المستخدم')
-          ->searchable()
-          ->sortable(),
+          ->sortable()
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('quantity')
           ->label('الكمية')->badge()->color('success'),
 
         Tables\Columns\TextColumn::make('price')
-          ->label('السعر')->money('USD', locale: 'en_US')->color('success'),
+          ->label('السعر')->money('USD', locale: 'en_US')
+          ->color('success'),
+        Tables\Columns\TextColumn::make('shipping_price')
+          ->label('شحن/وحدة')
+          ->money('USD', locale: 'en_US')
+          ->color('warning')
+          ->alignCenter(),
 
         Tables\Columns\TextColumn::make('discount')
-          ->label('الخصم')->money('USD', locale: 'en_US', )->color('danger'),
+          ->label('الخصم')
+          ->money('USD', locale: 'en_US')
+          ->color('danger')
+          ->default(0)
+          ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('total_cost')
+          ->label('الإجمالي النهائي')
+          ->money('USD', locale: 'en_US')
+          ->weight('bold')
+          ->color('success')
+          ->summarize(
+            Tables\Columns\Summarizers\Sum::make()
+              ->label('الإجمالي النهائي')
+              ->money('USD', locale: 'en_US')
+          ),
 
         Tables\Columns\TextColumn::make('expected_arrival')
           ->label('تاريخ الوصول')->dateTime('Y-m-d H:i'),
@@ -137,33 +161,90 @@ class ProductImportItemResource extends Resource
         Tables\Filters\SelectFilter::make('product_import_id')
           ->label('المورد')
           ->relationship('productImport', 'supplier_name'),
+
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
+        Tables\Actions\EditAction::make()
+          ->color(fn($record) => $record->payments()->exists() ? 'gray' : 'primary')
+          ->icon(fn($record) => $record->payments()->exists() ? 'heroicon-m-lock-closed' : 'heroicon-m-pencil-square')
+          ->before(function (Tables\Actions\EditAction $action, $record) {
+            if ($record->payments()->exists()) {
+              Notification::make()
+                ->title('السجل مقفل ماليًا')
+                ->body('لا يمكن التعديل بسبب وجود دفعات مسجلة.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
+
         Tables\Actions\Action::make('print')
           ->label('طباعة')
           ->icon('heroicon-o-printer')
           ->color('info')
-          ->url(fn($record) => route('supplier.print', ['ids' => [$record->id]]))
+          ->visible(fn($record) => !$record->trashed())
+          ->url(fn($record) => route('product.import.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
 
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ((float) $record->quantity > 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('لا يمكن حذف عملية استيراد تحتوي على كمية. يجب تصفير الكمية أولاً.')
+                ->warning()
+                ->send();
+
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
-
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\BulkAction::make('print_selected')
             ->label('طباعة المحدد (PDF)')
             ->icon('heroicon-o-printer')
             ->color('success')
+            ->visible(fn(Tables\Table $table) => !($table->getFilters()['trashed'] ?? null))
             ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-              return redirect()->route('supplier.print', [
+              return redirect()->route('product.import.print', [
                 'ids' => $records->pluck('id')->toArray()
               ]);
-            }),
+            })->openUrlInNewTab(),
 
-          Tables\Actions\DeleteBulkAction::make(),
+
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $hasQuantity = $records->contains(fn($record) => (float) $record->quantity > 0);
+              if ($hasQuantity) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة لا تزال تحتوي على كميات واردة. يرجى تصفيرها قبل الحذف.')
+                  ->danger()
+                  ->send();
+                $action->halt();
+              }
+            }),
         ]),
       ]);
   }
@@ -177,15 +258,20 @@ class ProductImportItemResource extends Resource
     ];
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['productImport', 'productVariant.product', 'user', 'payments']);
+  }
+
   protected static function updateTotal($set, $get)
   {
     $price = (float) ($get('price') ?? 0);
     $shipping = (float) ($get('shipping_price') ?? 0);
     $quantity = (float) ($get('quantity') ?? 0);
     $discount = (float) ($get('discount') ?? 0);
-
     $total = (($price + $shipping) * $quantity) - $discount;
-
     $set('total_cost', number_format(max(0, $total), 2, '.', ''));
   }
 }

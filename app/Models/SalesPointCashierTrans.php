@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SalesPointCashierTrans extends Model
 {
+  use SoftDeletes;
+
   protected $fillable = [
     'sales_point_id',
     'sales_point_manager_id',
@@ -14,6 +17,7 @@ class SalesPointCashierTrans extends Model
     'name',
     'date',
     'amount',
+    'waste',
     'note'
   ];
 

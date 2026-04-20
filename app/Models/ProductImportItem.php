@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductImportItem extends Model
 {
+  use SoftDeletes;
+
   protected $fillable = [
     'product_import_id',
     'product_variant_id',
@@ -39,4 +42,24 @@ class ProductImportItem extends Model
   {
     return $this->belongsTo(ProductVariant::class);
   }
+
+
+  public function payments()
+  {
+    return $this->hasMany(SupplierPayment::class);
+  }
+
+  public function getTotalPaidAttribute(): float
+  {
+    $deposit = (float) $this->payments()->where('trans_type', 'deposit')->sum('amount');
+    $withdraw = (float) $this->payments()->where('trans_type', 'withdraw')->sum('amount');
+
+    return $deposit - $withdraw;
+  }
+
+  public function getRemainingAmountAttribute(): float
+  {
+    return (float) $this->total_cost - $this->total_paid;
+  }
+
 }

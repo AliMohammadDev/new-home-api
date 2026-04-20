@@ -2,16 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CashierSaleExporter;
 use App\Filament\Resources\CashierSaleResource\Pages;
 use App\Models\CashierSale;
 use App\Models\ProductVariant;
 use App\Models\SalesPointCashier;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CashierSaleResource extends Resource
 {
@@ -64,6 +70,7 @@ class CashierSaleResource extends Resource
                 return [];
               }
               return $cashier->salesPoint->warehouse->productVariants()
+                ->with('product')
                 ->get()
                 ->mapWithKeys(function ($variant) {
                   $productName = $variant->product->name['ar'] ?? 'منتج غير مسمى';
@@ -163,29 +170,99 @@ class CashierSaleResource extends Resource
 
   public static function table(Table $table): Table
   {
-    return $table->columns([
-      Tables\Columns\TextColumn::make('fatora.id')->label('رقم الفاتورة')->sortable(),
-      Tables\Columns\TextColumn::make('variant.product.name')->label('المنتج')->searchable(),
-      Tables\Columns\TextColumn::make('quantity')->label('الكمية'),
-      Tables\Columns\TextColumn::make('price')->label('السعر')->money('USD', locale: 'en_US'),
-      Tables\Columns\TextColumn::make('full_price')->label('الإجمالي')
-        ->money('USD', locale: 'en_US')
-        ->summarize(
-          Tables\Columns\Summarizers\Sum::make()
-            ->label('المجموع الكلي')
-            ->money('USD', locale: 'en_US')
-        ),
-      Tables\Columns\TextColumn::make('cashier.user.name')->label('الكاشير'),
-    ])
+    return $table
+      ->modifyQueryUsing(fn(Builder $query) => $query->with([
+        'variant.product',
+        'cashier.user',
+        'fatora'
+      ]))
+      ->columns([
+        Tables\Columns\TextColumn::make('fatora.id')->label('رقم الفاتورة')->sortable(),
+
+        Tables\Columns\TextColumn::make('variant.product.name')
+          ->label('المنتج')
+          ->getStateUsing(fn($record) => $record->variant?->product?->name[App::getLocale()] ?? $record->variant?->product?->name['en'] ?? '')
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('variant.product', function (Builder $q) use ($search) {
+              $locale = App::getLocale();
+              $q->where("name->$locale", 'like', "%{$search}%")
+                ->orWhere("name->en", 'like', "%{$search}%");
+            });
+          }),
+
+
+        Tables\Columns\TextColumn::make('quantity')->label('الكمية'),
+        Tables\Columns\TextColumn::make('price')->label('السعر')->money('USD', locale: 'en_US'),
+        Tables\Columns\TextColumn::make('full_price')->label('الإجمالي')
+          ->money('USD', locale: 'en_US')
+          ->summarize(
+            Tables\Columns\Summarizers\Sum::make()
+              ->label('المجموع الكلي')
+              ->money('USD', locale: 'en_US')
+          ),
+        Tables\Columns\TextColumn::make('cashier.user.name')
+          ->label('الكاشير')
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            return $query->whereHas('cashier.user', function (Builder $q) use ($search) {
+              $q->where('name', 'like', "%{$search}%");
+            });
+          }),
+      ])
+
+      ->filters([
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+      ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->quantity != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('quantity', '!=', 0);
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+                $action->halt();
+              }
+            }),
         ]),
+        ExportBulkAction::make()->exporter(CashierSaleExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CashierSaleExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+
       ]);
   }
 
@@ -195,22 +272,45 @@ class CashierSaleResource extends Resource
       'index' => Pages\ListCashierSales::route('/'),
       'create' => Pages\CreateCashierSale::route('/create'),
       'edit' => Pages\EditCashierSale::route('/{record}/edit'),
-      'pos' => Pages\CashierPos::route('/pos'),
     ];
   }
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
 
-    if (auth()->user()->hasRole('super_admin')) {
+    $query = parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['variant.product', 'cashier.user', 'fatora']);
+
+
+    $user = auth()->user();
+
+    if ($user->hasRole('super_admin')) {
       return $query;
     }
 
-    $cashierId = SalesPointCashier::where('user_id', auth()->id())->value('id');
+    if ($user->hasRole('sales_point_manager')) {
+      return $query->whereHas('cashier.salesPoint.managers', function (Builder $subQuery) use ($user) {
+        $subQuery->where('user_id', $user->id);
+      });
+    }
 
-    return $query->where('sales_point_cashier_id', $cashierId);
+    if ($user->hasRole('sales_point_cashier')) {
+      $cashierId = SalesPointCashier::where('user_id', $user->id)->value('id');
+      return $query->where('sales_point_cashier_id', $cashierId);
+    }
+
+    return $query->whereRaw('1 = 0');
   }
 
+  public static function getNavigationItems(): array
+  {
+    return [
+      parent::getNavigationItems()[0]->isActiveWhen(function () {
+        return request()->routeIs('filament.admin.resources.cashier-sales.*')
+          && !request()->routeIs('filament.admin.resources.cashier-sales.pages.pos');
+      }),
+    ];
+  }
 
 }

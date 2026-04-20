@@ -3,21 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyTreasureResource\Pages;
-use App\Filament\Resources\CompanyTreasureResource\RelationManagers;
 use App\Models\CompanyTreasure;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyTreasureResource extends Resource
 {
   protected static ?string $model = CompanyTreasure::class;
-
-
   protected static ?string $navigationIcon = 'heroicon-o-building-library';
   protected static ?string $navigationGroup = 'الإدارة المالية';
   protected static ?string $navigationLabel = 'صناديق الشركة (الخزينة)';
@@ -31,42 +26,60 @@ class CompanyTreasureResource extends Resource
       Forms\Components\TextInput::make('name')
         ->label('اسم الصندوق')
         ->required(),
+
       Forms\Components\TextInput::make('money')
         ->label('الرصيد الحالي')
         ->numeric()
-        ->disabled()
-        ->dehydrated(),
+        ->default(0)
+        ->readOnly()
+        ->extraInputAttributes(['class' => 'bg-gray-100 font-bold']),
     ]);
   }
 
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('name')->label('الصندوق')->sortable(),
+      Tables\Columns\TextColumn::make('name')
+        ->label('الصندوق')
+        ->sortable()
+        ->searchable(),
+
       Tables\Columns\TextColumn::make('money')
         ->label('الرصيد المتوفر')
         ->money('USD', locale: 'en_US')
-        ->color(fn($state) => $state >= 0 ? 'success' : 'danger'),
+        ->sortable()
+        ->color(fn($state) => $state >= 0 ? 'success' : 'danger')
+        ->description(fn(CompanyTreasure $record): string => $record->money < 0 ? 'رصيد سالب!' : ''),
     ])
       ->defaultSort('created_at', 'DESC')
-
       ->actions([
         Tables\Actions\Action::make('add_entry')
-          ->label('إيداع / سحب')
+          ->label('دائن / مدين')
           ->icon('heroicon-o-arrows-right-left')
           ->color('warning')
           ->form([
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
-              ->options(['deposit' => 'إيداع', 'withdrawal' => 'سحب'])
-              ->required(),
+              ->options(['deposit' => 'دائن', 'withdraw' => 'مدين'])
+              ->required()
+              ->live(),
             Forms\Components\TextInput::make('name')
               ->label('البيان / السبب')
               ->required(),
             Forms\Components\TextInput::make('amount')
               ->label('المبلغ')
               ->numeric()
-              ->required(),
+              ->required()
+              ->prefix('$')
+              ->rules([
+                fn(Forms\Get $get, $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
+                  if ($get('trans_type') === 'withdraw' && $value > $record->money) {
+                    $fail("عذراً، الرصيد المتاح في هذا الصندوق هو ({$record->money}$) فقط.");
+                  }
+                },
+              ])
+              ->maxValue(fn(Forms\Get $get, $record) => $get('trans_type') === 'withdraw' ? $record->money : null)
+              ->helperText(fn(Forms\Get $get, $record) => $get('trans_type') === 'withdraw' ? "الرصيد المتاح: {$record->money}$" : null),
           ])
           ->action(function (CompanyTreasure $record, array $data) {
             $record->entries()->create([
@@ -75,9 +88,14 @@ class CompanyTreasureResource extends Resource
               'name' => $data['name'],
               'amount' => $data['amount'],
             ]);
-          }),
 
-        // Tables\Actions\EditAction::make(),
+
+            \Filament\Notifications\Notification::make()
+              ->title('تمت العملية بنجاح')
+              ->success()
+              ->send();
+          }),
+        Tables\Actions\EditAction::make(),
       ]);
   }
 

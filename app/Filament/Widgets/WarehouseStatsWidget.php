@@ -2,6 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\ShippingWarehouseResource;
+use App\Filament\Resources\WarehouseResource;
+use App\Filament\Resources\WarehouseReturnResource;
 use App\Models\Warehouse;
 use App\Models\WarehouseReturn;
 use App\Models\ShippingWarehouse;
@@ -21,17 +24,26 @@ class WarehouseStatsWidget extends BaseWidget
       Stat::make('عدد المستودعات نشطة', Warehouse::count())
         ->description('مواقع التخزين الحالية')
         ->descriptionIcon('heroicon-m-building-office-2')
-        ->color('primary'),
+        ->chart([15, 12, 18, 10, 15, 8, 12])
+
+        ->color('primary')
+        ->url(WarehouseResource::getUrl('index')),
 
       Stat::make('إجمالي المرتجعات', WarehouseReturn::sum('amount'))
         ->description('قطع عادت للمخازن')
         ->descriptionIcon('heroicon-m-arrow-path')
-        ->color('danger'),
+        ->chart([15, 12, 18, 10, 15, 8, 12])
+
+        ->color('danger')
+        ->url(WarehouseReturnResource::getUrl('index')),
 
       Stat::make('شحنات قيد الوصول', ShippingWarehouse::count())
         ->description('عمليات توزيع جارية')
         ->descriptionIcon('heroicon-m-truck')
-        ->color('warning'),
+        ->chart([15, 12, 18, 10, 15, 8, 12])
+
+        ->color('warning')
+        ->url(ShippingWarehouseResource::getUrl('index')),
     ];
   }
 }

@@ -28,4 +28,9 @@ class SalesPointCashier extends Model
   {
     return $this->hasMany(CashierSalesFatora::class, 'sales_point_cashier_id');
   }
+
+  public function transactions()
+  {
+    return $this->hasMany(SalesPointCashierTrans::class, 'sales_point_cashier_id');
+  }
 }

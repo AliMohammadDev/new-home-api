@@ -6,8 +6,10 @@ use App\Models\ProductVariant;
 use App\Models\ShippingWarehouse;
 use App\Models\ProductImportItem;
 use App\Models\CashierSale;
+use App\Models\OrderItem;
 use App\Models\Warehouse;
 use App\Models\WarehouseReturn;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,6 +19,7 @@ use Filament\Forms\Form;
 class ProductReports extends Page implements HasForms
 {
   use InteractsWithForms;
+  use HasPageShield;
 
   protected static string $view = 'filament.pages.product-reports';
   protected static ?string $navigationIcon = 'heroicon-o-beaker';
@@ -56,18 +59,27 @@ class ProductReports extends Page implements HasForms
 
     $wasteWarehouse = Warehouse::where('name', 'like', '%هدر%')->first();
 
+
+    $cashierSold = CashierSale::whereBetween('created_at', [$from, $to])->sum('quantity');
+
+    $onlineSold = OrderItem::whereHas('order', function ($query) use ($from, $to) {
+      $query->where('status', 'completed')
+        ->whereBetween('created_at', [$from, $to]);
+    })->sum('quantity');
+
+
     $this->totals = [
       'main_stock' => ProductVariant::sum('stock_quantity'),
       'sub_warehouses_stock' => ShippingWarehouse::sum('amount'),
-
       'total_imported' => ProductImportItem::whereBetween('created_at', [$from, $to])->sum('quantity'),
-
       'wasted_items' => $wasteWarehouse
-        ? $wasteWarehouse->productVariants()->sum('amount')
+        ? $wasteWarehouse->productVariants()
+          ->wherePivotBetween('created_at', [$from, $to])
+          ->sum('amount')
         : 0,
-
-      'sold_items' => CashierSale::whereBetween('created_at', [$from, $to])->sum('quantity'),
-
+      'sold_items' => $cashierSold + $onlineSold,
+      'cashier_sold' => $cashierSold,
+      'online_sold' => $onlineSold,
       'returned_items' => WarehouseReturn::whereBetween('created_at', [$from, $to])->sum('amount'),
     ];
   }
@@ -81,4 +93,5 @@ class ProductReports extends Page implements HasForms
   {
     return auth()->user()->hasRole(['super_admin', 'finance_manager']);
   }
+
 }

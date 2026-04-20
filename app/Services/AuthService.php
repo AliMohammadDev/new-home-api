@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Cart;
 use App\Models\Checkout;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -28,19 +27,16 @@ class AuthService
     if (!$user || !Hash::check($data['password'], $user->password)) {
       return null;
     }
+
+    if (!$user->is_active) {
+      abort(403, 'هذا الحساب معطل، يرجى التواصل مع الإدارة.');
+    }
+
+    $user->assignRole('customer');
     $user->tokens()->delete();
     $token = $user->createToken('auth_token')->plainTextToken;
     return $token;
   }
-
-  // public function updateProfile(User $user, array $data): User
-  // {
-  //   if (isset($data['password'])) {
-  //     $data['password'] = Hash::make($data['password']);
-  //   }
-  //   $user->update($data);
-  //   return $user;
-  // }
 
   public function updateProfile(User $user, array $data): User
   {

@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Filament\Panel;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,10 +22,10 @@ class User extends Authenticatable implements FilamentUser
    * @var list<string>
    */
 
-
   protected $fillable = [
     'name',
     'email',
+    'is_active',
     'password',
     'google_id',
     'google_token',
@@ -55,8 +54,20 @@ class User extends Authenticatable implements FilamentUser
     return [
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
+      'is_active' => 'boolean',
     ];
   }
+
+  protected static function booted()
+  {
+    static::updated(function ($user) {
+      if ($user->wasChanged('is_active') && !$user->is_active) {
+        $user->tokens()->delete();
+      }
+    });
+  }
+
+
   public function checkout()
   {
     return $this->hasOne(Checkout::class);
@@ -76,16 +87,47 @@ class User extends Authenticatable implements FilamentUser
       ->where('status', 'active');
   }
 
-  public function canAccessPanel(\Filament\Panel $panel): bool
+  public function carts()
   {
-    // return $this->hasRole('super_admin') || $this->hasRole('admin');
-    return true;
+    return $this->hasMany(Cart::class);
   }
 
+  public function orders()
+  {
+    return $this->hasMany(Order::class);
+  }
+
+  public function checkouts()
+  {
+    return $this->hasMany(Checkout::class);
+  }
+
+  public function warehouses()
+  {
+    return $this->hasMany(Warehouse::class);
+  }
+
+  public function salesPointManagers()
+  {
+    return $this->hasMany(SalesPointManager::class);
+  }
+
+  public function canAccessPanel(\Filament\Panel $panel): bool
+  {
+    if (!$this->is_active) {
+      return false;
+    }
+    return $this->roles->contains(fn($role) => $role->name !== 'customer');
+  }
 
   public function salesPoints()
   {
     return $this->belongsToMany(SalesPoint::class, 'sales_point_managers');
+  }
+
+  public function deliveryCompanies()
+  {
+    return $this->hasMany(DeliveryCompany::class);
   }
 
 }

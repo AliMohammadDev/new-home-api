@@ -11,11 +11,11 @@ class UserSeeder extends Seeder
   public function run(): void
   {
     $users = [
-      ['name' => 'أحمد المنصور', 'email' => 'ahmed@example.com', 'role' => 'super_admin'],
       ['name' => 'سارة الخطيب', 'email' => 'sara@example.com', 'role' => 'product_data_entry'],
       ['name' => 'عمر الفاروق', 'email' => 'omar@example.com', 'role' => 'finance_manager'],
       ['name' => 'ليلى العامري', 'email' => 'layla@example.com', 'role' => 'main_warehouse_manager'],
       ['name' => 'محمود درويش', 'email' => 'mahmoud@example.com', 'role' => 'sub_warehouse_manager'],
+      ['name' => 'محمد الحسن', 'email' => 'mohammad@example.com', 'role' => 'sub_warehouse_manager'],
 
       ['name' => 'نور الهدى', 'email' => 'nour@example.com', 'role' => 'sales_point_manager'],
       ['name' => 'ياسين حمزة', 'email' => 'yassin@example.com', 'role' => 'sales_point_manager'],
@@ -34,6 +34,12 @@ class UserSeeder extends Seeder
       ['name' => 'ندى حسن', 'email' => 'nada@example.com', 'role' => 'customer'],
       ['name' => 'رامي عادل', 'email' => 'rami@example.com', 'role' => 'customer'],
       ['name' => 'جنى خالد', 'email' => 'jana@example.com', 'role' => 'customer'],
+
+      ['name' => 'شركة النسر للتوصيل', 'email' => 'eagle@example.com', 'role' => 'delivery_company'],
+      ['name' => 'توصيل البرق', 'email' => 'lightning@example.com', 'role' => 'delivery_company'],
+      ['name' => 'مندوبنا السريع', 'email' => 'fast_agent@example.com', 'role' => 'delivery_company'],
+      ['name' => 'خدمات اللوجستيك العربية', 'email' => 'arab_logistics@example.com', 'role' => 'delivery_company'],
+      ['name' => 'شركة الثقة للنقل', 'email' => 'trust_transport@example.com', 'role' => 'delivery_company'],
     ];
 
     foreach ($users as $userData) {

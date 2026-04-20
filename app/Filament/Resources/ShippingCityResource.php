@@ -10,12 +10,14 @@ use Filament\Forms\Form;
 use Illuminate\Support\Facades\App;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ShippingCityResource extends Resource
 {
   protected static ?string $model = ShippingCity::class;
 
   protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+  protected static ?int $navigationSort = 6;
   protected static ?string $navigationLabel = 'مناطق الشحن';
   protected static ?string $pluralModelLabel = 'مناطق الشحن';
   protected static ?string $modelLabel = 'منطقة شحن';
@@ -72,12 +74,17 @@ class ShippingCityResource extends Resource
         Tables\Columns\TextColumn::make('city_name')
           ->label('اسم المدينة')
           ->getStateUsing(fn(ShippingCity $record) => $record->city_name[App::getLocale()] ?? $record->city_name['en'] ?? '')
-          ->searchable(),
+          ->searchable(query: function (Builder $query, string $search): Builder {
+            $locale = App::getLocale();
+            return $query->where("city_name->$locale", 'like', "%{$search}%")
+              ->orWhere("city_name->en", 'like', "%{$search}%");
+          }),
 
         Tables\Columns\TextColumn::make('estimated_delivery')
           ->label('وقت التوصيل')
           ->badge()
-          ->color('info'),
+          ->color('info')
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('shipping_fee')
           ->label('الرسوم')
@@ -90,7 +97,9 @@ class ShippingCityResource extends Resource
           ->boolean(),
 
         Tables\Columns\ToggleColumn::make('is_active')
-          ->label('نشط'),
+          ->label('نشط')
+          ->toggleable(isToggledHiddenByDefault: true),
+
 
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإضافة')
@@ -106,7 +115,17 @@ class ShippingCityResource extends Resource
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->before(function (Tables\Actions\DeleteAction $action, ShippingCity $record) {
+            if ($record->checkouts()->exists()) {
+              \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('خطأ في الحذف')
+                ->body('لا يمكن حذف هذه المنطقة لارتباطها بعمليات دفع (Checkouts) مسجلة.')
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([

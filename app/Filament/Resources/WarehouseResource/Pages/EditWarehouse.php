@@ -19,7 +19,6 @@ class EditWarehouse extends EditRecord
         ->url($this->getResource()::getUrl('index'))
         ->color('gray'),
       \Filament\Actions\CreateAction::make(),
-      Actions\DeleteAction::make(),
 
     ];
   }

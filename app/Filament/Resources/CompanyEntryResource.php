@@ -2,21 +2,23 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\CompanyEntryExporter;
 use App\Filament\Resources\CompanyEntryResource\Pages;
-use App\Filament\Resources\CompanyEntryResource\RelationManagers;
 use App\Models\CompanyEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CompanyEntryResource extends Resource
 {
   protected static ?string $model = CompanyEntry::class;
-
   protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
   protected static ?string $navigationGroup = 'الإدارة المالية';
   protected static ?string $navigationLabel = 'حركات الصناديق';
@@ -47,8 +49,8 @@ class CompanyEntryResource extends Resource
             Forms\Components\Select::make('trans_type')
               ->label('نوع العملية')
               ->options([
-                'deposit' => 'إيداع',
-                'withdrawal' => 'سحب',
+                'deposit' => 'دائن',
+                'withdraw' => 'مدين',
               ])
               ->required()
               ->native(false),
@@ -70,38 +72,134 @@ class CompanyEntryResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('created_at')->label('التاريخ')->dateTime(),
-      Tables\Columns\TextColumn::make('treasure.name')->label('الصندوق'),
-      Tables\Columns\TextColumn::make('user.name')->label('الموظف'),
+      Tables\Columns\TextColumn::make('created_at')
+        ->label('التاريخ')
+        ->searchable()
+        ->dateTime('Y-m-d H:i')
+        ->timezone('Asia/Riyadh'),
+
+      Tables\Columns\TextColumn::make('treasure.name')
+        ->label('الصندوق')
+        ->searchable()
+        ->sortable(),
+
+      Tables\Columns\TextColumn::make('user.name')
+        ->label('الموظف')
+        ->searchable()
+        ->sortable(),
+
       Tables\Columns\TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
         ->formatStateUsing(fn(string $state): string => match ($state) {
-          'deposit' => 'إيداع',
-          'withdrawal' => 'سحب',
+          'deposit' => 'دائن',
+          'withdraw' => 'مدين',
           default => $state,
         })
         ->color(fn(string $state): string => match ($state) {
           'deposit' => 'success',
-          'withdrawal' => 'danger',
+          'withdraw' => 'danger',
           default => 'gray',
         })
         ->icon(fn(string $state): string => match ($state) {
           'deposit' => 'heroicon-m-arrow-trending-up',
-          'withdrawal' => 'heroicon-m-arrow-trending-down',
+          'withdraw' => 'heroicon-m-arrow-trending-down',
           default => 'heroicon-m-minus',
         }),
-      Tables\Columns\TextColumn::make('name')->label('البيان'),
-      Tables\Columns\TextColumn::make('amount')->label('المبلغ')->money('USD', locale: 'en_US'),
+
+
+      Tables\Columns\TextColumn::make('name')
+        ->label('البيان')
+        ->searchable(),
+      Tables\Columns\TextColumn::make('amount')
+        ->label('المبلغ')
+        ->money('USD', locale: 'en_US')
+
     ])
       ->defaultSort('created_at', 'DESC')
-    ;
+      ->filters([
+        Tables\Filters\SelectFilter::make('trans_type')
+          ->label('نوع الحركة')
+          ->options([
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
+          ]),
+        Tables\Filters\SelectFilter::make('company_treasure_id')
+          ->label('الصندوق')
+          ->relationship('treasure', 'name'),
+
+
+
+        Tables\Filters\TrashedFilter::make()
+          ->label('حالة السجلات')
+          ->falseLabel('السجلات المؤرشفة فقط')
+          ->trueLabel('السجلات النشطة فقط')
+          ->placeholder('الكل')
+          ->native(false),
+      ])
+      ->actions([
+        // Tables\Actions\EditAction::make(),
+        Tables\Actions\DeleteAction::make()
+          ->label('أرشفة'),
+        Tables\Actions\RestoreAction::make()
+          ->label('استعادة'),
+        Tables\Actions\ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+            if ($record->amount != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+
+              $action->halt();
+            }
+          }),
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make()
+            ->label('أرشفة المحدد'),
+          Tables\Actions\RestoreBulkAction::make()
+            ->label('استعادة المحدد'),
+          Tables\Actions\ForceDeleteBulkAction::make()
+            ->label('حذف نهائي للمحدد')
+            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+              $invalidRecords = $records->where('amount', '!=', 0);
+
+              if ($invalidRecords->count() > 0) {
+                Notification::make()
+                  ->title('لا يمكن الحذف النهائي')
+                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+                  ->danger()
+                  ->send();
+
+                $action->halt();
+              }
+            }),
+        ]),
+        ExportBulkAction::make()->exporter(CompanyEntryExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ])
+      ->headerActions([
+        ExportAction::make()->exporter(CompanyEntryExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+      ]);
+
+
   }
   public static function getRelations(): array
   {
     return [
       //
     ];
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->withTrashed()
+      ->with(['treasure', 'user']);
   }
 
   public static function getPages(): array

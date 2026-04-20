@@ -6,11 +6,12 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Notifications\Notification;
 use Filament\Tables\Table;
 
 class UserResource extends Resource
@@ -36,11 +37,20 @@ class UserResource extends Resource
           ->email()
           ->required()
           ->unique(ignoreRecord: true),
+
+
+
         Select::make('roles')
           ->label('الأدوار')
           ->multiple()
           ->relationship('roles', 'name')
           ->preload(),
+
+        Toggle::make('is_active')
+          ->label('حساب نشط')
+          ->default(true)
+          ->onColor('success')
+          ->offColor('danger'),
 
         TextInput::make('password')
           ->label('كلمة المرور')
@@ -63,7 +73,6 @@ class UserResource extends Resource
 
         TextColumn::make('name')
           ->label('الاسم')
-          ->searchable()
           ->sortable()
           ->searchable(),
 
@@ -71,6 +80,13 @@ class UserResource extends Resource
           ->label('البريد الإلكتروني')
           ->sortable()
           ->searchable(),
+
+        Tables\Columns\ToggleColumn::make('is_active')
+          ->label('الحالة')
+          ->onIcon('heroicon-m-check-circle')
+          ->offIcon('heroicon-m-x-circle')
+          ->onColor('success')
+          ->offColor('danger'),
 
         TextColumn::make('roles.name')
           ->label('الأدوار')
@@ -90,6 +106,12 @@ class UserResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
+        Tables\Filters\TernaryFilter::make('is_active')
+          ->label('حالة الحساب')
+          ->placeholder('الكل')
+          ->trueLabel('المستخدمون النشطون')
+          ->falseLabel('المستخدمون المعطلون'),
+
         Tables\Filters\SelectFilter::make('roles')
           ->label('الدور')
           ->relationship('roles', 'name')
@@ -98,17 +120,56 @@ class UserResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()->label('حذف'),
+        Tables\Actions\DeleteAction::make()
+          ->label('حذف')
+          ->before(function (Tables\Actions\DeleteAction $action, User $record) {
+            if (
+              $record->reviews()->exists() ||
+              $record->wishlist()->exists() ||
+              $record->carts()->exists() ||
+              $record->checkouts()->exists() ||
+              $record->reviews()->exists() ||
+              $record->orders()->exists() ||
+              $record->salesPoints()->exists()
+            ) {
+              Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف المستخدم')
+                ->body('هذا المستخدم مرتبط بسجلات أخرى (طلبات، سلة، أو نقاط بيع). يجب حذف التبعيات أولاً.')
+                ->persistent()
+                ->send();
+
+              $action->halt();
+            }
+          }),
+
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
-            ->label('حذف المحدد')
-            ->requiresConfirmation()
-            ->modalHeading('تأكيد الحذف')
-            ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')
-            ->modalSubmitActionLabel('نعم، احذف'),
-        ]),
+        // Tables\Actions\BulkActionGroup::make([
+        //   Tables\Actions\DeleteBulkAction::make()
+        //     ->label('حذف المحدد')
+        //     ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
+        //       foreach ($records as $record) {
+        //         if (
+        //           $record->orders()->exists() ||
+        //           $record->checkouts()->exists() ||
+        //           $record->carts()->exists()
+        //         ) {
+        //           Notification::make()
+        //             ->danger()
+        //             ->title('عملية غير مسموحة')
+        //             ->body("المستخدم {$record->name} مرتبط ببيانات نشطة، لا يمكن حذف المجموعة.")
+        //             ->send();
+
+        //           $action->halt();
+        //         }
+        //       }
+        //     })
+        //     ->requiresConfirmation()
+        //     ->modalHeading('تأكيد الحذف')
+        //     ->modalDescription('هل أنت متأكد من حذف المستخدمين المحددين؟')
+        //     ->modalSubmitActionLabel('نعم، احذف'),
+        // ]),
       ]);
   }
 
@@ -126,7 +187,6 @@ class UserResource extends Resource
       'create' => Pages\CreateUser::route('/create'),
       'edit' => Pages\EditUser::route('/{record}/edit'),
       'view' => Pages\ViewUser::route('/{record}'),
-
     ];
   }
 
