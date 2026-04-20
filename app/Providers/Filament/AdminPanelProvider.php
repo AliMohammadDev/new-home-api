@@ -109,7 +109,6 @@ class AdminPanelProvider extends PanelProvider
 
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
-
         fn(): string => Blade::render('
         @vite([\'resources/js/app.js\', \'resources/js/filament-fcm.js\'])
 
@@ -126,7 +125,6 @@ class AdminPanelProvider extends PanelProvider
         </style>
     '),
       )
-
       ->renderHook(
         \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
         fn(): string => Blade::render('
@@ -146,16 +144,12 @@ class AdminPanelProvider extends PanelProvider
         </div>
     '),
       )
-
-
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
       ->pages([
         Pages\Dashboard::class,
       ])
       ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-
-
       ->widgets([
         LatestOrdersStats::class,
         WarehouseStatsWidget::class,
