@@ -89,19 +89,8 @@ class AdminPanelProvider extends PanelProvider
       ->databaseNotifications()
       ->databaseNotificationsPolling('30s')
       ->font('Cairo')
-      // ->navigationItems([
-      //   \Filament\Navigation\NavigationItem::make('شاشة الكاشير (POS)')
-      //     ->group('إدارة المبيعات')
-      //     ->icon('heroicon-o-computer-desktop')
-      //     ->url(fn(): string => CashierPos::getUrl())
-      //     ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.cashier-pos'))
-      //     ->sort(1)
-      //     ->visible(fn(): bool => auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier'])),
-      // ])
-
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
-
         fn(): string => Blade::render('
         @vite([\'resources/js/app.js\', \'resources/js/filament-fcm.js\'])
 
@@ -118,7 +107,6 @@ class AdminPanelProvider extends PanelProvider
         </style>
     '),
       )
-
       ->renderHook(
         \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
         fn(): string => Blade::render('
@@ -138,16 +126,12 @@ class AdminPanelProvider extends PanelProvider
         </div>
     '),
       )
-
-
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
       ->pages([
         Pages\Dashboard::class,
       ])
       ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-
-
       ->widgets([
         LatestOrdersStats::class,
         WarehouseStatsWidget::class,
