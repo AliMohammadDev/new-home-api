@@ -18,16 +18,13 @@ class LatestOrdersStats extends BaseWidget
   protected function getStats(): array
   {
     $stats = Order::selectRaw("
-            COUNT(*) as total_count,
-            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count,
-            SUM(CASE WHEN status = 'completed' THEN total_amount ELSE 0 END) as completed_sum,
-            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count,
-            SUM(CASE WHEN status = 'pending' THEN total_amount ELSE 0 END) as pending_sum
-        ")->first();
+        COUNT(*) as total_count,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count
+    ")->first();
 
     return [
       Stat::make('الطلبات المكتملة', $stats->completed_count . ' طلب')
-        ->value(number_format($stats->completed_sum, 0))
         ->description('تم تسليم ' . $stats->completed_count . ' طلب بنجاح')
         ->descriptionIcon('heroicon-m-arrow-trending-up')
         ->chart([5, 10, 8, 15, 12, 20, 25])
@@ -38,7 +35,6 @@ class LatestOrdersStats extends BaseWidget
         ]),
 
       Stat::make('طلبات بانتظار المعالجة', $stats->pending_count . ' طلب')
-        ->value(number_format($stats->pending_sum, 0))
         ->description('هناك ' . $stats->pending_count . ' طلب يحتاج انتباهك')
         ->descriptionIcon('heroicon-m-pause-circle')
         ->chart([15, 12, 18, 10, 15, 8, 12])
@@ -47,8 +43,6 @@ class LatestOrdersStats extends BaseWidget
         ->extraAttributes([
           'class' => 'ring-2 ring-warning-500/50',
         ]),
-
-
     ];
   }
 }
