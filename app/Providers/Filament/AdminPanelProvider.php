@@ -127,9 +127,9 @@ class AdminPanelProvider extends PanelProvider
     '),
       )
 
-        ->renderHook(
-          \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
-          fn(): string => Blade::render('
+      ->renderHook(
+        \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+        fn(): string => Blade::render('
           <div class="flex items-center gap-x-3 ms-4">
               <a href="https://almanzel-alhadith.com/"
                 target="_blank"
@@ -145,7 +145,7 @@ class AdminPanelProvider extends PanelProvider
               </a>
           </div>
       '),
-        )
+      )
 
 
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -160,7 +160,7 @@ class AdminPanelProvider extends PanelProvider
         WarehouseInventoryChart::class,
         GeneralStatsWidget::class,
         OrdersCountWidget::class,
-        CapitalStatsWidget::class,
+        // CapitalStatsWidget::class,
       ])
       ->middleware([
         EncryptCookies::class,
