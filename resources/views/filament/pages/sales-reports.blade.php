@@ -27,7 +27,7 @@
                 class="rounded-2xl transition-all hover:scale-[1.02] shadow-sm bg-emerald-50/5 dark:bg-emerald-900/10 border-emerald-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-emerald-600 dark:text-emerald-400 text-sm font-bold uppercase">الخزينة</p>
+                        <p class="text-emerald-600 dark:text-emerald-400 text-sm font-bold uppercase">صندوق الشركة</p>
                         <p class="text-2xl font-black mt-1 font-mono text-emerald-700 dark:text-emerald-300">
                             ${{ number_format($totals['treasure'], 2) }}
                         </p>
@@ -114,7 +114,7 @@
             <x-filament::section class="rounded-2xl transition-all hover:scale-[1.02] shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">صافي تحويلات POS</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مجموع تحويلات POS</p>
                         <p class="text-2xl font-black text-amber-600 mt-1 font-mono">
                             ${{ number_format($totals['transfers_net'], 2) }}
                         </p>
@@ -129,7 +129,7 @@
                 class="rounded-2xl transition-all hover:scale-[1.02] shadow-sm bg-indigo-50/5 dark:bg-indigo-900/10 border-indigo-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-indigo-600 dark:text-indigo-400 text-sm font-bold uppercase">الربح / الخسارة</p>
+                        <p class="text-indigo-600 dark:text-indigo-400 text-sm font-bold uppercase">اجمالي المبيعات</p>
                         <p class="text-2xl font-black mt-1 font-mono text-indigo-700 dark:text-indigo-300">
                             ${{ number_format($totals['net_profit'], 2) }}
                         </p>

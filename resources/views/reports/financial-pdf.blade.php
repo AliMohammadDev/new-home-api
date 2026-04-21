@@ -98,7 +98,6 @@
             <td style="text-align: left; vertical-align: top;">
                 <h4 style="color: #888; margin-bottom: 5px; font-size: 11pt;">بيانات المستند:</h4>
                 <span>تاريخ التقرير: {{ now()->format('Y/m/d') }}</span><br>
-                <span>الحالة: <span style="color: #025043; font-weight: bold;">مراجعة نهائية</span></span>
             </td>
         </tr>
     </table>
@@ -132,13 +131,13 @@
             </tr>
 
             <tr>
-                <td>إيداعات نقاط البيع (Deposits)</td>
+                <td>إيداعات نقاط البيع</td>
                 <td style="text-align: center;">تحويل داخلي</td>
                 <td style="text-align: left;">{{ number_format($totals['transfers_in'], 2) }} $</td>
             </tr>
 
             <tr>
-                <td>سحوبات نقاط البيع (withdraw)</td>
+                <td>سحوبات نقاط البيع</td>
                 <td style="text-align: center;">تحويل داخلي</td>
                 <td style="text-align: left;">{{ number_format($totals['transfers_out'], 2) }} $</td>
             </tr>
@@ -147,23 +146,20 @@
 
     <table class="totals-table" align="left">
         <tr>
-            <td style="color: #666; padding: 5px 0;">صافي العمليات (المبيعات - المشتريات):</td>
+            <td style="color: #666; padding: 5px 0;"> العمليات (المبيعات - المشتريات):</td>
             <td style="text-align: left; font-weight: bold;">{{ number_format($totals['net_profit'], 2) }} $</td>
         </tr>
         <tr>
-            <td style="color: #666; padding: 5px 0;">صافي تحويلات نقاط البيع:</td>
+            <td style="color: #666; padding: 5px 0;"> تحويلات نقاط البيع:</td>
             <td style="text-align: left; font-weight: bold;">{{ number_format($totals['transfers_net'], 2) }} $</td>
         </tr>
         <tr class="total-row final">
-            <td style="padding-top: 15px;">رصيد الخزينة الحالي:</td>
+            <td style="padding-top: 15px;"> صندوق الشركة:</td>
             <td style="text-align: left; padding-top: 15px;">{{ number_format($totals['treasure'], 2) }} $</td>
         </tr>
     </table>
 
-    <div style="clear: both; margin-top: 80px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-        <p style="color: #888; font-size: 10pt;">هذا المستند سري ويستخدم للأغراض الإدارية فقط - نظام المحاسبة المركزي
-        </p>
-    </div>
+
 
 
 

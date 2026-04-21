@@ -37,63 +37,6 @@ class DataMigration extends Page
     ];
   }
 
-  // public function performMigration()
-  // {
-  //   $now = Carbon::now();
-
-  //   try {
-  //     DB::beginTransaction();
-
-  //     $models = [
-  //       \App\Models\CashierReturnFatora::class,
-  //       \App\Models\CashierSale::class,
-  //       \App\Models\CashierSalesFatora::class,
-  //       \App\Models\CashierSalesReturn::class,
-  //       \App\Models\CompanyEntry::class,
-  //       \App\Models\CompanySalesTransfer::class,
-  //       \App\Models\Order::class,
-  //       \App\Models\SalesPointCashierTrans::class,
-  //       \App\Models\ShippingWarehouse::class,
-  //       \App\Models\WarehouseReturn::class,
-  //       \App\Models\ProductImportItem::class,
-  //     ];
-
-  //     $results = [];
-  //     $totalCount = 0;
-
-  //     foreach ($models as $model) {
-  //       $shortName = (new \ReflectionClass($model))->getShortName();
-
-  //       $deletedCount = $model::where('created_at', '<=', $now)->delete();
-
-  //       if ($deletedCount > 0) {
-  //         $results[] = "{$shortName}: {$deletedCount}";
-  //         $totalCount += $deletedCount;
-  //       }
-  //     }
-
-  //     DB::commit();
-
-  //     Notification::make()
-  //       ->title('تمت الأرشفة بنجاح')
-  //       ->success()
-  //       ->body("تم نقل ({$totalCount}) سجل إلى الأرشيف بنجاح.")
-  //       ->persistent()
-  //       ->send();
-
-  //   } catch (\Exception $e) {
-  //     DB::rollBack();
-
-  //     Notification::make()
-  //       ->title('خطأ في العملية')
-  //       ->danger()
-  //       ->body('حدث خطأ: ' . $e->getMessage())
-  //       ->send();
-  //   }
-  // }
-
-  // app/Filament/Pages/DataMigration.php
-
   public function performMigration()
   {
     try {

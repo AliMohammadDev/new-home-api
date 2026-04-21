@@ -17,19 +17,7 @@ class CashierPos extends Page
   protected static ?string $navigationGroup = 'إدارة المبيعات';
   protected static ?string $navigationLabel = 'شاشة الكاشير (POS)';
   protected static ?int $navigationSort = 1;
-
   protected static ?string $title = 'نقطة البيع السريع';
-
-  // public static function shouldRegisterNavigation(array $parameters = []): bool
-  // {
-  //   return true;
-  // }
-
-
-  // public static function isAuthorized(): bool
-  // {
-  //   return auth()->user()->hasAnyRole(['super_admin', 'sales_point_cashier']);
-  // }
 
   public string $barcode = '';
   public array $cart = [];

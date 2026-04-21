@@ -26,8 +26,7 @@ class CapitalStatsWidget extends BaseWidget
     $onlineMoney = $onlineStoreTreasure ? $onlineStoreTreasure->money : 0;
 
     return [
-      Stat::make('إجمالي رأس المال', number_format($totalCapital, 2) . ' $')
-        ->description('السيولة الشاملة في كل الصناديق')
+      Stat::make('صندوق الشركة', number_format($totalCapital, 2) . ' $')
         ->descriptionIcon('heroicon-m-banknotes')
         ->color('success')
         ->url(CompanyTreasureResource::getUrl('index'))
@@ -38,7 +37,6 @@ class CapitalStatsWidget extends BaseWidget
         ]),
 
       Stat::make('مبيعات المتجر الإلكتروني', number_format($onlineMoney, 2) . ' $')
-        ->description('صافي أرباح المنتجات من الموقع')
         ->descriptionIcon('heroicon-m-shopping-cart')
         ->color('primary')
         ->url(CompanyTreasureResource::getUrl('index'))

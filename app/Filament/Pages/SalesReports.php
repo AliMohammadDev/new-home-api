@@ -20,7 +20,6 @@ class SalesReports extends Page implements HasForms
   use InteractsWithForms;
   use HasPageShield;
 
-
   protected static string $view = 'filament.pages.sales-reports';
   protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
   protected static ?string $navigationGroup = 'التقارير والإحصائيات';
@@ -104,6 +103,4 @@ class SalesReports extends Page implements HasForms
       'count_trans_out' => $transOutQuery->count(),
     ];
   }
-
-
 }

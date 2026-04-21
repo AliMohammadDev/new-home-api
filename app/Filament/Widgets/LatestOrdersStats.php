@@ -27,7 +27,7 @@ class LatestOrdersStats extends BaseWidget
 
     return [
       Stat::make('الطلبات المكتملة', $stats->completed_count . ' طلب')
-        ->value(number_format($stats->completed_sum, 0) . ' $')
+        ->value(number_format($stats->completed_sum, 0))
         ->description('تم تسليم ' . $stats->completed_count . ' طلب بنجاح')
         ->descriptionIcon('heroicon-m-arrow-trending-up')
         ->chart([5, 10, 8, 15, 12, 20, 25])
@@ -38,7 +38,7 @@ class LatestOrdersStats extends BaseWidget
         ]),
 
       Stat::make('طلبات بانتظار المعالجة', $stats->pending_count . ' طلب')
-        ->value(number_format($stats->pending_sum, 0) . ' $')
+        ->value(number_format($stats->pending_sum, 0))
         ->description('هناك ' . $stats->pending_count . ' طلب يحتاج انتباهك')
         ->descriptionIcon('heroicon-m-pause-circle')
         ->chart([15, 12, 18, 10, 15, 8, 12])
@@ -48,16 +48,7 @@ class LatestOrdersStats extends BaseWidget
           'class' => 'ring-2 ring-warning-500/50',
         ]),
 
-      Stat::make('معدل التحصيل', number_format($stats->completed_sum, 0) . ' $')
-        ->description('إجمالي السيولة النقدية الحالية')
-        ->descriptionIcon('heroicon-m-currency-dollar')
-        ->chart([15, 12, 18, 10, 15, 8, 12])
-        ->color('primary')
-        ->url(OrderResource::getUrl('index'))
-        ->extraAttributes([
-          'class' => 'cursor-pointer',
-          'wire:click' => '$dispatch("status-filter", { status: "completed" })',
-        ]),
+
     ];
   }
 }

@@ -63,7 +63,6 @@
 </head>
 
 <body>
-
     <table class="header-table">
         <tr>
             <td class="document-title" style="width: 60%; vertical-align: middle;">
@@ -120,7 +119,7 @@
                 <td style="text-align: left;">{{ number_format($totals['returned_items']) }}</td>
             </tr>
             <tr style="background-color: #fcf8f8;">
-                <td><strong>إجمالي المهدورات / التلف</strong></td>
+                <td><strong>إجمالي المهدورات </strong></td>
                 <td style="text-align: center;"><span class="">تلف</span></td>
                 <td style="text-align: left; ">{{ number_format($totals['wasted_items']) }}</td>
             </tr>
@@ -152,7 +151,7 @@
     </div>
 
     <div style="margin-top: 30px;">
-        <h3 style="border-bottom: 2px solid #025043; padding-bottom: 5px;">تفاصيل المستودعات المصغرة </h3>
+        <h3 style="border-bottom: 2px solid #025043; padding-bottom: 5px;">جرد المستودعات المصغرة </h3>
         <table class="items-table">
             <thead>
                 <tr>
@@ -250,8 +249,7 @@
     </div>
 
     <div style="margin-top: 30px;">
-        <h3 style="border-bottom: 2px solid padding-bottom: 5px;">تفاصيل المهدورات والتلفيات
-            (تجميعي)</h3>
+        <h3 style="border-bottom: 2px solid padding-bottom: 5px;">تفاصيل المهدورات</h3>
         <table class="items-table">
             <thead>
                 <tr>
