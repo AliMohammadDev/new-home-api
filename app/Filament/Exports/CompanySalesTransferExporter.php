@@ -15,8 +15,8 @@ class CompanySalesTransferExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('sales_point_id')->label('رقم معرف نقطةالمبيع'),
-      // ExportColumn::make('trans_type')->label('نوع التحويل'),
+      ExportColumn::make('salesPoint.name')
+        ->label('نقطة المبيع'),
       ExportColumn::make('trans_type')
         ->label('نوع التحويل')
         ->formatStateUsing(fn(string $state): string => match ($state) {

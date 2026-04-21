@@ -6,8 +6,6 @@ use App\Jobs\ArchiveDataJob;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class DataMigration extends Page

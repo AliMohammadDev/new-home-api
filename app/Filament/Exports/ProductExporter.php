@@ -17,7 +17,7 @@ class ProductExporter extends Exporter
       ExportColumn::make('id')->label('رقم تسلسلي'),
       ExportColumn::make('name')->label('اسم المنتج'),
       ExportColumn::make('body')->label('وصف المنتج'),
-      ExportColumn::make('category_id')->label('رقم معرف التصنيف'),
+      ExportColumn::make('category.name')->label('اسم التصنيف'),
       ExportColumn::make('is_featured')->label('منتج مميز'),
     ];
   }

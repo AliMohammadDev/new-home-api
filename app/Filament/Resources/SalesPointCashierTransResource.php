@@ -243,8 +243,8 @@ class SalesPointCashierTransResource extends Resource
         Tables\Filters\SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
-            'deposit' => 'إيداع',
-            'withdraw' => 'سحب',
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
           ]),
 
         Tables\Filters\SelectFilter::make('sales_point_id')

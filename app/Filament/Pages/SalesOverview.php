@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\ProductVariant;
 use App\Models\SalesPoint;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,6 +19,7 @@ use Illuminate\Support\HtmlString;
 class SalesOverview extends Page implements HasTable
 {
   use InteractsWithTable;
+  use HasPageShield;
 
   protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
   protected static ?string $navigationGroup = 'التقارير والإحصائيات';

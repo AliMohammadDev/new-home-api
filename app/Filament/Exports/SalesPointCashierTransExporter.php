@@ -15,10 +15,12 @@ class SalesPointCashierTransExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('sales_point_id')->label('رقم معرف نقطة المبيع'),
-      ExportColumn::make('sales_point_manager_id')->label('رقم معرف مدير نقطة المبيع'),
-      ExportColumn::make('sales_point_cashier_id')->label('رقم معرف كاشير نقطة المبيع'),
-      // ExportColumn::make('trans_type')->label('نوع التحويل'),
+      ExportColumn::make('salesPoint.name')
+        ->label('نقطة المبيع'),
+      ExportColumn::make('manager.user.name')
+        ->label('مدير نقطة المبيع'),
+      ExportColumn::make('cashier.user.name')
+        ->label('كاشير نقطة المبيع'),
       ExportColumn::make('trans_type')
         ->label('نوع التحويل')
         ->formatStateUsing(fn(string $state): string => match ($state) {

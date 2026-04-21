@@ -16,8 +16,8 @@ class CashierSaleExporter extends Exporter
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
       ExportColumn::make('cashier_sales_fatora_id')->label('رقم معرف فاتورة المبيع'),
-      ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
-      ExportColumn::make('sales_point_cashier_id')->label('رقم معرف الموظف الكاشير'),
+      ExportColumn::make('variant.product.name')->label(' اسم المنتج'),
+      ExportColumn::make('cashier.user.name')->label('كاشير نقطة المبيع'),
       ExportColumn::make('quantity')->label('الكمية'),
       ExportColumn::make('price')->label('السعر الإفرادي'),
       ExportColumn::make('full_price')->label('السعر الإجمالي'),

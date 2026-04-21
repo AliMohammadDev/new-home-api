@@ -195,8 +195,8 @@ class SupplierPaymentResource extends Resource
         Tables\Filters\SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
-            'deposit' => 'إيداع',
-            'withdraw' => 'سحب',
+            'deposit' => 'دائن',
+            'withdraw' => 'مدين',
           ]),
         SelectFilter::make('payment_method')
           ->label('طريقة الدفع')
@@ -257,11 +257,11 @@ class SupplierPaymentResource extends Resource
               }
             }),
         ]),
-          ExportBulkAction::make()->exporter(SupplierPaymentExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()->exporter(SupplierPaymentExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->headerActions([
         ExportAction::make()->exporter(SupplierPaymentExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ]);
   }
 

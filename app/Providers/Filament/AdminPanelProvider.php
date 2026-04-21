@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\CompanyTreasureResource\Widgets\CapitalStatsWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Widgets\GeneralStatsWidget;
 use App\Filament\Widgets\OrdersCountWidget;
@@ -86,8 +85,9 @@ class AdminPanelProvider extends PanelProvider
       ->colors([
         'primary' => '#025043',
       ])
-      ->databaseNotifications()
+      // ->databaseNotifications()
       ->databaseNotificationsPolling('30s')
+      ->databaseNotifications(fn() => auth()->user()?->hasRole('super_admin'))
       ->font('Cairo')
       ->renderHook(
         \Filament\View\PanelsRenderHook::HEAD_END,
@@ -107,8 +107,6 @@ class AdminPanelProvider extends PanelProvider
         </style>
     '),
       )
-
-
       ->renderHook(
         \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
         fn(): string => Blade::render('
@@ -128,8 +126,6 @@ class AdminPanelProvider extends PanelProvider
           </div>
       '),
       )
-
-
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
       ->pages([

@@ -15,10 +15,10 @@ class ProductVariantExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('product_id')->label('رقم معرف المنتج'),
-      ExportColumn::make('color_id')->label('رقم معرف اللون'),
-      ExportColumn::make('size_id')->label('رقم معرف الحجم'),
-      ExportColumn::make('material_id')->label('رقم معرف المواد الخام'),
+      ExportColumn::make('product.name')->label('اسم المنتج'),
+      ExportColumn::make('color.color')->label('اللون'),
+      ExportColumn::make('size.size')->label('الحجم'),
+      ExportColumn::make('material.material')->label('المادة الخام'),
       ExportColumn::make('price')->label('السعر'),
       ExportColumn::make('discount')->label('الخصم'),
       ExportColumn::make('stock_quantity')->label('الكمية المتوفرة'),

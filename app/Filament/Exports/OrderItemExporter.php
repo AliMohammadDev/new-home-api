@@ -16,7 +16,7 @@ class OrderItemExporter extends Exporter
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
       ExportColumn::make('order_id')->label('رقم معرف الطلب'),
-      ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
+      ExportColumn::make('productVariant.product.name')->label('اسم المنتج'),
       ExportColumn::make('quantity')->label('الكمية'),
       ExportColumn::make('price')->label('السعر الإفرادي'),
       ExportColumn::make('total')->label('السعر الإجمالي'),

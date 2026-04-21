@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,10 @@ class AppServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
+
+
+
+
     Order::observe(OrderObserver::class);
 
     ProductImportItem::observe(ProductImportItemObserver::class);

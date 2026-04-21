@@ -15,7 +15,7 @@ class CashierReturnFatoraExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('sales_point_cashier_id')->label('رقم معرف نقطة المبيع'),
+      ExportColumn::make('cashier.user.name')->label('كاشير نقطة المبيع'),
       ExportColumn::make('date')->label('التاريخ'),
       ExportColumn::make('full_price')->label('السعر الإجمالي'),
     ];

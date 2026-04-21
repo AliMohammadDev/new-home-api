@@ -15,9 +15,8 @@ class CompanyEntryExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('company_treasure_id')->label('رقم معرف صندوق الشركة'),
-      ExportColumn::make('user_id')->label('رقم معرف المستخدم'),
-      // ExportColumn::make('trans_type')->label('نوع التحويل'),
+      ExportColumn::make('treasure.name')->label('اسم الصندوق'),
+      ExportColumn::make('user.name')->label('اسم المستخدم'),
       ExportColumn::make('trans_type')
         ->label('نوع التحويل')
         ->formatStateUsing(fn(string $state): string => match ($state) {

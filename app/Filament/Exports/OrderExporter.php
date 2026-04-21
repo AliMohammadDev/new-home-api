@@ -15,11 +15,11 @@ class OrderExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('user_id')->label('رقم معرف المستخدم'),
+      ExportColumn::make('user.name')->label('رقم معرف المستخدم'),
       ExportColumn::make('cart_id')->label('رقم معرف سلةالتسوق'),
       ExportColumn::make('checkout_id')->label('رقم معرف عملية الدفع'),
       ExportColumn::make('total_amount')->label('المبلغ الإجمالي'),
-      ExportColumn::make('delivery_company_id')->label('رقم معرف شركة التوصيل'),
+      ExportColumn::make('deliveryCompany.name')->label('رقم معرف شركة التوصيل'),
       ExportColumn::make('shipping_fee')->label('ضريبة الشحن'),
       ExportColumn::make('delivery_fee')->label('ضريبة التوصيل'),
       ExportColumn::make('payment_method')->label('طريقة الدفع'),

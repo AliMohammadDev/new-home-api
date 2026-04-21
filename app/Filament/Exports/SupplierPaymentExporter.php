@@ -19,7 +19,6 @@ class SupplierPaymentExporter extends Exporter
       ExportColumn::make('amount')->label('المبلغ'),
       ExportColumn::make('payment_date')->label('تاريخ الدفع'),
       ExportColumn::make('payment_method')->label('طريقة الدفع'),
-      // ExportColumn::make('trans_type')->label('نوع التحويل'),
       ExportColumn::make('trans_type')
         ->label('نوع التحويل')
         ->formatStateUsing(fn(string $state): string => match ($state) {

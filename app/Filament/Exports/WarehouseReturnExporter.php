@@ -15,10 +15,10 @@ class WarehouseReturnExporter extends Exporter
   {
     return [
       ExportColumn::make('id')->label('رقم تسلسلي'),
-      ExportColumn::make('product_variant_id')->label('رقم معرف خيار المنتج'),
-      ExportColumn::make('user_id')->label('رقم معرف المستخدم'),
-      ExportColumn::make('warehouse_id')->label('رقم معرف المستودع'),
-      ExportColumn::make('arrival_time')->label('الوقت المستهدف'),
+      ExportColumn::make('productVariant.product.name')->label('اسم المنتج'),
+      ExportColumn::make('user.name')->label('اسم المستخدم'),
+      ExportColumn::make('warehouse_id')->label('اسم المستودع'),
+      ExportColumn::make('arrival_time')->label('الوقت الوصول'),
       ExportColumn::make('amount')->label('الكمية'),
       ExportColumn::make('unit_name')->label('اسم الوحدة'),
       ExportColumn::make('unit_capacity')->label('سعة الوحدة'),
