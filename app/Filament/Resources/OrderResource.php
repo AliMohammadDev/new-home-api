@@ -396,15 +396,14 @@ class OrderResource extends Resource
   {
     $query = parent::getEloquentQuery();
 
-    if (auth()->user()->hasRole('super_admin')) {
-      return $query;
-    }
-    if (auth()->user()->hasRole('main_warehouse_manager')) {
+    $user = auth()->user();
+
+    if ($user->hasAnyRole(['super_admin', 'main_warehouse_manager'])) {
       return $query;
     }
 
-    return $query->whereHas('deliveryCompany', function (Builder $subQuery) {
-      $subQuery->where('user_id', auth()->id());
+    return $query->whereHas('deliveryCompany', function (Builder $subQuery) use ($user) {
+      $subQuery->where('user_id', $user->id);
     });
   }
 }
