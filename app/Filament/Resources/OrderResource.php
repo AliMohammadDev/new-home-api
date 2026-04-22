@@ -104,11 +104,7 @@ class OrderResource extends Resource
   public static function table(Table $table): Table
   {
     return $table
-      ->query(
-        Order::query()
-          ->with(['user', 'deliveryCompany'])
-          ->withSum('orderItems as items_subtotal_sum', 'total')
-      )
+
       ->columns([
         TextColumn::make('id')
           ->label('رقم الطلب')
@@ -394,7 +390,9 @@ class OrderResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()
+      ->with(['user', 'deliveryCompany'])
+      ->withSum('orderItems as items_subtotal_sum', 'total');
 
     $user = auth()->user();
 
