@@ -562,7 +562,7 @@ class ProductVariantResource extends Resource
       ])
       ->headerActions([
         ExportAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-        ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([

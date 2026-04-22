@@ -6,7 +6,6 @@ use App\Filament\Exports\CompanySalesTransferExporter;
 use App\Filament\Resources\CompanySalesTransferResource\Pages;
 use App\Models\CompanySalesTransfer;
 use App\Models\CompanyTreasure;
-use Faker\Provider\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
