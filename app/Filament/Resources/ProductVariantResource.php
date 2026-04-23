@@ -365,14 +365,35 @@ class ProductVariantResource extends Resource
                     $name = $item->material[app()->getLocale()] ?? $item->material['en'] ?? 'N/A';
                     return [$item->id => $name];
                   }))->required(),
+
+
                 Forms\Components\TextInput::make('sku')
                   ->label('SKU')
                   ->required()
-                  ->unique(table: 'product_variants', column: 'sku')
+                  ->unique(table: 'product_variants', column: 'sku', ignoreRecord: true)
+                  ->rules([
+                    fn($get) => function (string $attribute, $value, $fail) use ($get) {
+                      $allSkus = collect($get('../../variants'))
+                        ->pluck('sku')
+                        ->filter()
+                        ->toArray();
+                      $counts = array_count_values($allSkus);
+                      if (isset($counts[$value]) && $counts[$value] > 1) {
+                        $fail('عذراً، رمز SKU هذا مكرر في القائمة .');
+                      }
+                    },
+                  ])
+                  ->live(onBlur: true)
                   ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                   ->dehydrateStateUsing(fn($state) => strtoupper($state)),
 
-                // Forms\Components\TextInput::make('stock_quantity')->label('الكمية الاجمالية')->numeric()->required(),
+
+                // Forms\Components\TextInput::make('sku')
+                //   ->label('SKU')
+                //   ->required()
+                //   ->unique(table: 'product_variants', column: 'sku')
+                //   ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                //   ->dehydrateStateUsing(fn($state) => strtoupper($state)),
 
                 Forms\Components\TextInput::make('barcode')
                   ->label('الباركود')
