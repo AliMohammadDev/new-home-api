@@ -81,7 +81,7 @@ class AdminPanelProvider extends PanelProvider
       ->darkModeBrandLogo(asset('images/home-logo-white_c2et5l.svg'))
       ->favicon(asset('logo.png'))
       ->brandLogoHeight('3rem')
-      ->broadcasting()
+      // ->broadcasting()
       ->colors([
         'primary' => '#025043',
       ])
