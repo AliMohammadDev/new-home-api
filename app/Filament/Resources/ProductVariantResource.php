@@ -271,20 +271,24 @@ class ProductVariantResource extends Resource
                     return [$item->id => $name];
                   }))
                   ->dehydrated(false)
+                  ->createOptionForm([
+                    Forms\Components\TextInput::make('material_ar')
+                      ->label('اسم المادة (بالعربية)')
+                      ->required(),
+                    Forms\Components\TextInput::make('material_en')
+                      ->label('اسم المادة (بالإنجليزية)')
+                      ->required(),
+                  ])
                   ->createOptionUsing(function (array $data) {
                     $newMaterial = Material::create([
                       'material' => [
-                        app()->getLocale() => $data['material_name'],
-                        'en' => $data['material_name'],
+                        'ar' => $data['material_ar'],
+                        'en' => $data['material_en'],
                       ],
                     ]);
                     return $newMaterial->id;
                   })
-                  ->createOptionForm([
-                    Forms\Components\TextInput::make('material_name')
-                      ->label('مادة جديدة')
-                      ->required(),
-                  ])
+
                   ->afterStateUpdated(function ($old, $state) {
                     $removedIds = array_diff($old ?? [], $state ?? []);
 
