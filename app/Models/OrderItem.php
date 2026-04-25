@@ -14,6 +14,11 @@ class OrderItem extends Model
     'total'
   ];
 
+  protected $casts = [
+    'price' => 'double',
+    'total' => 'double'
+  ];
+
   public function order()
   {
     return $this->belongsTo(Order::class);

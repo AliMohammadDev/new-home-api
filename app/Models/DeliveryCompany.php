@@ -16,6 +16,7 @@ class DeliveryCompany extends Model
     'is_active'
   ];
 
+
   public function user(): BelongsTo
   {
     return $this->belongsTo(User::class);

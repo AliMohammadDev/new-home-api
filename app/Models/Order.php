@@ -21,6 +21,12 @@ class Order extends Model
     'status'
   ];
 
+
+  protected $casts = [
+    'total_amount' => 'double',
+    'shipping_fee' => 'double',
+    'delivery_fee' => 'double',
+  ];
   public function user()
   {
     return $this->belongsTo(User::class);
