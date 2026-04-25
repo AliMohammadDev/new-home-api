@@ -98,7 +98,6 @@ class CashierReturnFatoraResource extends Resource
                 ->body('لا يمكن حذف الفاتورة نهائياً لأن رصيدها (' . $record->full_price . ') لم يتم تصفيره.')
                 ->danger()
                 ->send();
-
               $action->halt();
             }
           }),

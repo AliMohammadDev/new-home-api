@@ -233,11 +233,19 @@ class OrderResource extends Resource
               $action->halt();
             }
           }),
-        ExportBulkAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()
+          ->exporter(OrderExporter::class)
+          ->color('success')
+          ->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+          ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(OrderExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportAction::make()->exporter(OrderExporter::class)
+          ->color('success')
+          ->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+          ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
 
   }

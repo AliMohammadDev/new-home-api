@@ -74,8 +74,6 @@ class SalesPointManagerResource extends Resource
           ->extraAttributes(['class' => 'font-mono']),
 
 
-
-
         Tables\Columns\TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
           ->sortable()

@@ -43,8 +43,6 @@ class DeliveryCompanyResource extends Resource
               ->label('رقم التواصل')
               ->tel(),
 
-
-
             Forms\Components\Textarea::make('address')
               ->label('العنوان')
               ->columnSpanFull(),

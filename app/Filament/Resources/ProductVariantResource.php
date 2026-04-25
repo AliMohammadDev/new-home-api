@@ -586,8 +586,11 @@ class ProductVariantResource extends Resource
           ->label('حذف نهائي'),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportAction::make()
+          ->exporter(ProductVariantExporter::class)
+          ->color('success')->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+          ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -600,7 +603,12 @@ class ProductVariantResource extends Resource
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد'),
         ]),
-        ExportBulkAction::make()->exporter(ProductVariantExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportBulkAction::make()
+          ->exporter(ProductVariantExporter::class)
+          ->color('success')
+          ->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+          ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
   }
 
