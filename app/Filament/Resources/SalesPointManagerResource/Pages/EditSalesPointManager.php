@@ -19,4 +19,9 @@ class EditSalesPointManager extends EditRecord
         ->url($this->getResource()::getUrl('index')),
     ];
   }
+
+  protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }

@@ -56,7 +56,7 @@ class EditRole extends EditRecord
     $this->record->syncPermissions($permissionModels);
 
 
-    $this->record->touch(); // يقوم بتحديث updated_at يدوياً للحظة الحالية
+    $this->record->touch();
   }
 
   protected function getRedirectUrl(): string

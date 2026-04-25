@@ -14,4 +14,9 @@ class EditWarehouseReturn extends EditRecord
     return [
     ];
   }
+
+    protected function getRedirectUrl(): string
+  {
+    return $this->getResource()::getUrl('index');
+  }
 }
