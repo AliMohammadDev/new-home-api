@@ -103,12 +103,21 @@ class CashierReturnFatoraResource extends Resource
           }),
       ])
       ->headerActions([
-        ExportAction::make()->exporter(CashierReturnFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')
-          ->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+        ExportAction::make()
+          ->exporter(CashierReturnFatoraExporter::class)
+          ->color('success')
+          ->icon('heroicon-o-arrow-down-tray')
+          ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+          ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          ExportBulkAction::make()->exporter(CashierReturnFatoraExporter::class)->color('success')->icon('heroicon-o-arrow-down-tray')->formats([ExportFormat::Csv, ExportFormat::Xlsx]),
+          ExportBulkAction::make()
+            ->exporter(CashierReturnFatoraExporter::class)
+            ->color('success')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
+            ->visible(fn() => auth()->user()->hasRole('super_admin')),
 
           Tables\Actions\DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
