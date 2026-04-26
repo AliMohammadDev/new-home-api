@@ -363,6 +363,13 @@ class ProductVariantResource extends Resource
           ->searchable()
           ->preload()
           ->getOptionLabelFromRecordUsing(fn($record) => $record->name[app()->getLocale()] ?? $record->name['en'] ?? '')
+          ->getSearchResultsUsing(function (string $search) {
+            return Product::where('name->' . app()->getLocale(), 'like', "%{$search}%")
+              ->orWhere('name->en', 'like', "%{$search}%")
+              ->limit(50)
+              ->pluck('name', 'id')
+              ->map(fn($name) => $name[app()->getLocale()] ?? $name['en'] ?? '');
+          })
           ->required()
           ->visible(fn($context) => $context === 'create')
           ->columnSpanFull(),
