@@ -119,7 +119,15 @@ class SalesOverview extends Page implements HasTable
 
         Tables\Columns\TextColumn::make('specs')
           ->label('المواصفات')
-          ->getStateUsing(fn($record) => "{$record->color?->color} / {$record->size?->size}")
+          ->getStateUsing(function ($record) {
+            $colorName = is_array($record->color?->color)
+              ? ($record->color->color[app()->getLocale()] ?? $record->color->color['ar'] ?? '')
+              : $record->color?->color;
+
+            $sizeName = $record->size?->size;
+
+            return "{$colorName} / {$sizeName}";
+          })
           ->badge()
           ->color('gray'),
 
