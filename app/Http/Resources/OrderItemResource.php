@@ -32,7 +32,7 @@ class OrderItemResource extends JsonResource
           'price' => $this->productVariant->price,
           'discount' => $this->productVariant->discount,
           'final_price' => $this->productVariant->final_price,
-          'color' => $this->productVariant->color->color,
+          'color' => $this->productVariant->color->translated_color,
           'size' => $this->productVariant->size->size,
           'material' => $this->productVariant->material->translated_material,
         ];

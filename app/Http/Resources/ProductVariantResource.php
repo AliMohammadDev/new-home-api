@@ -50,7 +50,7 @@ class ProductVariantResource extends JsonResource
 
             return [
               'id' => $color->id,
-              'name' => $color->color,
+              'name' => $color->translated_color,
               'hex' => $color->hex_code,
               'available_sizes' => $colorGroup->groupBy('size_id')->map(function ($sizeGroup) {
                 $size = $sizeGroup->first()->size;

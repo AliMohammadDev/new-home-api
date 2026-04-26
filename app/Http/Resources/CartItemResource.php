@@ -41,7 +41,7 @@ class CartItemResource extends JsonResource
         'discount' => $this->productVariant?->discount,
         'sku' => $this->productVariant?->sku,
         'final_price' => $this->productVariant?->final_price,
-        'color_name' => $this->productVariant?->color?->color,
+        'color_name' => $this->productVariant?->color?->translated_color,
         'color_code' => $this->productVariant?->color?->hex_code,
         'size' => $this->productVariant?->size?->size,
         'material' => $this->productVariant?->material?->translated_material,
