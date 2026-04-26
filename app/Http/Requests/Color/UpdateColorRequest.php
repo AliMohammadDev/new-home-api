@@ -22,7 +22,9 @@ class UpdateColorRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'color' => ['sometimes', 'string', 'max:255'],
+      'color' => ['sometimes', 'array'],
+      'color.en' => ['sometimes', 'string', 'max:255'],
+      'color.ar' => ['sometimes', 'string', 'max:255'],
     ];
   }
 }
