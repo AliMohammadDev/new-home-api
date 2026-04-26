@@ -98,14 +98,16 @@ class SalesOverview extends Page implements HasTable
         Tables\Columns\TextColumn::make('product.name')
           ->label('المنتج')
           ->formatStateUsing(fn($record) => $record->product?->translated_name ?? 'بدون اسم')
-          ->searchable(query: function ($query, string $search): void {
-            $query->whereHas('product', function ($q) use ($search) {
-              $q->where('name->' . app()->getLocale(), 'like', "%{$search}%")
-                ->orWhere('name->en', 'like', "%{$search}%");
-            });
-          })
           ->description(fn($record) => "SKU: {$record->sku}")
-          ->searchable(),
+          ->searchable(query: function ($query, string $search): void {
+            $query->where(function ($q) use ($search) {
+              $q->where('product_variants.sku', 'like', "%{$search}%")
+                ->orWhereHas('product', function ($productQuery) use ($search) {
+                  $productQuery->where('name->' . app()->getLocale(), 'like', "%{$search}%")
+                    ->orWhere('name->en', 'like', "%{$search}%");
+                });
+            });
+          }),
 
         Tables\Columns\TextColumn::make('barcode')
           ->label('الباركود')
