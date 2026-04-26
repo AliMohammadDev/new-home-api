@@ -144,7 +144,7 @@
                         <strong
                             style="color: #025043;">{{ $record->productVariant->product->name['ar'] ?? ($record->productVariant->product->name['en'] ?? 'منتج') }}</strong>
                         <br>
-                        <small class="text-muted">{{ $record->productVariant->color->color ?? '' }} /
+                        <small class="text-muted">{{ $record->productVariant->color->color['ar'] ?? '' }} /
                             {{ $record->productVariant->size->size ?? '' }} ({{ $record->productVariant->sku }})</small>
                     </td>
                     <td style="font-weight: bold;">{{ number_format($record->quantity) }}</td>

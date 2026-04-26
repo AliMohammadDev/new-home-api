@@ -119,7 +119,7 @@
                         <small style="color: #666;">SKU: {{ $record->productVariant->sku }}</small>
                     </td>
                     <td style="text-align: center;">
-                        {{ $record->productVariant->color->color ?? '' }} /
+                        {{ $record->productVariant->color->color['ar'] ?? '' }} /
                         {{ $record->productVariant->size->size ?? '' }}
                     </td>
                     <td style="text-align: center;">
