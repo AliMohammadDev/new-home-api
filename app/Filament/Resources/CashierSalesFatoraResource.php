@@ -7,16 +7,30 @@ use App\Filament\Resources\CashierSalesFatoraResource\Pages;
 use App\Filament\Resources\CashierSalesFatoraResource\RelationManagers\ItemsRelationManager;
 use App\Models\CashierSalesFatora;
 use App\Models\SalesPointCashier;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 
 class CashierSalesFatoraResource extends Resource
 {
@@ -32,9 +46,9 @@ class CashierSalesFatoraResource extends Resource
   public static function form(Form $form): Form
   {
     return $form->schema([
-      Forms\Components\Section::make('بيانات فاتورة المبيع')
+      Section::make('بيانات فاتورة المبيع')
         ->schema([
-          Forms\Components\Select::make('sales_point_cashier_id')
+          Select::make('sales_point_cashier_id')
             ->label('الكاشير المسؤول')
             ->relationship('cashier', 'id')
             ->getOptionLabelFromRecordUsing(fn($record) => $record->user?->name . " - " . $record->salesPoint?->name)
@@ -42,12 +56,12 @@ class CashierSalesFatoraResource extends Resource
             ->preload()
             ->required(),
 
-          Forms\Components\DatePicker::make('date')
+          DatePicker::make('date')
             ->label('تاريخ الفاتورة')
             ->default(now())
             ->required(),
 
-          Forms\Components\TextInput::make('full_price')
+          TextInput::make('full_price')
             ->label('إجمالي المبلغ')
             ->numeric()
             ->disabled()
@@ -60,16 +74,25 @@ class CashierSalesFatoraResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('id')->label('رقم الفاتورة')->sortable(),
-      Tables\Columns\TextColumn::make('cashier.user.name')->label('اسم الكاشير')->searchable(),
-      Tables\Columns\TextColumn::make('cashier.salesPoint.name')->label('نقطة البيع')->badge(),
-      Tables\Columns\TextColumn::make('date')->label('التاريخ')->date()->sortable(),
-      Tables\Columns\TextColumn::make('full_price')
+      TextColumn::make('id')
+        ->label('رقم الفاتورة')
+        ->sortable(),
+      TextColumn::make('cashier.user.name')
+        ->label('اسم الكاشير')
+        ->searchable(),
+      TextColumn::make('cashier.salesPoint.name')
+        ->label('نقطة البيع')
+        ->badge(),
+      TextColumn::make('date')
+        ->label('التاريخ')
+        ->date()
+        ->sortable(),
+      TextColumn::make('full_price')
         ->label('الإجمالي')
         ->money('USD', locale: 'en_US')
     ])
       ->filters([
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -79,21 +102,21 @@ class CashierSalesFatoraResource extends Resource
       ->defaultSort('created_at', 'DESC')
       ->actions([
 
-        Tables\Actions\Action::make('print')
+        Action::make('print')
           ->label('طباعة')
           ->icon('heroicon-o-printer')
           ->color('info')
           ->url(fn($record) => route('fatora.print', ['ids' => [$record->id]]))
           ->openUrlInNewTab(),
 
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if (round((float) $record->full_price, 2) > 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -106,15 +129,15 @@ class CashierSalesFatoraResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
+        BulkActionGroup::make([
 
-          Tables\Actions\DeleteBulkAction::make()
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
               $hasBalance = $records->contains(fn($record) => round((float) $record->full_price, 2) > 0);
 
               if ($hasBalance) {
@@ -128,7 +151,7 @@ class CashierSalesFatoraResource extends Resource
               }
             }),
 
-          Tables\Actions\BulkAction::make('print_selected')
+          BulkAction::make('print_selected')
             ->label('طباعة الفواتير المحددة')
             ->icon('heroicon-o-printer')
             ->color('success')

@@ -12,7 +12,6 @@ use App\Models\Size;
 use Filament\Forms;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\App;
 use Filament\Resources\Resource;
 use App\Models\ProductVariant;
 use Illuminate\Support\Str;
@@ -38,7 +37,6 @@ use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\DeleteAction;

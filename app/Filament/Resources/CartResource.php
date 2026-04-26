@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CartResource\Pages;
+use App\Filament\Resources\CartResource\RelationManagers\CartItemsRelationManager;
 use App\Models\Cart;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -10,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ViewAction;
 
 class CartResource extends Resource
 {
@@ -73,7 +75,7 @@ class CartResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->actions([
-        Tables\Actions\ViewAction::make(),
+        ViewAction::make(),
       ])
       ->bulkActions([])
       ->filters([
@@ -90,7 +92,7 @@ class CartResource extends Resource
   public static function getRelations(): array
   {
     return [
-      \App\Filament\Resources\CartResource\RelationManagers\CartItemsRelationManager::class,
+      CartItemsRelationManager::class,
     ];
   }
 

@@ -9,7 +9,6 @@ use App\Models\ProductVariant;
 use App\Models\SalesPointCashier;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -18,6 +17,22 @@ use Illuminate\Support\Facades\App;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class CashierSalesReturnResource extends Resource
 {
@@ -32,9 +47,9 @@ class CashierSalesReturnResource extends Resource
   public static function form(Form $form): Form
   {
     return $form->schema([
-      Forms\Components\Section::make('تفاصيل المادة المرتجعة')
+      Section::make('تفاصيل المادة المرتجعة')
         ->schema([
-          Forms\Components\Select::make('sales_point_cashier_id')
+          Select::make('sales_point_cashier_id')
             ->label('الكاشير')
             ->relationship(
               name: 'cashier',
@@ -52,7 +67,7 @@ class CashierSalesReturnResource extends Resource
             ->preload()
             ->required(),
 
-          Forms\Components\Select::make('product_variant_id')
+          Select::make('product_variant_id')
             ->label('المنتج (الخيار)')
             ->required()
             ->searchable(['sku'])
@@ -95,7 +110,7 @@ class CashierSalesReturnResource extends Resource
               }
             }),
 
-          Forms\Components\TextInput::make('quantity')
+          TextInput::make('quantity')
             ->label('الكمية')
             ->numeric()
             ->default(1)
@@ -128,7 +143,7 @@ class CashierSalesReturnResource extends Resource
               },
             ]),
 
-          Forms\Components\TextInput::make('price')
+          TextInput::make('price')
             ->label('سعر الوحدة')
             ->numeric()
             ->disabled()
@@ -136,7 +151,7 @@ class CashierSalesReturnResource extends Resource
             ->required()
             ->prefix('USD'),
 
-          Forms\Components\TextInput::make('full_price')
+          TextInput::make('full_price')
             ->label('الإجمالي المرتجع')
             ->numeric()
             ->readonly()
@@ -148,7 +163,7 @@ class CashierSalesReturnResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('fatora.id')
+      TextColumn::make('fatora.id')
         ->label('رقم فاتورة المرتجع')
         ->sortable()
         ->searchable(query: function (Builder $query, string $search): Builder {
@@ -156,7 +171,7 @@ class CashierSalesReturnResource extends Resource
             $q->where('id', 'like', "%{$search}%");
           });
         }),
-      Tables\Columns\TextColumn::make('variant.product.name')
+      TextColumn::make('variant.product.name')
         ->label('المنتج')
         ->getStateUsing(
           fn($record) =>
@@ -170,18 +185,18 @@ class CashierSalesReturnResource extends Resource
               ->orWhere("name->en", 'like', "%{$search}%");
           });
         }),
-      Tables\Columns\TextColumn::make('quantity')->label('الكمية')->color('danger'),
-      Tables\Columns\TextColumn::make('full_price')
+      TextColumn::make('quantity')->label('الكمية')->color('danger'),
+      TextColumn::make('full_price')
         ->label('الإجمالي')
         ->money('USD', locale: 'en_US')
 
         ->summarize(
-          Tables\Columns\Summarizers\Sum::make()
+          Sum::make()
             ->label('إجمالي المرتجعات')
             ->money('USD', locale: 'en_US')
         ),
 
-      Tables\Columns\TextColumn::make('cashier.user.name')
+      TextColumn::make('cashier.user.name')
         ->label('بواسطة الكاشير')
         ->searchable(query: function (Builder $query, string $search): Builder {
           return $query->whereHas('cashier.user', function (Builder $q) use ($search) {
@@ -190,7 +205,7 @@ class CashierSalesReturnResource extends Resource
         }),
     ])
       ->filters([
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -200,14 +215,14 @@ class CashierSalesReturnResource extends Resource
 
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->quantity != 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -219,14 +234,14 @@ class CashierSalesReturnResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
+        BulkActionGroup::make([
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('quantity', '!=', 0);
 
               if ($invalidRecords->count() > 0) {
