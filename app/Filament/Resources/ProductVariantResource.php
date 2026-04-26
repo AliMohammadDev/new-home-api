@@ -593,12 +593,24 @@ class ProductVariantResource extends Resource
           ->preload(),
 
 
-        SelectFilter::make('color')
+        SelectFilter::make('color_id')
           ->label('اللون')
-          ->relationship('color', 'color'),
+          ->relationship('color', 'id')
+          ->getOptionLabelFromRecordUsing(function ($record) {
+            return $record->color[app()->getLocale()]
+              ?? $record->color['en']
+              ?? 'N/A';
+          })
+          ->searchable()
+          ->preload(),
+
         SelectFilter::make('size')
           ->label('الحجم')
-          ->relationship('size', 'size'),
+          ->relationship('size', 'size')
+          ->searchable()
+          ->preload(),
+
+
         SelectFilter::make('material_id')
           ->label('المادة')
           ->relationship('material', 'id')
