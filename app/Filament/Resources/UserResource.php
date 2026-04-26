@@ -56,7 +56,7 @@ class UserResource extends Resource
           ->label('كلمة المرور')
           ->password()
           ->required(fn($record) => $record === null)
-          ->disabled(fn($record) => $record !== null)
+          // ->disabled(fn($record) => $record !== null)
           ->dehydrateStateUsing(fn($state) => filled($state) ? bcrypt($state) : null)
           ->dehydrated(fn($state) => filled($state)),
       ]);
