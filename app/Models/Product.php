@@ -30,7 +30,7 @@ class Product extends Model
   {
     return $this->name[app()->getLocale()] ?? $this->name['en'] ?? '';
   }
-
+  
   public function getTranslatedBodyAttribute(): string
   {
     return $this->body[app()->getLocale()] ?? $this->body['en'] ?? '';
