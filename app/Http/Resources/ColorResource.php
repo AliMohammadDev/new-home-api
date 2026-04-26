@@ -16,7 +16,7 @@ class ColorResource extends JsonResource
   {
     return [
       'id' => $this->id,
-      'color' => $this->color,
+      'color' => $this->translated_color,
       'hex_code' => $this->hex_code,
       // 'productVariants' => ProductVariantResource::collection($this->whenLoaded('productVariants')),
     ];

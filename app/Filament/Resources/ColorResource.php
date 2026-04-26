@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\App;
 
 class ColorResource extends Resource
 {
@@ -27,10 +28,21 @@ class ColorResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\TextInput::make('color')
-          ->label('اسم اللون')
-          ->required(),
-
+        Forms\Components\Tabs::make('Languages')
+          ->tabs([
+            Forms\Components\Tabs\Tab::make('English')
+              ->schema([
+                Forms\Components\TextInput::make('color.en')
+                  ->label('اسم اللون (EN)')
+                  ->required(),
+              ]),
+            Forms\Components\Tabs\Tab::make('Arabic')
+              ->schema([
+                Forms\Components\TextInput::make('color.ar')
+                  ->label('اسم اللون (AR)')
+                  ->required(),
+              ]),
+          ]),
         ColorPicker::make('hex_code')
           ->label('كود اللون')
           ->required()
@@ -47,9 +59,11 @@ class ColorResource extends Resource
           ->copyable(),
 
         Tables\Columns\TextColumn::make('color')
-          ->label('اللون')
+          ->label('الاسم')
+          ->getStateUsing(fn(Color $record) => $record->color[App::getLocale()] ?? $record->color['en'] ?? '')
           ->sortable()
           ->searchable(),
+
         Tables\Columns\TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()
