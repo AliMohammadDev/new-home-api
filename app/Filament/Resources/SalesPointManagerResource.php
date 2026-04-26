@@ -6,12 +6,19 @@ use App\Filament\Resources\SalesPointManagerResource\Pages;
 use App\Filament\Resources\SalesPointManagerResource\RelationManagers\SalesPointRelationManager;
 use App\Models\SalesPointManager;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class SalesPointManagerResource extends Resource
 {
@@ -26,16 +33,16 @@ class SalesPointManagerResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('ربط مدير بنقطة بيع')
+        Section::make('ربط مدير بنقطة بيع')
           ->schema([
-            Forms\Components\Select::make('user_id')
+            Select::make('user_id')
               ->label('المستخدم (مدير نقطة البيع)')
               ->relationship('user', 'name')
               ->searchable()
               ->preload()
               ->required(),
 
-            Forms\Components\Select::make('sales_point_id')
+            Select::make('sales_point_id')
               ->label('نقطة البيع')
               ->relationship('salesPoint', 'name')
               ->searchable()
@@ -56,51 +63,48 @@ class SalesPointManagerResource extends Resource
     return $table
       ->columns([
 
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('اسم المدير')
           ->sortable()
           ->searchable()
           ->icon('heroicon-m-user'),
 
-        Tables\Columns\TextColumn::make('user.email')
+        TextColumn::make('user.email')
           ->label('البريد الإلكتروني')
           ->color('gray'),
 
 
-        Tables\Columns\TextColumn::make('phone')
+        TextColumn::make('phone')
           ->url(fn($state) => "tel:{$state}")
           ->label('الهاتف')
           ->formatStateUsing(fn(string $state): string => "📞 " . $state)
           ->extraAttributes(['class' => 'font-mono']),
 
-
-        Tables\Columns\TextColumn::make('salesPoint.name')
+        TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
           ->sortable()
           ->searchable()
           ->badge()
           ->color('info'),
 
-
-
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ التعيين')
           ->dateTime('d/m/Y')
           ->toggleable(isToggledHiddenByDefault: true),
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('sales_point_id')
+        SelectFilter::make('sales_point_id')
           ->label('تصفية حسب النقطة')
           ->relationship('salesPoint', 'name'),
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, SalesPointManager $record) {
+          ->before(function (DeleteAction $action, SalesPointManager $record) {
             if ($record->cashierTransactions()->exists()) {
-              \Filament\Notifications\Notification::make()
+              Notification::make()
                 ->danger()
                 ->title('لا يمكن حذف المدير')
                 ->body('هذا المدير مسؤول عن تحويلات مالية سابقة للكاشيرات. حذفه سيؤدي إلى فقدان سجلات المحاسبة.')

@@ -4,13 +4,31 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductImportItemResource\Pages;
 use App\Models\ProductImportItem;
-use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductImportItemResource extends Resource
 {
@@ -26,16 +44,16 @@ class ProductImportItemResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('تفاصيل الصنف الوارد')
+        Section::make('تفاصيل الصنف الوارد')
           ->schema([
-            Forms\Components\Select::make('product_import_id')
+            Select::make('product_import_id')
               ->label('  المورد')
               ->relationship('productImport', 'supplier_name')
               ->searchable()
               ->preload()
               ->required(),
 
-            Forms\Components\Select::make('product_variant_id')
+            Select::make('product_variant_id')
               ->label('المنتج (الخيار)')
               ->relationship('productVariant', 'sku')
               ->getOptionLabelFromRecordUsing(fn($record) => "{$record->product->name['ar']} - {$record->sku}")
@@ -43,7 +61,7 @@ class ProductImportItemResource extends Resource
               ->preload()
               ->required(),
 
-            Forms\Components\Select::make('user_id')
+            Select::make('user_id')
               ->label('المستخدم المسؤول')
               ->relationship('user', 'name')
               ->default(auth()->id())
@@ -52,7 +70,7 @@ class ProductImportItemResource extends Resource
               ->required(),
 
 
-            Forms\Components\TextInput::make('quantity')
+            TextInput::make('quantity')
               ->label('الكمية')
               ->numeric()
               ->default(1)
@@ -60,7 +78,7 @@ class ProductImportItemResource extends Resource
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
 
-            Forms\Components\TextInput::make('price')
+            TextInput::make('price')
               ->label('سعر الوحدة')
               ->numeric()
               ->prefix('$')
@@ -68,7 +86,7 @@ class ProductImportItemResource extends Resource
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
 
-            Forms\Components\TextInput::make('shipping_price')
+            TextInput::make('shipping_price')
               ->label('تكلفة الشحن للوحدة')
               ->numeric()
               ->prefix('$')
@@ -76,7 +94,7 @@ class ProductImportItemResource extends Resource
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
 
-            Forms\Components\TextInput::make('discount')
+            TextInput::make('discount')
               ->label('خصم إجمالي')
               ->numeric()
               ->prefix('$')
@@ -84,7 +102,7 @@ class ProductImportItemResource extends Resource
               ->live()
               ->afterStateUpdated(fn($set, $get) => self::updateTotal($set, $get)),
 
-            Forms\Components\TextInput::make('total_cost')
+            TextInput::make('total_cost')
               ->label('إجمالي التكلفة النهائية')
               ->prefix('$')
               ->numeric()
@@ -94,7 +112,7 @@ class ProductImportItemResource extends Resource
                 'class' => 'bg-gray-100 dark:bg-gray-800 font-bold text-primary-600',
               ]),
 
-            Forms\Components\DateTimePicker::make('expected_arrival')
+            DateTimePicker::make('expected_arrival')
               ->label('موعد الوصول المتوقع')
               ->required()
               ->displayFormat('Y-m-d H:i'),
@@ -106,10 +124,10 @@ class ProductImportItemResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('productImport.supplier_name')
+        TextColumn::make('productImport.supplier_name')
           ->label('المورد')->sortable()->searchable(),
 
-        Tables\Columns\TextColumn::make('productVariant.product.name')
+        TextColumn::make('productVariant.product.name')
           ->label('المنتج')
           ->getStateUsing(function ($record) {
             $product = $record->productVariant?->product;
@@ -119,51 +137,51 @@ class ProductImportItemResource extends Resource
             return $product->name[app()->getLocale()] ?? $product->name['ar'] ?? $product->name['en'] ?? '-';
           })
           ->searchable(),
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('المستخدم')
           ->sortable()
           ->searchable(),
 
-        Tables\Columns\TextColumn::make('quantity')
+        TextColumn::make('quantity')
           ->label('الكمية')->badge()->color('success'),
 
-        Tables\Columns\TextColumn::make('price')
+        TextColumn::make('price')
           ->label('السعر')->money('USD', locale: 'en_US')
           ->color('success'),
-        Tables\Columns\TextColumn::make('shipping_price')
+        TextColumn::make('shipping_price')
           ->label('شحن/وحدة')
           ->money('USD', locale: 'en_US')
           ->color('warning')
           ->alignCenter(),
 
-        Tables\Columns\TextColumn::make('discount')
+        TextColumn::make('discount')
           ->label('الخصم')
           ->money('USD', locale: 'en_US')
           ->color('danger')
           ->default(0)
           ->alignCenter(),
 
-        Tables\Columns\TextColumn::make('total_cost')
+        TextColumn::make('total_cost')
           ->label('الإجمالي النهائي')
           ->money('USD', locale: 'en_US')
           ->weight('bold')
           ->color('success')
           ->summarize(
-            Tables\Columns\Summarizers\Sum::make()
+            Sum::make()
               ->label('الإجمالي النهائي')
               ->money('USD', locale: 'en_US')
           ),
 
-        Tables\Columns\TextColumn::make('expected_arrival')
+        TextColumn::make('expected_arrival')
           ->label('تاريخ الوصول')->dateTime('Y-m-d H:i'),
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('product_import_id')
+        SelectFilter::make('product_import_id')
           ->label('المورد')
           ->relationship('productImport', 'supplier_name'),
 
 
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -173,10 +191,10 @@ class ProductImportItemResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make()
+        EditAction::make()
           ->color(fn($record) => $record->payments()->exists() ? 'gray' : 'primary')
           ->icon(fn($record) => $record->payments()->exists() ? 'heroicon-m-lock-closed' : 'heroicon-m-pencil-square')
-          ->before(function (Tables\Actions\EditAction $action, $record) {
+          ->before(function (EditAction $action, $record) {
             if ($record->payments()->exists()) {
               Notification::make()
                 ->title('السجل مقفل ماليًا')
@@ -187,7 +205,7 @@ class ProductImportItemResource extends Resource
             }
           }),
 
-        Tables\Actions\Action::make('print')
+        Action::make('print')
           ->label('طباعة')
           ->icon('heroicon-o-printer')
           ->color('info')
@@ -196,13 +214,13 @@ class ProductImportItemResource extends Resource
           ->openUrlInNewTab(),
 
 
-        Tables\Actions\DeleteAction::make()
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ((float) $record->quantity > 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -215,26 +233,26 @@ class ProductImportItemResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\BulkAction::make('print_selected')
+        BulkActionGroup::make([
+          BulkAction::make('print_selected')
             ->label('طباعة المحدد (PDF)')
             ->icon('heroicon-o-printer')
             ->color('success')
             ->visible(fn(Tables\Table $table) => !($table->getFilters()['trashed'] ?? null))
-            ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+            ->action(function (Collection $records) {
               return redirect()->route('product.import.print', [
                 'ids' => $records->pluck('id')->toArray()
               ]);
             })->openUrlInNewTab(),
 
 
-          Tables\Actions\DeleteBulkAction::make()
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $hasQuantity = $records->contains(fn($record) => (float) $record->quantity > 0);
               if ($hasQuantity) {
                 Notification::make()

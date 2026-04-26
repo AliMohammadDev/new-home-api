@@ -9,7 +9,6 @@ use App\Models\ShippingWarehouse;
 use App\Models\ProductVariant;
 use Filament\Resources\Resource;
 use Filament\Forms\Form;
-use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
@@ -18,6 +17,24 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Collection;
 
 class ShippingWarehouseResource extends Resource
 {
@@ -33,13 +50,13 @@ class ShippingWarehouseResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('تعديل بيانات الشحنة')
+        Section::make('تعديل بيانات الشحنة')
           ->visible(fn($context) => in_array($context, ['edit', 'view']))
           ->schema([
             ...static::getCommonFields(),
           ]),
 
-        Forms\Components\Repeater::make('shipping_items')
+        Repeater::make('shipping_items')
           ->label('إضافة شحنات متعددة')
           ->visible(fn($context) => $context === 'create')
           ->schema([
@@ -56,16 +73,16 @@ class ShippingWarehouseResource extends Resource
   public static function getCommonFields(): array
   {
     return [
-      Forms\Components\Grid::make(3)
+      Grid::make(3)
         ->schema([
-          Forms\Components\Select::make('warehouse_id')
+          Select::make('warehouse_id')
             ->label('المستودع')
             ->relationship('warehouse', 'name')
             ->searchable()
             ->preload()
             ->required(),
 
-          Forms\Components\Select::make('product_variant_id')
+          Select::make('product_variant_id')
             ->label('المنتج (النوع)')
             ->relationship('productVariant', 'sku')
             ->getOptionLabelFromRecordUsing(function ($record) {
@@ -90,7 +107,7 @@ class ShippingWarehouseResource extends Resource
             ->live()
             ->required(),
 
-          Forms\Components\Select::make('user_id')
+          Select::make('user_id')
             ->label('المستخدم المسؤول')
             ->relationship('user', 'name')
             ->default(auth()->id())
@@ -98,12 +115,12 @@ class ShippingWarehouseResource extends Resource
             ->dehydrated()
             ->required(),
 
-          Forms\Components\TextInput::make('unit_name')
+          TextInput::make('unit_name')
             ->label('اسم الوحدة')
             ->placeholder('مثلاً: كرتونة')
             ->datalist(['كرتونة', 'طرد', 'صندوق']),
 
-          Forms\Components\TextInput::make('unit_capacity')
+          TextInput::make('unit_capacity')
             ->label('سعة الوحدة')
             ->numeric()
             ->default(1)
@@ -113,7 +130,7 @@ class ShippingWarehouseResource extends Resource
               $set('amount', $unitsCount * (int) $state);
             }),
 
-          Forms\Components\TextInput::make('units_count')
+          TextInput::make('units_count')
             ->label('عدد الوحدات')
             ->numeric()
             ->live()
@@ -129,7 +146,7 @@ class ShippingWarehouseResource extends Resource
               $set('amount', (int) $state * $capacity);
             }),
 
-          Forms\Components\TextInput::make('amount')
+          TextInput::make('amount')
             ->label('إجمالي الكمية (قطع)')
             ->numeric()
             ->required()
@@ -149,7 +166,7 @@ class ShippingWarehouseResource extends Resource
               'max' => 'عذراً، الكمية المطلوبة غير متوفرة. المتاح هو :max فقط.',
             ]),
 
-          Forms\Components\DateTimePicker::make('arrival_time')
+          DateTimePicker::make('arrival_time')
             ->label('وقت الوصول المتوقع')
             ->required(),
         ]),
@@ -161,22 +178,22 @@ class ShippingWarehouseResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('warehouse.name')
+        TextColumn::make('warehouse.name')
           ->label('المستودع')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('المستخدم')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('productVariant.product.name')
+        TextColumn::make('productVariant.product.name')
           ->label('المنتج')
           ->getStateUsing(fn($record) => $record->productVariant->product->name['ar'] ?? '')
           ->description(fn($record) => "SKU: " . ($record->productVariant->sku ?? '-')),
 
-        Tables\Columns\TextColumn::make('unit_info')
+        TextColumn::make('unit_info')
           ->label('تفاصيل التعبئة')
           ->getStateUsing(function ($record) {
             if (!$record->unit_name)
@@ -186,24 +203,24 @@ class ShippingWarehouseResource extends Resource
           ->icon('heroicon-m-cube')
           ->color('gray'),
 
-        Tables\Columns\TextColumn::make('amount')
+        TextColumn::make('amount')
           ->label('الكمية الإجمالية')
           ->badge()
           ->color('success')
           ->suffix(' قطعة')
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('arrival_time')
+        TextColumn::make('arrival_time')
           ->label('وقت الوصول')
           ->dateTime('Y-m-d H:i')
           ->sortable(),
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\SelectFilter::make('warehouse_id')
+        SelectFilter::make('warehouse_id')
           ->label('تصفية حسب المستودع')
           ->relationship('warehouse', 'name'),
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -211,14 +228,14 @@ class ShippingWarehouseResource extends Resource
           ->native(false),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->amount > 0) {
               Notification::make()
                 ->title('فشل الحذف النهائي')
@@ -231,13 +248,13 @@ class ShippingWarehouseResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()->label('استعادة المحدد'),
+        BulkActionGroup::make([
+          DeleteBulkAction::make()->label('أرشفة المحدد'),
+          RestoreBulkAction::make()->label('استعادة المحدد'),
 
           Tables\Actions\ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('amount', '>', 0);
 
               if ($invalidRecords->count() > 0) {

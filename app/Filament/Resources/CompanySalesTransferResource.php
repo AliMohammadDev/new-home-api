@@ -16,6 +16,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Collection;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 
 class CompanySalesTransferResource extends Resource
 {
@@ -26,13 +43,11 @@ class CompanySalesTransferResource extends Resource
   protected static ?string $modelLabel = 'تحويل مالي';
   protected static ?string $pluralModelLabel = 'التحويلات المالية';
 
-
-
   public static function form(Form $form): Form
   {
     return $form
       ->schema([
-        Forms\Components\Select::make('sales_point_id')
+        Select::make('sales_point_id')
           ->label('نقطة البيع')
           ->relationship(
             name: 'salesPoint',
@@ -47,7 +62,7 @@ class CompanySalesTransferResource extends Resource
           ->preload()
           ->live(),
 
-        Forms\Components\Select::make('trans_type')
+        Select::make('trans_type')
           ->label('نوع العملية')
           ->options([
             'deposit' => 'دائن',
@@ -55,18 +70,17 @@ class CompanySalesTransferResource extends Resource
           ])
           ->required(),
 
-
-        Forms\Components\TextInput::make('name')
+        TextInput::make('name')
           ->label('بيان العملية / المادة')
           ->placeholder('مثلاً: تحويل عهدة نقدية')
           ->maxLength(255),
 
-        Forms\Components\DatePicker::make('date')
+        DatePicker::make('date')
           ->label('التاريخ')
           ->default(now())
           ->required(),
 
-        Forms\Components\TextInput::make('quantity')
+        TextInput::make('quantity')
           ->label('الكمية / المبلغ')
           ->numeric()
           ->required()
@@ -82,7 +96,7 @@ class CompanySalesTransferResource extends Resource
             },
           ]),
 
-        Forms\Components\Textarea::make('note')
+        Textarea::make('note')
           ->label('ملاحظات إضافية')
           ->columnSpanFull(),
       ]);
@@ -92,17 +106,17 @@ class CompanySalesTransferResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('salesPoint.name')
+        TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('name')
+        TextColumn::make('name')
           ->label('البيان')
           ->searchable()
           ->placeholder('بدون بيان'),
 
-        Tables\Columns\TextColumn::make('trans_type')
+        TextColumn::make('trans_type')
           ->label('نوع العملية')
           ->badge()
           ->formatStateUsing(fn(string $state): string => match ($state) {
@@ -121,38 +135,37 @@ class CompanySalesTransferResource extends Resource
             default => 'heroicon-m-minus',
           }),
 
-
-        Tables\Columns\TextColumn::make('quantity')
+        TextColumn::make('quantity')
           ->numeric()
           ->money('USD', locale: 'en_US')
           ->sortable()
           ->label('المبلغ')
           ->summarize(
-            Tables\Columns\Summarizers\Sum::make()
+            Sum::make()
               ->label('الإجمالي')
               ->money('USD', locale: 'en_US')
           ),
 
-        Tables\Columns\TextColumn::make('date')
+        TextColumn::make('date')
           ->date()
           ->sortable(),
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\SelectFilter::make('trans_type')
+        SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'دائن',
             'withdraw' => 'مدين',
           ]),
 
-        Tables\Filters\SelectFilter::make('sales_point_id')
+        SelectFilter::make('sales_point_id')
           ->label('نقطة البيع')
           ->relationship('salesPoint', 'name')
           ->searchable()
           ->preload(),
 
-        Tables\Filters\Filter::make('date')
+        Filter::make('date')
           ->form([
             Forms\Components\DatePicker::make('from')->label('من تاريخ'),
             Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
@@ -178,14 +191,14 @@ class CompanySalesTransferResource extends Resource
           ->native(false),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->quantity != 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -197,14 +210,14 @@ class CompanySalesTransferResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
+        BulkActionGroup::make([
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('quantity', '!=', 0);
 
               if ($invalidRecords->count() > 0) {
@@ -213,7 +226,6 @@ class CompanySalesTransferResource extends Resource
                   ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
                   ->danger()
                   ->send();
-
                 $action->halt();
               }
             }),

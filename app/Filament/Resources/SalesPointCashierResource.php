@@ -5,12 +5,18 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SalesPointCashierResource\Pages;
 use App\Filament\Resources\SalesPointCashierResource\RelationManagers\FatoraRelationManager;
 use App\Models\SalesPointCashier;
-use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 
 class SalesPointCashierResource extends Resource
@@ -26,9 +32,9 @@ class SalesPointCashierResource extends Resource
   public static function form(Form $form): Form
   {
     return $form->schema([
-      Forms\Components\Section::make('بيانات الكاشير الأساسية')
+      Section::make('بيانات الكاشير الأساسية')
         ->schema([
-          Forms\Components\Select::make('sales_point_id')
+          Select::make('sales_point_id')
             ->label('نقطة البيع')
             ->relationship(
               name: 'salesPoint',
@@ -42,14 +48,14 @@ class SalesPointCashierResource extends Resource
             ->preload()
             ->required(),
 
-          Forms\Components\Select::make('user_id')
+          Select::make('user_id')
             ->label('المستخدم (الكاشير)')
             ->relationship('user', 'name')
             ->searchable()
             ->preload()
             ->required(),
 
-          Forms\Components\Select::make('shift_type')
+          Select::make('shift_type')
             ->label('نوع الوردية')
             ->options([
               'morning' => 'صباحية',
@@ -59,9 +65,6 @@ class SalesPointCashierResource extends Resource
             ])
             ->native(false)
             ->required(),
-
-
-
         ])->columns(2),
     ]);
   }
@@ -71,22 +74,22 @@ class SalesPointCashierResource extends Resource
     return $table
       ->modifyQueryUsing(fn(Builder $query) => $query->with(['user', 'salesPoint']))
       ->columns([
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('الكاشير')
           ->sortable()
           ->searchable(),
 
-        Tables\Columns\TextColumn::make('salesPoint.name')
+        TextColumn::make('salesPoint.name')
           ->label('نقطة البيع')
           ->searchable()
           ->badge(),
 
-        Tables\Columns\TextColumn::make('daily_limit')
+        TextColumn::make('daily_limit')
           ->label('حد الصندوق')
           ->money('USD', locale: 'en_US')
         ,
 
-        Tables\Columns\TextColumn::make('shift_type')
+        TextColumn::make('shift_type')
           ->label('الوردية')
           ->badge()
           ->color(fn(string $state): string => match ($state) {
@@ -107,13 +110,13 @@ class SalesPointCashierResource extends Resource
 
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('sales_point_id')
+        SelectFilter::make('sales_point_id')
           ->label('نقطة البيع')
           ->relationship('salesPoint', 'name')
           ->searchable()
           ->preload(),
 
-        Tables\Filters\SelectFilter::make('shift_type')
+        SelectFilter::make('shift_type')
           ->label('نوع الوردية')
           ->options([
             'morning' => 'صباحية',
@@ -124,9 +127,9 @@ class SalesPointCashierResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
-          ->before(function (Tables\Actions\DeleteAction $action, SalesPointCashier $record) {
+        EditAction::make(),
+        DeleteAction::make()
+          ->before(function (DeleteAction $action, SalesPointCashier $record) {
             if ($record->fatora()->exists()) {
               \Filament\Notifications\Notification::make()
                 ->danger()
@@ -147,8 +150,8 @@ class SalesPointCashierResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

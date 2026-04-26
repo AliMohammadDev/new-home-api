@@ -5,13 +5,21 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MaterialResource\Pages;
 use App\Models\Material;
 use Filament\Forms;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 
 class MaterialResource extends Resource
 {
@@ -27,7 +35,7 @@ class MaterialResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Tabs::make('Languages')
+        Tabs::make('Languages')
           ->tabs([
             Forms\Components\Tabs\Tab::make('English')
               ->schema([
@@ -37,7 +45,7 @@ class MaterialResource extends Resource
               ]),
             Forms\Components\Tabs\Tab::make('Arabic')
               ->schema([
-                Forms\Components\TextInput::make('material.ar')
+                TextInput::make('material.ar')
                   ->label('اسم المادة (AR)')
                   ->required(),
               ]),
@@ -49,12 +57,12 @@ class MaterialResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('material')
+        TextColumn::make('material')
           ->label('الاسم')
           ->getStateUsing(fn(Material $record) => $record->material[App::getLocale()] ?? $record->material['en'] ?? '')
           ->sortable()
           ->searchable(),
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()
           ->searchable()
@@ -62,21 +70,22 @@ class MaterialResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
-        Tables\Filters\Filter::make('material')
+        Filter::make('material')
           ->label('بحث بالمادة')
           ->form([
-            Forms\Components\TextInput::make('material')->label('المادة'),
+            TextInput::make('material')
+              ->label('المادة'),
           ])
           ->query(function (Builder $query, array $data) {
             return $query->when($data['material'] ?? null, fn($q, $color) => $q->where('material', 'like', "%$color%"));
           }),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        ViewAction::make()->label('عرض'),
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, Material $record) {
+          ->before(function (DeleteAction $action, Material $record) {
             if ($record->productVariants()->exists()) {
               Notification::make()
                 ->danger()
@@ -89,8 +98,8 @@ class MaterialResource extends Resource
 
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

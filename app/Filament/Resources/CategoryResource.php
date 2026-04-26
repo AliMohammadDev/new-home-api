@@ -7,12 +7,23 @@ use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\App;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
+
 
 class CategoryResource extends Resource
 {
@@ -30,7 +41,7 @@ class CategoryResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Tabs::make('Languages')
+        Tabs::make('Languages')
           ->tabs([
             Forms\Components\Tabs\Tab::make('English')
               ->schema([
@@ -42,10 +53,10 @@ class CategoryResource extends Resource
               ]),
             Forms\Components\Tabs\Tab::make('Arabic')
               ->schema([
-                Forms\Components\TextInput::make('name.ar')
+                TextInput::make('name.ar')
                   ->label('اسم التصنيف (AR)')
                   ->required(),
-                Forms\Components\Textarea::make('description.ar')
+                Textarea::make('description.ar')
                   ->label('الوصف (AR)'),
               ]),
           ]),
@@ -65,13 +76,13 @@ class CategoryResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
+        SpatieMediaLibraryImageColumn::make('image')
           ->collection('category_images')
           ->limit(3)
           ->conversion('default')
           ->label('الصورة')
           ->circular(),
-        Tables\Columns\TextColumn::make('name')
+        TextColumn::make('name')
           ->label('الاسم')
           ->getStateUsing(fn(Category $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->sortable()
@@ -81,18 +92,18 @@ class CategoryResource extends Resource
               ->orWhere("name->en", 'like', "%{$search}%");
           }),
 
-        Tables\Columns\TextColumn::make('description')
+        TextColumn::make('description')
           ->label('الوصف')
           ->getStateUsing(fn(Category $record) => $record->description[App::getLocale()] ?? $record->description['en'] ?? '')
           ->sortable()
           ->searchable()
           ->limit(50),
 
-        Tables\Columns\TextColumn::make('products_count')
+        TextColumn::make('products_count')
           ->counts('products')
           ->label('عدد المنتجات'),
 
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()
           ->searchable()
@@ -100,10 +111,10 @@ class CategoryResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\Filter::make('name')
+        Filter::make('name')
           ->label('اسم التصنيف')
           ->form([
-            Forms\Components\TextInput::make('name')->label('اسم التصنيف'),
+            TextInput::make('name')->label('اسم التصنيف'),
           ])
           ->query(function (Builder $query, array $data) {
             return $query->when($data['name'], function ($q, $name) {
@@ -116,11 +127,11 @@ class CategoryResource extends Resource
           }),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        ViewAction::make()->label('عرض'),
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, Category $record) {
+          ->before(function (DeleteAction $action, Category $record) {
             if ($record->products()->exists()) {
               Notification::make()
                 ->danger()
@@ -132,8 +143,8 @@ class CategoryResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
 
         ]),
       ]);

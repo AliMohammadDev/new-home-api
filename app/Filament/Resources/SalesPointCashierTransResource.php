@@ -12,12 +12,30 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Collection;
 
 class SalesPointCashierTransResource extends Resource
 {
@@ -31,9 +49,9 @@ class SalesPointCashierTransResource extends Resource
   public static function form(Form $form): Form
   {
     return $form->schema([
-      Forms\Components\Section::make('تفاصيل المناقلة')
+      Section::make('تفاصيل المناقلة')
         ->schema([
-          Forms\Components\Select::make('sales_point_id')
+          Select::make('sales_point_id')
             ->label('نقطة البيع')
             ->relationship(
               name: 'salesPoint',
@@ -60,7 +78,7 @@ class SalesPointCashierTransResource extends Resource
               }
             }),
 
-          Forms\Components\Select::make('sales_point_manager_id')
+          Select::make('sales_point_manager_id')
             ->label('المدير المسؤول')
             ->options(function (Forms\Get $get) {
               $salesPointId = $get('sales_point_id');
@@ -82,7 +100,7 @@ class SalesPointCashierTransResource extends Resource
             ->dehydrated()
             ->helperText(fn() => !auth()->user()->hasRole('super_admin') ? 'يتم تحديد المدير تلقائياً بناءً على حسابك.' : ''),
 
-          Forms\Components\Select::make('sales_point_cashier_id')
+          Select::make('sales_point_cashier_id')
             ->label('الموظف المستلم (الكاشير)')
             ->key(fn(Forms\Get $get) => 'cashier_' . $get('sales_point_id'))
             ->options(function (Forms\Get $get) {
@@ -112,17 +130,17 @@ class SalesPointCashierTransResource extends Resource
 
 
 
-          Forms\Components\TextInput::make('name')
+          TextInput::make('name')
             ->label('بيان العملية / المادة')
             ->placeholder('مثلاً: تحويل عهدة نقدية')
             ->required(),
 
-          Forms\Components\DatePicker::make('date')
+          DatePicker::make('date')
             ->label('التاريخ')
             ->default(now())
             ->required(),
 
-          Forms\Components\Select::make('trans_type')
+          Select::make('trans_type')
             ->label('نوع العملية')
             ->options([
               'deposit' => 'دائن',
@@ -130,7 +148,7 @@ class SalesPointCashierTransResource extends Resource
             ])
             ->required(),
 
-          Forms\Components\TextInput::make('amount')
+          TextInput::make('amount')
             ->label('المبلغ')
             ->numeric()
             ->required()
@@ -145,7 +163,7 @@ class SalesPointCashierTransResource extends Resource
               },
             ]),
 
-          Forms\Components\TextInput::make('waste')
+          TextInput::make('waste')
             ->label('كمية الهدر (إن وجد)')
             ->numeric()
             ->default(0)
@@ -154,7 +172,7 @@ class SalesPointCashierTransResource extends Resource
             ->helperText('أدخل كمية الهدر أو التالف في هذه العملية إن وجدت.'),
 
 
-          Forms\Components\TextInput::make('current_cashier_balance')
+          TextInput::make('current_cashier_balance')
             ->label('رصيد الصندوق الحالي')
             ->prefix('$')
             ->readonly()
@@ -163,7 +181,7 @@ class SalesPointCashierTransResource extends Resource
             ->extraInputAttributes(['style' => 'font-weight: bold; color: #10b981;'])
             ->dehydrated(false),
 
-          Forms\Components\Textarea::make('note')
+          Textarea::make('note')
             ->label('ملاحظات إضافية')
             ->columnSpanFull(),
         ])->columns(2),
@@ -173,31 +191,31 @@ class SalesPointCashierTransResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('date')
+      TextColumn::make('date')
         ->label('التاريخ')
         ->date()
         ->dateTime('Y-m-d H:i')
         ->timezone('Asia/Riyadh')
         ->sortable(),
 
-      Tables\Columns\TextColumn::make('salesPoint.name')
+      TextColumn::make('salesPoint.name')
         ->label('نقطة البيع')
         ->badge()
         ->color('gray'),
 
-      Tables\Columns\TextColumn::make('name')
+      TextColumn::make('name')
         ->label('البيان / المادة')
         ->searchable(),
 
-      Tables\Columns\TextColumn::make('manager.user.name')
+      TextColumn::make('manager.user.name')
         ->label('المدير المسلم')
         ->searchable(),
 
-      Tables\Columns\TextColumn::make('cashier.user.name')
+      TextColumn::make('cashier.user.name')
         ->label('المستلم')
         ->searchable(),
 
-      Tables\Columns\TextColumn::make('trans_type')
+      TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
         ->formatStateUsing(fn(string $state): string => match ($state) {
@@ -216,45 +234,45 @@ class SalesPointCashierTransResource extends Resource
           default => 'heroicon-m-minus',
         }),
 
-      Tables\Columns\TextColumn::make('amount')
+      TextColumn::make('amount')
         ->label('الكمية')
         ->money('USD', locale: 'en_US')
         ->sortable()
         ->summarize([
-          Tables\Columns\Summarizers\Sum::make()
+          Sum::make()
             ->label('الإجمالي')
             ->money('USD', locale: 'en_US'),
         ]),
 
-      Tables\Columns\TextColumn::make('waste')
+      TextColumn::make('waste')
         ->label('الهدر')
         ->numeric(decimalPlaces: 2, locale: 'en')
         ->color('warning')
         ->sortable()
         ->placeholder('0.00')
         ->summarize([
-          Tables\Columns\Summarizers\Sum::make()
+          Sum::make()
             ->label('إجمالي الهدر')
             ->numeric(locale: 'en'),
         ]),
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\SelectFilter::make('trans_type')
+        SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'دائن',
             'withdraw' => 'مدين',
           ]),
 
-        Tables\Filters\SelectFilter::make('sales_point_id')
+        SelectFilter::make('sales_point_id')
           ->label('نقطة البيع')
           ->relationship('salesPoint', 'name'),
 
-        Tables\Filters\Filter::make('date')
+        Filter::make('date')
           ->form([
-            Forms\Components\DatePicker::make('from')->label('من تاريخ'),
-            Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
+            DatePicker::make('from')->label('من تاريخ'),
+            DatePicker::make('until')->label('إلى تاريخ'),
           ])
           ->query(function (Builder $query, array $data): Builder {
             return $query
@@ -262,7 +280,7 @@ class SalesPointCashierTransResource extends Resource
               ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
           }),
 
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -271,14 +289,14 @@ class SalesPointCashierTransResource extends Resource
 
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->amount != 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -290,14 +308,14 @@ class SalesPointCashierTransResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
+        BulkActionGroup::make([
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('amount', '!=', 0);
 
               if ($invalidRecords->count() > 0) {

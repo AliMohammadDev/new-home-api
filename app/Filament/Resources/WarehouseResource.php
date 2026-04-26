@@ -5,12 +5,20 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WarehouseResource\Pages;
 use App\Filament\Resources\WarehouseResource\RelationManagers;
 use App\Models\Warehouse;
-use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class WarehouseResource extends Resource
 {
@@ -26,9 +34,9 @@ class WarehouseResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make()
+        Section::make()
           ->schema([
-            Forms\Components\Select::make('user_id')
+            Select::make('user_id')
               ->label('المسؤول عن المستودع')
               ->relationship('user', 'name')
               ->default(auth()->id())
@@ -36,21 +44,21 @@ class WarehouseResource extends Resource
               ->searchable()
               ->preload(),
 
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
               ->label('اسم المستودع')
               ->required()
               ->maxLength(255),
 
-            Forms\Components\TextInput::make('phone')
+            TextInput::make('phone')
               ->label('رقم الهاتف')
               ->tel()
               ->required(),
 
-            Forms\Components\TextInput::make('city')
+            TextInput::make('city')
               ->label('المدينة')
               ->required(),
 
-            Forms\Components\Textarea::make('address')
+            Textarea::make('address')
               ->label('العنوان التفصيلي')
               ->required()
               ->columnSpanFull(),
@@ -63,32 +71,32 @@ class WarehouseResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('name')
+        TextColumn::make('name')
           ->label('الاسم')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('المسؤول')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('city')
+        TextColumn::make('city')
           ->label('المدينة')
           ->badge()
           ->color('info')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('address')
+        TextColumn::make('address')
           ->label('العنوان التفصيلي')
           ->limit(30)
           ->sortable(),
-        Tables\Columns\TextColumn::make('phone')
+        TextColumn::make('phone')
           ->label('الهاتف')
           ->copyable(),
 
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإضافة')
           ->dateTime('Y-m-d H:i')
           ->timezone('Asia/Riyadh')
@@ -97,11 +105,11 @@ class WarehouseResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\SelectFilter::make('city')
+        SelectFilter::make('city')
           ->label('تصفية حسب المدينة')
-          ->options(fn() => \App\Models\Warehouse::pluck('city', 'city')->unique()->toArray()),
+          ->options(fn() => Warehouse::pluck('city', 'city')->unique()->toArray()),
 
-        Tables\Filters\SelectFilter::make('user_id')
+        SelectFilter::make('user_id')
           ->label('تصفية حسب المسؤول')
           ->relationship('user', 'name')
           ->visible(fn() => auth()->user()->hasRole('super_admin'))
@@ -109,9 +117,9 @@ class WarehouseResource extends Resource
           ->preload(),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
-          ->before(function (Tables\Actions\DeleteAction $action, Warehouse $record) {
+        EditAction::make(),
+        DeleteAction::make()
+          ->before(function (DeleteAction $action, Warehouse $record) {
             if ($record->productVariants()->exists()) {
               \Filament\Notifications\Notification::make()
                 ->danger()
@@ -125,8 +133,8 @@ class WarehouseResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

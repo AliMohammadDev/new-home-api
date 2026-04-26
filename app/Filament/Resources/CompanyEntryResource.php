@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Exports\CompanyEntryExporter;
 use App\Filament\Resources\CompanyEntryResource\Pages;
 use App\Models\CompanyEntry;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -15,6 +14,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class CompanyEntryResource extends Resource
 {
@@ -30,23 +40,23 @@ class CompanyEntryResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('تفاصيل الحركة المالية')
+        Section::make('تفاصيل الحركة المالية')
           ->schema([
-            Forms\Components\Select::make('company_treasure_id')
+            Select::make('company_treasure_id')
               ->label('الصندوق')
               ->relationship('treasure', 'name')
               ->required()
               ->searchable()
               ->preload(),
 
-            Forms\Components\Select::make('user_id')
+            Select::make('user_id')
               ->label('الموظف المسؤول')
               ->relationship('user', 'name')
               ->default(auth()->id())
               ->required()
               ->searchable(),
 
-            Forms\Components\Select::make('trans_type')
+            Select::make('trans_type')
               ->label('نوع العملية')
               ->options([
                 'deposit' => 'دائن',
@@ -55,13 +65,13 @@ class CompanyEntryResource extends Resource
               ->required()
               ->native(false),
 
-            Forms\Components\TextInput::make('amount')
+            TextInput::make('amount')
               ->label('المبلغ')
               ->numeric()
               ->required()
               ->prefix('USD'),
 
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
               ->label('البيان / السبب')
               ->required()
               ->columnSpanFull()
@@ -72,23 +82,23 @@ class CompanyEntryResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('created_at')
+      TextColumn::make('created_at')
         ->label('التاريخ')
         ->searchable()
         ->dateTime('Y-m-d H:i')
         ->timezone('Asia/Riyadh'),
 
-      Tables\Columns\TextColumn::make('treasure.name')
+      TextColumn::make('treasure.name')
         ->label('الصندوق')
         ->searchable()
         ->sortable(),
 
-      Tables\Columns\TextColumn::make('user.name')
+      TextColumn::make('user.name')
         ->label('الموظف')
         ->searchable()
         ->sortable(),
 
-      Tables\Columns\TextColumn::make('trans_type')
+      TextColumn::make('trans_type')
         ->label('نوع العملية')
         ->badge()
         ->formatStateUsing(fn(string $state): string => match ($state) {
@@ -108,29 +118,29 @@ class CompanyEntryResource extends Resource
         }),
 
 
-      Tables\Columns\TextColumn::make('name')
+      TextColumn::make('name')
         ->label('البيان')
         ->searchable(),
-      Tables\Columns\TextColumn::make('amount')
+      TextColumn::make('amount')
         ->label('المبلغ')
         ->money('USD', locale: 'en_US')
 
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\SelectFilter::make('trans_type')
+        SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'دائن',
             'withdraw' => 'مدين',
           ]),
-        Tables\Filters\SelectFilter::make('company_treasure_id')
+        SelectFilter::make('company_treasure_id')
           ->label('الصندوق')
           ->relationship('treasure', 'name'),
 
 
 
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة السجلات')
           ->falseLabel('السجلات المؤرشفة فقط')
           ->trueLabel('السجلات النشطة فقط')
@@ -158,14 +168,14 @@ class CompanyEntryResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
+        BulkActionGroup::make([
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('amount', '!=', 0);
 
               if ($invalidRecords->count() > 0) {

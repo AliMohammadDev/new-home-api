@@ -4,12 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DeliveryCompanyResource\Pages;
 use App\Models\DeliveryCompany;
-use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 
 class DeliveryCompanyResource extends Resource
 {
@@ -25,29 +35,29 @@ class DeliveryCompanyResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('معلومات شركة التوصيل')
+        Section::make('معلومات شركة التوصيل')
           ->schema([
-            Forms\Components\Select::make('user_id')
+            Select::make('user_id')
               ->label('المستخدم المسؤول')
               ->relationship('user', 'name')
               ->searchable()
               ->preload()
               ->required(),
 
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
               ->label('اسم الشركة')
               ->required()
               ->maxLength(255),
 
-            Forms\Components\TextInput::make('phone')
+            TextInput::make('phone')
               ->label('رقم التواصل')
               ->tel(),
 
-            Forms\Components\Textarea::make('address')
+            Textarea::make('address')
               ->label('العنوان')
               ->columnSpanFull(),
 
-            Forms\Components\Toggle::make('is_active')
+            Toggle::make('is_active')
               ->label('حالة الشركة')
               ->default(true),
           ])->columns(2),
@@ -58,41 +68,41 @@ class DeliveryCompanyResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('name')
+        TextColumn::make('name')
           ->label('اسم الشركة')
           ->searchable()
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('user.name')
+        TextColumn::make('user.name')
           ->label('المسؤول')
           ->sortable(),
 
-        Tables\Columns\TextColumn::make('phone')
+        TextColumn::make('phone')
           ->label('الهاتف')
           ->copyable()
           ->icon('heroicon-m-phone'),
 
-        Tables\Columns\IconColumn::make('is_active')
+        IconColumn::make('is_active')
           ->label('نشط')
           ->toggleable(isToggledHiddenByDefault: true)
           ->boolean(),
 
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإضافة')
           ->dateTime()
           ->toggleable(isToggledHiddenByDefault: true),
       ])
       ->filters([
-        Tables\Filters\TernaryFilter::make('is_active')
+        TernaryFilter::make('is_active')
           ->label('الشركات النشطة فقط'),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        EditAction::make(),
+        DeleteAction::make(),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

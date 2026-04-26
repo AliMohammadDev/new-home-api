@@ -7,7 +7,6 @@ use App\Filament\Resources\CartResource\RelationManagers\CartItemsRelationManage
 use App\Models\Cart;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;

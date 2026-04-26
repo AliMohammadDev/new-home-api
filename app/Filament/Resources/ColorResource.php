@@ -6,13 +6,22 @@ use App\Filament\Resources\ColorResource\Pages;
 use App\Models\Color;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\App;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 
 class ColorResource extends Resource
 {
@@ -28,7 +37,7 @@ class ColorResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Tabs::make('Languages')
+        Tabs::make('Languages')
           ->tabs([
             Forms\Components\Tabs\Tab::make('English')
               ->schema([
@@ -38,7 +47,7 @@ class ColorResource extends Resource
               ]),
             Forms\Components\Tabs\Tab::make('Arabic')
               ->schema([
-                Forms\Components\TextInput::make('color.ar')
+                TextInput::make('color.ar')
                   ->label('اسم اللون (AR)')
                   ->required(),
               ]),
@@ -54,17 +63,17 @@ class ColorResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\ColorColumn::make('hex_code')
+        ColorColumn::make('hex_code')
           ->label('اللون')
           ->copyable(),
 
-        Tables\Columns\TextColumn::make('color')
+        TextColumn::make('color')
           ->label('الاسم')
           ->getStateUsing(fn(Color $record) => $record->color[App::getLocale()] ?? $record->color['en'] ?? '')
           ->sortable()
           ->searchable(),
 
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()
           ->searchable()
@@ -72,21 +81,21 @@ class ColorResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
-        Tables\Filters\Filter::make('color')
+        Filter::make('color')
           ->label('بحث باللون')
           ->form([
-            Forms\Components\TextInput::make('color')->label('اللون'),
+            TextInput::make('color')->label('اللون'),
           ])
           ->query(function (Builder $query, array $data) {
             return $query->when($data['color'] ?? null, fn($q, $color) => $q->where('color', 'like', "%$color%"));
           }),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        ViewAction::make()->label('عرض'),
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, Color $record) {
+          ->before(function (DeleteAction $action, Color $record) {
             if ($record->productVariants()->exists()) {
               Notification::make()
                 ->danger()
@@ -99,8 +108,8 @@ class ColorResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

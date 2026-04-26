@@ -3,14 +3,20 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SizeResource\Pages;
+use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Forms\Form;
 use App\Models\Size;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 
 class SizeResource extends Resource
 {
@@ -27,10 +33,9 @@ class SizeResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\TextInput::make('size')
+        TextInput::make('size')
           ->label('اسم الحجم')
           ->required()
-
       ]);
   }
 
@@ -38,12 +43,12 @@ class SizeResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('size')
+        TextColumn::make('size')
           ->label('الحجم')
           ->searchable()
           ->sortable()
           ->searchable(),
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ الإنشاء')
           ->sortable()
           ->searchable()
@@ -51,10 +56,11 @@ class SizeResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
-        Tables\Filters\Filter::make('color')
+        Filter::make('color')
           ->label('بحث باللون')
           ->form([
-            Forms\Components\TextInput::make('size')->label('الحجم'),
+            TextInput::make('size')
+              ->label('الحجم'),
           ])
           ->query(function (Builder $query, array $data) {
             return $query->when($data['size'] ?? null, fn($q, $color) => $q->where('size', 'like', "%$color%"));
@@ -62,12 +68,12 @@ class SizeResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\ViewAction::make()->label('عرض'),
+        EditAction::make(),
+        ViewAction::make()->label('عرض'),
 
-        Tables\Actions\DeleteAction::make()
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, Size $record) {
+          ->before(function (DeleteAction $action, Size $record) {
             if ($record->productVariants()->exists()) {
               Notification::make()
                 ->danger()
@@ -80,8 +86,8 @@ class SizeResource extends Resource
 
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+        BulkActionGroup::make([
+          DeleteBulkAction::make(),
         ]),
       ]);
   }

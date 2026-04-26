@@ -12,9 +12,16 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Tabs;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Actions\ExportBulkAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 
 class ProductResource extends Resource
 {
@@ -45,42 +52,42 @@ class ProductResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Tabs::make('Languages')
+        Tabs::make('Languages')
           ->tabs([
             Forms\Components\Tabs\Tab::make('English')->schema([
-              Forms\Components\Section::make()
+              Section::make()
                 ->schema([
-                  Forms\Components\TextInput::make('name.en')
+                  TextInput::make('name.en')
                     ->label('اسم المنتج (EN)')
                     ->required(),
-                  Forms\Components\Textarea::make('body.en')
+                  Textarea::make('body.en')
                     ->label('الوصف (EN)')
                     ->required(),
                 ]),
             ]),
             Forms\Components\Tabs\Tab::make('Arabic')->schema([
-              Forms\Components\Section::make()
+              Section::make()
                 ->schema([
-                  Forms\Components\TextInput::make('name.ar')
+                  TextInput::make('name.ar')
                     ->label('اسم المنتج (AR)')
                     ->required(),
-                  Forms\Components\Textarea::make('body.ar')
+                  Textarea::make('body.ar')
                     ->label('الوصف (AR)')
                     ->required(),
                 ]),
             ]),
           ])->columnSpanFull(),
 
-        Forms\Components\Section::make('معلومات إضافية')
+        Section::make('معلومات إضافية')
           ->schema([
-            Forms\Components\Select::make('category_id')
+            Select::make('category_id')
               ->label('الصنف')
               ->relationship('category', 'id')
               ->getOptionLabelFromRecordUsing(fn($record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
               ->searchable(['name'])
               ->preload()
               ->required(),
-            Forms\Components\Toggle::make('is_featured')
+            Toggle::make('is_featured')
               ->label('منتج مميز'),
           ])->columns(2),
       ]);
@@ -91,7 +98,7 @@ class ProductResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('name')
+        TextColumn::make('name')
           ->label('الاسم')
           ->getStateUsing(fn(Product $record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->sortable()
@@ -100,7 +107,7 @@ class ProductResource extends Resource
               ->orWhere('name->en', 'like', "%{$search}%");
           }),
 
-        Tables\Columns\TextColumn::make('body')
+        TextColumn::make('body')
           ->label('الوصف')
           ->getStateUsing(fn(Product $record) => $record->body[App::getLocale()] ?? $record->body['en'] ?? '')
           ->limit(50)
@@ -110,19 +117,19 @@ class ProductResource extends Resource
               ->orWhere('body->en', 'like', "%{$search}%");
           }),
 
-        Tables\Columns\TextColumn::make('category.name')
+        TextColumn::make('category.name')
           ->label('الصنف')
           ->getStateUsing(fn($record) => $record->category->name[App::getLocale()] ?? $record->category->name['en'] ?? '')
           ->sortable(),
 
-        Tables\Columns\IconColumn::make('is_featured')
+        IconColumn::make('is_featured')
           ->label('مميز')
           ->boolean()
           ->sortable()
           ->searchable(),
       ])
       ->filters([
-        Tables\Filters\Filter::make('name')
+        Filter::make('name')
           ->label('بحث بالاسم')
           ->form([
             Forms\Components\TextInput::make('name_search')->label('اسم المنتج'),
@@ -135,14 +142,14 @@ class ProductResource extends Resource
             });
           }),
 
-        Tables\Filters\SelectFilter::make('category_id')
+        SelectFilter::make('category_id')
           ->label('الصنف')
           ->relationship('category', 'id')
           ->getOptionLabelFromRecordUsing(fn($record) => $record->name[App::getLocale()] ?? $record->name['en'] ?? '')
           ->searchable()
           ->preload(),
 
-        Tables\Filters\TrashedFilter::make()
+        TrashedFilter::make()
           ->label('حالة الأرشفة')
           ->native(false),
       ])

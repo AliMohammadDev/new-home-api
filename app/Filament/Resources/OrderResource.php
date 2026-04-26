@@ -20,6 +20,15 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrderResource extends Resource
 {
@@ -184,23 +193,23 @@ class OrderResource extends Resource
 
       ])
       ->actions([
-        Tables\Actions\ViewAction::make()
+        ViewAction::make()
           ->label('عرض التفاصيل')
           ->color('info')
           ->icon('heroicon-m-eye'),
 
-        Tables\Actions\EditAction::make()
+        EditAction::make()
           ->label('تأكيد الطلب')
           ->color('warning')
           ->icon('heroicon-m-check-circle'),
 
-        Tables\Actions\DeleteAction::make()
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->total_amount != 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -216,13 +225,13 @@ class OrderResource extends Resource
         fn(Order $record): string => Pages\ViewOrder::getUrl([$record->id]),
       )
       ->bulkActions([
-        Tables\Actions\DeleteBulkAction::make()
+        DeleteBulkAction::make()
           ->label('أرشفة المحدد'),
-        Tables\Actions\RestoreBulkAction::make()
+        RestoreBulkAction::make()
           ->label('استعادة المحدد'),
-        Tables\Actions\ForceDeleteBulkAction::make()
+        ForceDeleteBulkAction::make()
           ->label('حذف نهائي للمحدد')
-          ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+          ->before(function (ForceDeleteBulkAction $action, Collection $records) {
             $invalidRecords = $records->where('total_amount', '!=', 0);
             if ($invalidRecords->count() > 0) {
               Notification::make()

@@ -12,14 +12,28 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Collection;
 
 class SupplierPaymentResource extends Resource
 {
@@ -35,9 +49,9 @@ class SupplierPaymentResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('تفاصيل الدفعة المالية')
+        Section::make('تفاصيل الدفعة المالية')
           ->schema([
-            Forms\Components\Select::make('product_import_item_id')
+            Select::make('product_import_item_id')
               ->label('اختيار الفاتورة (المورد)')
               ->relationship('productImportItem', 'id')
               ->getOptionLabelFromRecordUsing(
@@ -57,7 +71,7 @@ class SupplierPaymentResource extends Resource
                 }
               }),
 
-            Forms\Components\TextInput::make('amount')
+            TextInput::make('amount')
               ->label('المبلغ المراد دفعه الآن')
               ->numeric()
               ->prefix('$')
@@ -87,7 +101,7 @@ class SupplierPaymentResource extends Resource
                 $set('remaining_balance_display', number_format($newRemaining, 2, '.', ''));
               }),
 
-            Forms\Components\TextInput::make('remaining_balance_display')
+            TextInput::make('remaining_balance_display')
               ->label('الرصيد المتبقي بعد هذه العملية')
               ->prefix('$')
               ->readOnly()
@@ -109,11 +123,11 @@ class SupplierPaymentResource extends Resource
                 $originalRemaining = (float) $item->remaining_amount + ($record ? (float) $record->amount : 0);
                 return number_format($originalRemaining - $currentAmountInInput, 2, '.', '');
               }),
-            Forms\Components\DatePicker::make('payment_date')
+            DatePicker::make('payment_date')
               ->label('تاريخ الدفع')
               ->default(now())
               ->required(),
-            Forms\Components\Select::make('trans_type')
+            Select::make('trans_type')
               ->label('نوع العملية')
               ->options([
                 'deposit' => 'دائن',
@@ -121,7 +135,7 @@ class SupplierPaymentResource extends Resource
               ])
               ->required(),
 
-            Forms\Components\Select::make('payment_method')
+            Select::make('payment_method')
               ->label('طريقة الدفع')
               ->options([
                 'cash' => 'كاش',
@@ -129,7 +143,7 @@ class SupplierPaymentResource extends Resource
               ])
               ->required(),
 
-            Forms\Components\Textarea::make('notes')
+            Textarea::make('notes')
               ->label('ملاحظات إضافية')
               ->columnSpanFull(),
           ])->columns(2),
@@ -217,14 +231,14 @@ class SupplierPaymentResource extends Resource
           })
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make()
+        EditAction::make(),
+        DeleteAction::make()
           ->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()
+        RestoreAction::make()
           ->label('استعادة'),
-        Tables\Actions\ForceDeleteAction::make()
+        ForceDeleteAction::make()
           ->label('حذف نهائي')
-          ->before(function (Tables\Actions\ForceDeleteAction $action, $record) {
+          ->before(function (ForceDeleteAction $action, $record) {
             if ($record->amount != 0) {
               Notification::make()
                 ->title('غير مسموح')
@@ -236,14 +250,14 @@ class SupplierPaymentResource extends Resource
           }),
       ])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
+        BulkActionGroup::make([
+          DeleteBulkAction::make()
             ->label('أرشفة المحدد'),
-          Tables\Actions\RestoreBulkAction::make()
+          RestoreBulkAction::make()
             ->label('استعادة المحدد'),
-          Tables\Actions\ForceDeleteBulkAction::make()
+          ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
-            ->before(function (Tables\Actions\ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
               $invalidRecords = $records->where('amount', '!=', 0);
 
               if ($invalidRecords->count() > 0) {

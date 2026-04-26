@@ -4,12 +4,21 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductImportResource\Pages;
 use App\Models\ProductImport;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Table;
 use App\Filament\Resources\ProductImportResource\RelationManagers\ProductVariantsRelationManager;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\DeleteAction;
+
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 
 class ProductImportResource extends Resource
 {
@@ -26,24 +35,24 @@ class ProductImportResource extends Resource
   {
     return $form
       ->schema([
-        Forms\Components\Section::make('معلومات المورد والشحنة')
+        Section::make('معلومات المورد والشحنة')
           ->description('إدخال تفاصيل الجهة المصدرة وبيانات الوصول')
           ->schema([
-            Forms\Components\TextInput::make('supplier_name')
+            TextInput::make('supplier_name')
               ->label('اسم المورد / الشركة')
               ->required()
               ->maxLength(255),
 
-            Forms\Components\TextInput::make('address')
+            TextInput::make('address')
               ->label('عنوان المورد / بلد المنشأ')
               ->required()
               ->maxLength(255),
 
-            Forms\Components\TextInput::make('supplier_phone')
+            TextInput::make('supplier_phone')
               ->label('رقم الهاتف')
               ->tel(),
 
-            Forms\Components\Textarea::make('notes')
+            Textarea::make('notes')
               ->label('ملاحظات إضافية')
               ->columnSpanFull(),
           ])->columns(3),
@@ -53,42 +62,42 @@ class ProductImportResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('supplier_name')
+        TextColumn::make('supplier_name')
           ->label('المورد')
           ->searchable()
           ->sortable()
           ->weight('bold'),
 
-        Tables\Columns\TextColumn::make('address')
+        TextColumn::make('address')
           ->label('العنوان')
           ->icon('heroicon-m-map-pin')
           ->searchable()
           ->color('gray'),
 
-        Tables\Columns\TextColumn::make('supplier_phone')
+        TextColumn::make('supplier_phone')
           ->label('الهاتف')
           ->searchable(),
 
-        Tables\Columns\TextColumn::make('product_variants_count')
+        TextColumn::make('product_variants_count')
           ->label('عدد الأصناف')
           ->counts('productVariants')
           ->badge()
           ->counts('productVariants')
           ->color('info'),
 
-        Tables\Columns\TextColumn::make('created_at')
+        TextColumn::make('created_at')
           ->label('تاريخ التسجيل')
           ->dateTime('Y-m-d H:i')
           ->timezone('Asia/Riyadh')
           ->sortable()
           ->toggleable(isToggledHiddenByDefault: true),
 
-        Tables\Columns\TextColumn::make('notes')
+        TextColumn::make('notes')
           ->label('ملاحظة')
           ->toggleable(isToggledHiddenByDefault: true),
 
 
-        Tables\Columns\TextColumn::make('total_import_cost')
+        TextColumn::make('total_import_cost')
           ->label('إجمالي المشتريات')
           ->getStateUsing(fn($record) => $record->productVariants->sum(function ($variant) {
             return ($variant->pivot->price * $variant->pivot->quantity) + $variant->pivot->shipping_price;
@@ -99,10 +108,12 @@ class ProductImportResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        Tables\Filters\Filter::make('created_at')
+        Filter::make('created_at')
           ->form([
-            Forms\Components\DatePicker::make('from')->label('من تاريخ التسجيل'),
-            Forms\Components\DatePicker::make('until')->label('إلى تاريخ التسجيل'),
+            DatePicker::make('from')
+              ->label('من تاريخ التسجيل'),
+            DatePicker::make('until')
+              ->label('إلى تاريخ التسجيل'),
           ])
           ->query(
             fn($query, array $data) => $query
@@ -119,13 +130,13 @@ class ProductImportResource extends Resource
           }),
       ])
       ->actions([
-        Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\EditAction::make()->label('تعديل'),
-        Tables\Actions\DeleteAction::make()
+        ViewAction::make()->label('عرض'),
+        EditAction::make()->label('تعديل'),
+        DeleteAction::make()
           ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, ProductImport $record) {
+          ->before(function (DeleteAction $action, ProductImport $record) {
             if ($record->productVariants()->exists()) {
-              \Filament\Notifications\Notification::make()
+              Notification::make()
                 ->danger()
                 ->title('لا يمكن حذف المورد')
                 ->body('هذا المورد مرتبط بعمليات استيراد وأصناف موجودة في النظام. يجب حذف التبعيات أولاً.')

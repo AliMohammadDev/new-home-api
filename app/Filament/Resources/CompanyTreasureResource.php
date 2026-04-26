@@ -5,10 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompanyTreasureResource\Pages;
 use App\Models\CompanyTreasure;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 
 class CompanyTreasureResource extends Resource
 {
@@ -23,11 +27,11 @@ class CompanyTreasureResource extends Resource
   public static function form(Form $form): Form
   {
     return $form->schema([
-      Forms\Components\TextInput::make('name')
+      TextInput::make('name')
         ->label('اسم الصندوق')
         ->required(),
 
-      Forms\Components\TextInput::make('money')
+      TextInput::make('money')
         ->label('الرصيد الحالي')
         ->numeric()
         ->default(0)
@@ -39,12 +43,12 @@ class CompanyTreasureResource extends Resource
   public static function table(Table $table): Table
   {
     return $table->columns([
-      Tables\Columns\TextColumn::make('name')
+      TextColumn::make('name')
         ->label('الصندوق')
         ->sortable()
         ->searchable(),
 
-      Tables\Columns\TextColumn::make('money')
+      TextColumn::make('money')
         ->label('الرصيد المتوفر')
         ->money('USD', locale: 'en_US')
         ->sortable()
@@ -53,20 +57,20 @@ class CompanyTreasureResource extends Resource
     ])
       ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\Action::make('add_entry')
+        Action::make('add_entry')
           ->label('دائن / مدين')
           ->icon('heroicon-o-arrows-right-left')
           ->color('warning')
           ->form([
-            Forms\Components\Select::make('trans_type')
+            Select::make('trans_type')
               ->label('نوع العملية')
               ->options(['deposit' => 'دائن', 'withdraw' => 'مدين'])
               ->required()
               ->live(),
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
               ->label('البيان / السبب')
               ->required(),
-            Forms\Components\TextInput::make('amount')
+            TextInput::make('amount')
               ->label('المبلغ')
               ->numeric()
               ->required()
