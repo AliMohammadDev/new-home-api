@@ -20,6 +20,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Notifications\Notification;
 
 class DeliveryCompanyResource extends Resource
 {
@@ -98,7 +99,19 @@ class DeliveryCompanyResource extends Resource
       ])
       ->actions([
         EditAction::make(),
-        DeleteAction::make(),
+        DeleteAction::make()
+          ->before(function (DeleteAction $action, DeliveryCompany $record) {
+            if ($record->orders()->exists()) {
+              Notification::make()
+                ->danger()
+                ->title('لا يمكن حذف الشركة')
+                ->body('هذه الشركة مرتبطة بطلبات مسجلة في النظام، يرجى حذف الطلبات أولاً أو تعطيل حساب الشركة بدلاً من حذفه.')
+                ->persistent()
+                ->send();
+
+              $action->cancel();
+            }
+          }),
       ])
       ->bulkActions([
         BulkActionGroup::make([
