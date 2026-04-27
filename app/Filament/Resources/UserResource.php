@@ -12,7 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
@@ -44,6 +46,7 @@ class UserResource extends Resource
           ->label('الأدوار')
           ->multiple()
           ->relationship('roles', 'name')
+          ->getOptionLabelFromRecordUsing(fn($record) => $record->display_name[app()->getLocale()] ?? $record->display_name['ar'] ?? $record->name)
           ->preload(),
 
         Toggle::make('is_active')
@@ -81,17 +84,31 @@ class UserResource extends Resource
           ->sortable()
           ->searchable(),
 
-        Tables\Columns\ToggleColumn::make('is_active')
+        ToggleColumn::make('is_active')
           ->label('الحالة')
           ->onIcon('heroicon-m-check-circle')
           ->offIcon('heroicon-m-x-circle')
           ->onColor('success')
           ->offColor('danger'),
 
-        TextColumn::make('roles.name')
+        // TextColumn::make('roles.name')
+        //   ->label('الأدوار')
+        //   ->badge()
+        //   ->color(fn(string $state): string => match ($state) {
+        //     'super_admin' => 'danger',
+        //     'admin' => 'warning',
+        //     'customer' => 'success',
+        //     default => 'gray',
+        //   }),
+
+        TextColumn::make('roles.display_name')
           ->label('الأدوار')
           ->badge()
-          ->color(fn(string $state): string => match ($state) {
+          ->formatStateUsing(function ($state, $record) {
+            $locale = app()->getLocale();
+            return $state[$locale] ?? $state['ar'] ?? $record->name;
+          })
+          ->color(fn($record): string => match ($record->name) {
             'super_admin' => 'danger',
             'admin' => 'warning',
             'customer' => 'success',
@@ -115,6 +132,7 @@ class UserResource extends Resource
         Tables\Filters\SelectFilter::make('roles')
           ->label('الدور')
           ->relationship('roles', 'name')
+          ->getOptionLabelFromRecordUsing(fn($record) => $record->display_name[app()->getLocale()] ?? $record->display_name['ar'] ?? $record->name)
           ->preload(),
       ])
       ->actions([
@@ -171,6 +189,14 @@ class UserResource extends Resource
         //     ->modalSubmitActionLabel('نعم، احذف'),
         // ]),
       ]);
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->whereHas('roles', function ($query) {
+        $query->where('name', '!=', 'customer');
+      });
   }
 
   public static function getRelations(): array

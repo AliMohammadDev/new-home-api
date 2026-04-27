@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
   public function run(): void
   {
-    $role = Role::firstOrCreate(['name' => 'super_admin']);
+    $role = Role::where('name', 'super_admin')->first();
 
     $admin = User::firstOrCreate(
       ['email' => 'admin@gmail.com'],

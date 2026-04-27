@@ -7,13 +7,10 @@ use App\Models\Material;
 use App\Models\Product;
 use App\Models\ProductImport;
 use App\Models\ProductVariant;
+use App\Models\Role;
 use App\Models\Size;
-use App\Models\User;
-use App\Models\Warehouse;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Mpdf\Tag\Del;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,21 +26,53 @@ class DatabaseSeeder extends Seeder
     $this->command->call('shield:generate', ['--all' => true]);
 
     $roles = [
-      'super_admin',
-      'product_data_entry',
-      'finance_manager',
-      'main_warehouse_manager',
-      'sub_warehouse_manager',
-      'sales_point_manager',
-      'sales_point_cashier',
-      'delivery_company',
-      'customer'
+      'super_admin' => [
+        'ar' => 'مدير النظام العام',
+        'en' => 'Super Admin'
+      ],
+      'product_data_entry' => [
+        'ar' => 'مدخل بيانات المنتجات',
+        'en' => 'Product Data Entry'
+      ],
+      'finance_manager' => [
+        'ar' => 'المدير المالي',
+        'en' => 'Finance Manager'
+      ],
+      'main_warehouse_manager' => [
+        'ar' => 'مدير المستودع الرئيسي',
+        'en' => 'Main Warehouse Manager'
+      ],
+      'sub_warehouse_manager' => [
+        'ar' => 'مدير مستودع فرعي',
+        'en' => 'Sub Warehouse Manager'
+      ],
+      'sales_point_manager' => [
+        'ar' => 'مدير نقطة بيع',
+        'en' => 'Sales Point Manager'
+      ],
+      'sales_point_cashier' => [
+        'ar' => 'كاشير نقطة بيع',
+        'en' => 'Sales Point Cashier'
+      ],
+      'delivery_company' => [
+        'ar' => 'شركة توصيل',
+        'en' => 'Delivery Company'
+      ],
+      'customer' => [
+        'ar' => 'عميل',
+        'en' => 'Customer'
+      ],
     ];
 
-    foreach ($roles as $role) {
-      Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    foreach ($roles as $name => $displayName) {
+      Role::updateOrCreate(
+        ['name' => $name],
+        [
+          'guard_name' => 'web',
+          'display_name' => $displayName
+        ]
+      );
     }
-
 
     $this->call([
       AdminUserSeeder::class,

@@ -45,14 +45,27 @@ class RoleResource extends Resource implements HasShieldPermissions
           ->schema([
             Forms\Components\Section::make()
               ->schema([
+
+                Forms\Components\TextInput::make('display_name.ar')
+                  ->label('اسم الدور (بالعربي)')
+                  ->required()
+                  ->placeholder('مثلاً: مدير المستودع'),
+
+                Forms\Components\TextInput::make('display_name.en')
+                  ->label('Role Name (English)')
+                  ->required()
+                  ->placeholder('e.g. Warehouse Manager'),
+
                 Forms\Components\TextInput::make('name')
-                  ->label(__('filament-shield::filament-shield.field.name'))
+                  // ->label(__('filament-shield::filament-shield.field.name'))
+                  ->label('الرمز البرمجي (System Name)')
                   ->unique(
                     ignoreRecord: true, /** @phpstan-ignore-next-line */
                     modifyRuleUsing: fn(Unique $rule) => Utils::isTenancyEnabled() ? $rule->where(Utils::getTenantModelForeignKey(), Filament::getTenant()?->id) : $rule
                   )
                   ->required()
-                  ->maxLength(255),
+                  ->maxLength(255)
+                  ->helperText('يُستخدم برمجياً، يفضل استخدامه بالإنجليزية وبدون مسافات (مثال: admin_manager)'),
 
                 // Forms\Components\TextInput::make('guard_name')
                 //   ->label(__('filament-shield::filament-shield.field.guard_name'))
@@ -95,9 +108,18 @@ class RoleResource extends Resource implements HasShieldPermissions
   {
     return $table
       ->columns([
+
+        Tables\Columns\TextColumn::make('display_name')
+          ->label('اسم الدور')
+          ->getStateUsing(fn($record) => $record->translated_display_name ?: $record->name)
+          ->weight('font-medium')
+          ->searchable(),
+
+
         Tables\Columns\TextColumn::make('name')
           ->weight('font-medium')
-          ->label(__('filament-shield::filament-shield.column.name'))
+          // ->label(__('filament-shield::filament-shield.column.name'))
+          ->label('الرمز البرمجي')
           ->formatStateUsing(fn($state): string => Str::headline($state))
           ->searchable(),
         // Tables\Columns\TextColumn::make('guard_name')
@@ -157,7 +179,8 @@ class RoleResource extends Resource implements HasShieldPermissions
 
   public static function getModel(): string
   {
-    return Utils::getRoleModel();
+    // return Utils::getRoleModel();
+    return \App\Models\Role::class;
   }
 
   public static function getModelLabel(): string
