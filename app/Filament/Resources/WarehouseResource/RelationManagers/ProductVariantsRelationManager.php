@@ -95,7 +95,10 @@ class ProductVariantsRelationManager extends RelationManager
         Tables\Columns\TextColumn::make('specs')
           ->label('المواصفات')
           ->getStateUsing(function ($record) {
-            return "{$record->color?->color} / {$record->size?->size}";
+            $color = $record->color?->translated_color ?? '-';
+            $size = $record->size?->size ?? '-';
+
+            return "{$color} / {$size}";
           })
           ->color('gray')
           ->size('sm'),

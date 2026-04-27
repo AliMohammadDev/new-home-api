@@ -57,9 +57,9 @@ class ProductVariantsRelationManager extends RelationManager
           ->color('success'),
 
 
-        Tables\Columns\ColorColumn::make('color.hex_code')
-          ->label('اللون')
-          ->sortable(),
+        // Tables\Columns\ColorColumn::make('color.hex_code')
+        //   ->label('اللون')
+        //   ->sortable(),
 
         Tables\Columns\TextColumn::make('size.size')->label('الحجم'),
         Tables\Columns\TextColumn::make('material.material')->label('المادة'),
