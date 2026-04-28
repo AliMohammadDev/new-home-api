@@ -158,13 +158,20 @@ class ShippingWarehouseResource extends Resource
                 return null;
 
               $stock = ProductVariant::find($variantId)?->stock_quantity ?? 0;
+
+              $requestedAmount = (int) $get('amount');
+              if ($requestedAmount > $stock) {
+                return "⚠️ تنبيه: الكمية المطلوبة ($requestedAmount) أكبر من المتوفر ($stock)!";
+              }
+
               return "المتوفر في المستودع الرئيسي: " . $stock;
             })
-            ->hintColor('info')
-            ->maxValue(fn(Get $get) => ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 99999)
-            ->validationMessages([
-              'max' => 'عذراً، الكمية المطلوبة غير متوفرة. المتاح هو :max فقط.',
-            ]),
+            ->hintColor(
+              fn(Get $get) =>
+              ((int) $get('amount') > (ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 0))
+              ? 'danger'
+              : 'info'
+            ),
 
           DateTimePicker::make('arrival_time')
             ->label('وقت الوصول المتوقع')
