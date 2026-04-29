@@ -9,37 +9,37 @@ class CashierTransObserver
   /**
    * Handle the SalesPointCashierTrans "created" event.
    */
-  public function created(SalesPointCashierTrans $salesPointCashierTrans): void
+  public function created(SalesPointCashierTrans $trans): void
   {
-    $cashier = $salesPointCashierTrans->cashier;
-    $salesPoint = $salesPointCashierTrans->salesPoint;
-
-    if ($salesPointCashierTrans->trans_type === 'deposit') {
-
-      $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
-
-    } elseif ($salesPointCashierTrans->trans_type === 'withdraw') {
-      $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
-    }
-  }
-
-
-
-  /**
-   * Handle the SalesPointCashierTrans "updated" event.
-   */
-  public function updated(SalesPointCashierTrans $salesPointCashierTrans): void
-  {
-    $cashier = $salesPointCashierTrans->cashier;
-    $salesPoint = $salesPointCashierTrans->salesPoint;
+    $cashier = $trans->cashier;
+    $salesPoint = $trans->salesPoint;
 
     if (!$cashier || !$salesPoint)
       return;
 
-    $oldAmount = $salesPointCashierTrans->getOriginal('amount');
-    $oldType = $salesPointCashierTrans->getOriginal('trans_type');
+    if ($trans->trans_type === 'deposit') {
+      $cashier->increment('daily_limit', $trans->amount);
+      $salesPoint->decrement('amount', $trans->amount);
+    } else {
+      $cashier->decrement('daily_limit', $trans->amount);
+      $salesPoint->increment('amount', $trans->amount);
+    }
+  }
+
+  public function updated(SalesPointCashierTrans $trans): void
+  {
+    if (!$trans->isDirty(['amount', 'trans_type'])) {
+      return;
+    }
+
+    $cashier = $trans->cashier;
+    $salesPoint = $trans->salesPoint;
+
+    if (!$cashier || !$salesPoint)
+      return;
+
+    $oldAmount = $trans->getOriginal('amount');
+    $oldType = $trans->getOriginal('trans_type');
 
     if ($oldType === 'deposit') {
       $cashier->decrement('daily_limit', $oldAmount);
@@ -48,13 +48,12 @@ class CashierTransObserver
       $cashier->increment('daily_limit', $oldAmount);
       $salesPoint->decrement('amount', $oldAmount);
     }
-
-    if ($salesPointCashierTrans->trans_type === 'deposit') {
-      $cashier->increment('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint->decrement('amount', $salesPointCashierTrans->amount);
+    if ($trans->trans_type === 'deposit') {
+      $cashier->increment('daily_limit', $trans->amount);
+      $salesPoint->decrement('amount', $trans->amount);
     } else {
-      $cashier->decrement('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint->increment('amount', $salesPointCashierTrans->amount);
+      $cashier->decrement('daily_limit', $trans->amount);
+      $salesPoint->increment('amount', $trans->amount);
     }
   }
 
@@ -77,17 +76,19 @@ class CashierTransObserver
   /**
    * Handle the SalesPointCashierTrans "force deleted" event.
    */
-  public function forceDeleted(SalesPointCashierTrans $salesPointCashierTrans): void
+  public function forceDeleted(SalesPointCashierTrans $trans): void
   {
-    $cashier = $salesPointCashierTrans->cashier;
-    $salesPoint = $salesPointCashierTrans->salesPoint;
+    $cashier = $trans->cashier;
+    $salesPoint = $trans->salesPoint;
 
-    if ($salesPointCashierTrans->trans_type === 'deposit') {
-      $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
-    } else {
-      $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
+    if ($cashier && $salesPoint) {
+      if ($trans->trans_type === 'deposit') {
+        $cashier->decrement('daily_limit', $trans->amount);
+        $salesPoint->increment('amount', $trans->amount);
+      } else {
+        $cashier->increment('daily_limit', $trans->amount);
+        $salesPoint->decrement('amount', $trans->amount);
+      }
     }
   }
 }

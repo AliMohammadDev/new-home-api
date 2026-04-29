@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\CompanySalesTransfer;
 use App\Models\CompanySalesTransferEntry;
 use App\Models\CompanyTreasure;
+use App\Models\SalesPoint;
 
 class CompanySalesTransferObserver
 {
@@ -34,20 +35,28 @@ class CompanySalesTransferObserver
 
   public function updated(CompanySalesTransfer $transfer): void
   {
-    if ($transfer->wasChanged('quantity')) {
-      $oldQty = $transfer->getOriginal('quantity');
-      $newQty = $transfer->quantity;
-      $diff = $newQty - $oldQty;
+    if ($transfer->wasChanged(['quantity', 'sales_point_id'])) {
 
       $mainTreasure = $this->getMainTreasure();
-      $salesPoint = $transfer->salesPoint;
 
-      if ($mainTreasure && $salesPoint) {
-        $salesPoint->increment('amount', $diff);
-        $mainTreasure->decrement('money', $diff);
+      $oldQty = $transfer->getOriginal('quantity');
+      $oldSalesPointId = $transfer->getOriginal('sales_point_id');
+      $oldSalesPoint = SalesPoint::find($oldSalesPointId);
+
+      if ($oldSalesPoint && $mainTreasure) {
+        $oldSalesPoint->decrement('amount', $oldQty);
+        $mainTreasure->increment('money', $oldQty);
+      }
+
+      $newSalesPoint = $transfer->salesPoint;
+
+      if ($newSalesPoint && $mainTreasure) {
+        $newSalesPoint->increment('amount', $transfer->quantity);
+        $mainTreasure->decrement('money', $transfer->quantity);
 
         $transfer->entry()?->update([
-          'amount' => $newQty,
+          'amount' => $transfer->quantity,
+          'note' => "تعديل تحويل لنقطة: " . $newSalesPoint->name,
         ]);
       }
     }
