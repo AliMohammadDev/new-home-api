@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Models\CompanyEntry;
 use App\Models\CompanyTreasure;
 use App\Models\PersonalWithdrawal;
 use App\Models\PersonalWithdrawalEntry;
@@ -52,12 +51,7 @@ class PersonalWithdrawalObserver
 
   public function deleted(PersonalWithdrawal $personalWithdrawal): void
   {
-    $treasure = $this->getMainTreasure();
-    if ($treasure) {
-      $treasure->increment('money', $personalWithdrawal->amount);
 
-      $personalWithdrawal->entry()->delete();
-    }
   }
   /**
    * Handle the PersonalWithdrawal "restored" event.
@@ -72,6 +66,11 @@ class PersonalWithdrawalObserver
    */
   public function forceDeleted(PersonalWithdrawal $personalWithdrawal): void
   {
-    //
+    $treasure = $this->getMainTreasure();
+    if ($treasure) {
+      $treasure->increment('money', $personalWithdrawal->amount);
+
+      $personalWithdrawal->entry()->delete();
+    }
   }
 }

@@ -4,12 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PersonalWithdrawalResource\Pages;
 use App\Models\PersonalWithdrawal;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +21,9 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
 
 class PersonalWithdrawalResource extends Resource
 {
@@ -114,11 +117,27 @@ class PersonalWithdrawalResource extends Resource
               ->when($data['until'], fn($q, $date) => $q->whereDate('expense_date', '<=', $date));
           }),
 
-        Tables\Filters\TrashedFilter::make()->label('المؤرشفة'),
+        TrashedFilter::make()->label('المؤرشفة'),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         EditAction::make(),
-        DeleteAction::make()->label('أرشفة'),
+        DeleteAction::make()
+          ->label('أرشفة'),
+        RestoreAction::make()
+          ->label('استعادة'),
+        ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (ForceDeleteAction $action, $record) {
+            if ($record->quantity != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         BulkActionGroup::make([

@@ -3,17 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExpenseEntryResource\Pages;
-use App\Filament\Resources\ExpenseEntryResource\RelationManagers;
 use App\Models\ExpenseEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ExpenseEntryResource extends Resource
 {
@@ -39,6 +35,7 @@ class ExpenseEntryResource extends Resource
         TextColumn::make('created_at')
           ->label('التاريخ')
           ->dateTime()
+          ->searchable()
           ->sortable(),
 
         TextColumn::make('expense.reason')
@@ -47,38 +44,34 @@ class ExpenseEntryResource extends Resource
 
         TextColumn::make('treasure.name')
           ->label('الصندوق')
+          ->searchable()
           ->sortable(),
 
         TextColumn::make('user.name')
           ->label('بواسطة')
+          ->searchable()
           ->sortable(),
 
         TextColumn::make('amount')
           ->label('المبلغ')
-          ->money('USD')
+          ->money('USD', locale: 'en_US')
           ->color('danger')
+          ->searchable()
           ->sortable(),
 
         TextColumn::make('note')
           ->label('ملاحظات الحركة')
           ->limit(50)
+          ->searchable()
           ->searchable(),
       ])
       ->filters([
-        SelectFilter::make('company_treasure_id')
-          ->label('تصفية حسب الصندوق')
-          ->relationship('treasure', 'name'),
-
-        SelectFilter::make('user_id')
-          ->label('تصفية حسب الموظف')
-          ->relationship('user', 'name'),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
-        Tables\Actions\EditAction::make(),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
         ]),
       ]);
   }
@@ -88,6 +81,10 @@ class ExpenseEntryResource extends Resource
     return [
       //
     ];
+  }
+  public static function canCreate(): bool
+  {
+    return false;
   }
 
   public static function getPages(): array

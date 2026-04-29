@@ -14,7 +14,6 @@ class CashierTransObserver
     $cashier = $salesPointCashierTrans->cashier;
     $salesPoint = $salesPointCashierTrans->salesPoint;
 
-
     if ($salesPointCashierTrans->trans_type === 'deposit') {
 
       $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
@@ -64,16 +63,7 @@ class CashierTransObserver
    */
   public function deleted(SalesPointCashierTrans $salesPointCashierTrans): void
   {
-    $cashier = $salesPointCashierTrans->cashier;
-    $salesPoint = $salesPointCashierTrans->salesPoint;
 
-    if ($salesPointCashierTrans->trans_type === 'deposit') {
-      $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
-    } else {
-      $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
-      $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
-    }
   }
 
   /**
@@ -89,6 +79,15 @@ class CashierTransObserver
    */
   public function forceDeleted(SalesPointCashierTrans $salesPointCashierTrans): void
   {
-    //
+    $cashier = $salesPointCashierTrans->cashier;
+    $salesPoint = $salesPointCashierTrans->salesPoint;
+
+    if ($salesPointCashierTrans->trans_type === 'deposit') {
+      $cashier?->decrement('daily_limit', $salesPointCashierTrans->amount);
+      $salesPoint?->increment('amount', $salesPointCashierTrans->amount);
+    } else {
+      $cashier?->increment('daily_limit', $salesPointCashierTrans->amount);
+      $salesPoint?->decrement('amount', $salesPointCashierTrans->amount);
+    }
   }
 }

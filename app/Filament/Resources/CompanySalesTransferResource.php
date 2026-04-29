@@ -62,14 +62,6 @@ class CompanySalesTransferResource extends Resource
           ->preload()
           ->live(),
 
-        Select::make('trans_type')
-          ->label('نوع العملية')
-          ->options([
-            'deposit' => 'دائن',
-            'withdraw' => 'مدين',
-          ])
-          ->required(),
-
         TextInput::make('name')
           ->label('بيان العملية / المادة')
           ->placeholder('مثلاً: تحويل عهدة نقدية')
@@ -116,24 +108,7 @@ class CompanySalesTransferResource extends Resource
           ->searchable()
           ->placeholder('بدون بيان'),
 
-        TextColumn::make('trans_type')
-          ->label('نوع العملية')
-          ->badge()
-          ->formatStateUsing(fn(string $state): string => match ($state) {
-            'deposit' => 'دائن',
-            'withdraw' => 'مدين',
-            default => $state,
-          })
-          ->color(fn(string $state): string => match ($state) {
-            'deposit' => 'success',
-            'withdraw' => 'danger',
-            default => 'gray',
-          })
-          ->icon(fn(string $state): string => match ($state) {
-            'deposit' => 'heroicon-m-arrow-trending-up',
-            'withdraw' => 'heroicon-m-arrow-trending-down',
-            default => 'heroicon-m-minus',
-          }),
+
 
         TextColumn::make('quantity')
           ->numeric()

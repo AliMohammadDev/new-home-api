@@ -15,7 +15,6 @@ return new class extends Migration {
       $table->id();
 
       $table->foreignIdFor(SalesPoint::class)->constrained();
-      $table->enum('trans_type', ['deposit', 'withdraw']);
       $table->string('name')->nullable();
       $table->date('date');
       $table->decimal('quantity');

@@ -11,7 +11,6 @@ class CompanySalesTransfer extends Model
 
   protected $fillable = [
     'sales_point_id',
-    'trans_type',
     'name',
     'date',
     'quantity',
@@ -21,5 +20,9 @@ class CompanySalesTransfer extends Model
   public function salesPoint()
   {
     return $this->belongsTo(SalesPoint::class);
+  }
+  public function entry()
+  {
+    return $this->hasOne(CompanySalesTransferEntry::class, 'company_sales_transfer_id');
   }
 }

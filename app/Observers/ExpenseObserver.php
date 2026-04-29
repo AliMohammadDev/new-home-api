@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Models\CompanyEntry;
 use App\Models\CompanyTreasure;
 use App\Models\Expense;
 use App\Models\ExpenseEntry;
@@ -52,12 +51,7 @@ class ExpenseObserver
 
   public function deleted(Expense $expense): void
   {
-    $treasure = $this->getMainTreasure();
-    if ($treasure) {
-      $treasure->increment('money', $expense->amount);
 
-      $expense->entry()->delete();
-    }
   }
 
   /**
@@ -73,6 +67,11 @@ class ExpenseObserver
    */
   public function forceDeleted(Expense $expense): void
   {
-    //
+    $treasure = $this->getMainTreasure();
+    if ($treasure) {
+      $treasure->increment('money', $expense->amount);
+
+      $expense->entry()->delete();
+    }
   }
 }

@@ -64,6 +64,10 @@ class AdminPanelProvider extends PanelProvider
           ->icon('heroicon-o-banknotes'),
 
         NavigationGroup::make()
+          ->label('الأرشيف المالي')
+          ->icon('heroicon-o-document-magnifying-glass'),
+
+        NavigationGroup::make()
           ->label('التقارير والإحصائيات')
           ->icon('heroicon-o-chart-bar'),
 

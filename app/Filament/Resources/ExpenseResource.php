@@ -4,15 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExpenseResource\Pages;
 use App\Models\Expense;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -23,6 +22,10 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class ExpenseResource extends Resource
 {
@@ -97,13 +100,13 @@ class ExpenseResource extends Resource
           ->color('warning'),
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('user_id')
+        SelectFilter::make('user_id')
           ->label('تصفية حسب الموظف')
           ->relationship('user', 'name')
           ->searchable()
           ->preload(),
 
-        Tables\Filters\Filter::make('expense_date')
+        Filter::make('expense_date')
           ->form([
             DatePicker::make('from')->label('من تاريخ'),
             DatePicker::make('until')->label('إلى تاريخ'),
@@ -134,10 +137,25 @@ class ExpenseResource extends Resource
           ->label('حالة السجلات')
           ->native(false),
       ])
+      ->defaultSort('created_at', 'DESC')
       ->actions([
         EditAction::make(),
         DeleteAction::make()
           ->label('أرشفة'),
+        RestoreAction::make()
+          ->label('استعادة'),
+        ForceDeleteAction::make()
+          ->label('حذف نهائي')
+          ->before(function (ForceDeleteAction $action, $record) {
+            if ($record->quantity != 0) {
+              Notification::make()
+                ->title('غير مسموح')
+                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+                ->warning()
+                ->send();
+              $action->halt();
+            }
+          }),
       ])
       ->bulkActions([
         BulkActionGroup::make([

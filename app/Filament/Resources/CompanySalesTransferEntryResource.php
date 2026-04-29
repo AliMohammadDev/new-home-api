@@ -2,22 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PersonalWithdrawalEntryResource\Pages;
-use App\Models\PersonalWithdrawalEntry;
+use App\Filament\Resources\CompanySalesTransferEntryResource\Pages;
+use App\Models\CompanySalesTransferEntry;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class PersonalWithdrawalEntryResource extends Resource
+class CompanySalesTransferEntryResource extends Resource
 {
-  protected static ?string $model = PersonalWithdrawalEntry::class;
-  protected static ?string $navigationIcon = 'heroicon-o-user-minus';
+  protected static ?string $model = CompanySalesTransferEntry::class;
+  protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
   protected static ?string $navigationGroup = 'الأرشيف المالي';
-  protected static ?string $navigationLabel = 'سجل حركات المسحوبات';
-  protected static ?string $pluralModelLabel = 'حركات المسحوبات الشخصية';
-  protected static ?string $modelLabel = 'حركة مسحوبات';
+  protected static ?string $navigationLabel = 'سجل حركات تحويلات النقاط';
+  protected static ?string $pluralModelLabel = 'حركات تحويلات نقاط البيع';
 
   public static function form(Form $form): Form
   {
@@ -37,31 +36,30 @@ class PersonalWithdrawalEntryResource extends Resource
           ->searchable()
           ->sortable(),
 
-        TextColumn::make('withdrawal.user_name')
-          ->label('المستلم')
+        TextColumn::make('transfer.salesPoint.name')
+          ->label('نقطة البيع')
           ->searchable()
-          ->searchable(),
+          ->sortable(),
 
         TextColumn::make('treasure.name')
-          ->label('الصندوق')
+          ->label('من خزينة')
           ->searchable()
           ->sortable(),
 
         TextColumn::make('amount')
-          ->label('المبلغ')
-          ->money('USD', locale: 'en_US')
-          ->color('danger')
+          ->label('الكمية المحولة')
+          ->searchable()
+          ->sortable()
+          ->color('warning'),
+
+        TextColumn::make('user.name')
+          ->label('الموظف')
           ->searchable()
           ->sortable(),
-
-        TextColumn::make('note')
-          ->label('البيان')
-          ->searchable()
-          ->searchable(),
       ])
       ->filters([
+        //
       ])
-      ->defaultSort('created_at', 'DESC')
       ->actions([
       ])
       ->bulkActions([
@@ -76,7 +74,6 @@ class PersonalWithdrawalEntryResource extends Resource
       //
     ];
   }
-
   public static function canCreate(): bool
   {
     return false;
@@ -85,9 +82,8 @@ class PersonalWithdrawalEntryResource extends Resource
   public static function getPages(): array
   {
     return [
-      'index' => Pages\ListPersonalWithdrawalEntries::route('/'),
-      // 'create' => Pages\CreatePersonalWithdrawalEntry::route('/create'),
-      // 'edit' => Pages\EditPersonalWithdrawalEntry::route('/{record}/edit'),
+      'index' => Pages\ListCompanySalesTransferEntries::route('/'),
+
     ];
   }
 }

@@ -285,7 +285,6 @@ class CashierSaleResource extends Resource
           ->color('success')->icon('heroicon-o-arrow-down-tray')
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
-
       ]);
   }
 
