@@ -8,5 +8,5 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateCashierReturnFatora extends CreateRecord
 {
-    protected static string $resource = CashierReturnFatoraResource::class;
+  protected static string $resource = CashierReturnFatoraResource::class;
 }

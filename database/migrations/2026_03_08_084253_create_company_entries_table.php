@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\CompanyTreasure;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ return new class extends Migration {
     Schema::create('company_entries', function (Blueprint $table) {
       $table->id();
       $table->foreignIdFor(CompanyTreasure::class)->constrained();
-      $table->foreignId('user_id')->constrained();
+      $table->foreignIdFor(User::class)->constrained();
       $table->enum('trans_type', ['deposit', 'withdraw']);
       $table->string('name');
       $table->double('amount');
