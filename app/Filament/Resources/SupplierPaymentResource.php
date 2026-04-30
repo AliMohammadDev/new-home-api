@@ -34,6 +34,7 @@ use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Collection;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 
 class SupplierPaymentResource extends Resource
 {
@@ -164,6 +165,39 @@ class SupplierPaymentResource extends Resource
           }),
 
 
+        TextColumn::make('debit')
+          ->label('مدين')
+          ->getStateUsing(
+            fn($record) =>
+            $record->trans_type === 'withdraw' ? $record->amount : null
+          )
+          ->money('USD', locale: 'en_US')
+          ->summarize(
+            Summarizer::make()
+              ->label('إجمالي المدين')
+              ->using(
+                fn($query) =>
+                $query->where('trans_type', 'withdraw')
+                  ->sum('amount')
+              )
+          ),
+
+        TextColumn::make('credit')
+          ->label('دائن')
+          ->getStateUsing(
+            fn($record) =>
+            $record->trans_type === 'deposit' ? $record->amount : null
+          )
+          ->money('USD', locale: 'en_US')
+          ->summarize(
+            Summarizer::make()
+              ->label('إجمالي الدائن')
+              ->using(
+                fn($query) =>
+                $query->where('trans_type', 'deposit')
+                  ->sum('amount')
+              )
+          ),
 
         TextColumn::make('payment_method')
           ->label('الطريقة')
@@ -175,30 +209,37 @@ class SupplierPaymentResource extends Resource
             default => $state,
           }),
 
-        Tables\Columns\TextColumn::make('trans_type')
-          ->label('نوع العملية')
-          ->badge()
-          ->formatStateUsing(fn(string $state): string => match ($state) {
-            'deposit' => 'دائن',
-            'withdraw' => 'مدين',
-            default => $state,
-          })
-          ->color(fn(string $state): string => match ($state) {
-            'deposit' => 'success',
-            'withdraw' => 'danger',
-            default => 'gray',
-          })
-          ->icon(fn(string $state): string => match ($state) {
-            'deposit' => 'heroicon-m-arrow-trending-up',
-            'withdraw' => 'heroicon-m-arrow-trending-down',
-            default => 'heroicon-m-minus',
-          }),
 
-        TextColumn::make('amount')
-          ->label('المبلغ المدفوع')
-          ->money('USD', locale: 'en_US')
-          ->sortable()
-          ->summarize(Tables\Columns\Summarizers\Sum::make()->label('الإجمالي')->money('USD', locale: 'en_US')),
+        TextColumn::make('notes')
+          ->label('الطريقةالبيان'),
+
+
+        // TextColumn::make('trans_type')
+        //   ->label('نوع العملية')
+        //   ->badge()
+        //   ->formatStateUsing(fn(string $state): string => match ($state) {
+        //     'deposit' => 'دائن',
+        //     'withdraw' => 'مدين',
+        //     default => $state,
+        //   })
+        //   ->color(fn(string $state): string => match ($state) {
+        //     'deposit' => 'success',
+        //     'withdraw' => 'danger',
+        //     default => 'gray',
+        //   })
+        //   ->icon(fn(string $state): string => match ($state) {
+        //     'deposit' => 'heroicon-m-arrow-trending-up',
+        //     'withdraw' => 'heroicon-m-arrow-trending-down',
+        //     default => 'heroicon-m-minus',
+        //   }),
+
+        // TextColumn::make('amount')
+        //   ->label('المبلغ المدفوع')
+        //   ->money('USD', locale: 'en_US')
+        //   ->sortable()
+        //   ->summarize(Sum::make()->label('الإجمالي')->money('USD', locale: 'en_US')),
+
+
 
         TextColumn::make('payment_date')
           ->label('تاريخ الدفع')
@@ -206,7 +247,7 @@ class SupplierPaymentResource extends Resource
           ->sortable(),
       ])
       ->filters([
-        Tables\Filters\SelectFilter::make('trans_type')
+        SelectFilter::make('trans_type')
           ->label('نوع الحركة')
           ->options([
             'deposit' => 'دائن',
@@ -221,8 +262,8 @@ class SupplierPaymentResource extends Resource
 
         Tables\Filters\Filter::make('payment_date')
           ->form([
-            Forms\Components\DatePicker::make('from')->label('من تاريخ'),
-            Forms\Components\DatePicker::make('until')->label('إلى تاريخ'),
+            DatePicker::make('from')->label('من تاريخ'),
+            DatePicker::make('until')->label('إلى تاريخ'),
           ])
           ->query(function (Builder $query, array $data): Builder {
             return $query
@@ -251,10 +292,9 @@ class SupplierPaymentResource extends Resource
       ])
       ->bulkActions([
         BulkActionGroup::make([
-          DeleteBulkAction::make()
-            ->label('أرشفة المحدد'),
-          RestoreBulkAction::make()
-            ->label('استعادة المحدد'),
+          DeleteBulkAction::make()->label('أرشفة المحدد'),
+          RestoreBulkAction::make()->label('استعادة المحدد'),
+
           ForceDeleteBulkAction::make()
             ->label('حذف نهائي للمحدد')
             ->before(function (ForceDeleteBulkAction $action, Collection $records) {

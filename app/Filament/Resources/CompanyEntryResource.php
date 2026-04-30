@@ -24,6 +24,7 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Illuminate\Database\Eloquent\Collection;
 
 class CompanyEntryResource extends Resource
@@ -88,6 +89,39 @@ class CompanyEntryResource extends Resource
         ->dateTime('Y-m-d H:i')
         ->timezone('Asia/Riyadh'),
 
+      TextColumn::make('debit')
+        ->label('مدين')
+        ->getStateUsing(
+          fn($record) =>
+          $record->trans_type === 'withdraw' ? $record->amount : null
+        )
+        ->money('USD', locale: 'en_US')
+        ->summarize(
+          Summarizer::make()
+            ->label('إجمالي المدين')
+            ->using(
+              fn($query) =>
+              $query->where('trans_type', 'withdraw')
+                ->sum('amount')
+            )
+        ),
+
+      TextColumn::make('credit')
+        ->label('دائن')
+        ->getStateUsing(
+          fn($record) =>
+          $record->trans_type === 'deposit' ? $record->amount : null
+        )
+        ->money('USD', locale: 'en_US')
+        ->summarize(
+          Summarizer::make()
+            ->label('إجمالي الدائن')
+            ->using(
+              fn($query) =>
+              $query->where('trans_type', 'deposit')
+                ->sum('amount')
+            )
+        ),
       TextColumn::make('treasure.name')
         ->label('الصندوق')
         ->searchable()
@@ -98,32 +132,33 @@ class CompanyEntryResource extends Resource
         ->searchable()
         ->sortable(),
 
-      TextColumn::make('trans_type')
-        ->label('نوع العملية')
-        ->badge()
-        ->formatStateUsing(fn(string $state): string => match ($state) {
-          'deposit' => 'دائن',
-          'withdraw' => 'مدين',
-          default => $state,
-        })
-        ->color(fn(string $state): string => match ($state) {
-          'deposit' => 'success',
-          'withdraw' => 'danger',
-          default => 'gray',
-        })
-        ->icon(fn(string $state): string => match ($state) {
-          'deposit' => 'heroicon-m-arrow-trending-up',
-          'withdraw' => 'heroicon-m-arrow-trending-down',
-          default => 'heroicon-m-minus',
-        }),
+      // TextColumn::make('trans_type')
+      //   ->label('نوع العملية')
+      //   ->badge()
+      //   ->formatStateUsing(fn(string $state): string => match ($state) {
+      //     'deposit' => 'دائن',
+      //     'withdraw' => 'مدين',
+      //     default => $state,
+      //   })
+      //   ->color(fn(string $state): string => match ($state) {
+      //     'deposit' => 'success',
+      //     'withdraw' => 'danger',
+      //     default => 'gray',
+      //   })
+      //   ->icon(fn(string $state): string => match ($state) {
+      //     'deposit' => 'heroicon-m-arrow-trending-up',
+      //     'withdraw' => 'heroicon-m-arrow-trending-down',
+      //     default => 'heroicon-m-minus',
+      //   }),
 
+      // TextColumn::make('amount')
+      //   ->label('المبلغ')
+      //   ->money('USD', locale: 'en_US')
 
       TextColumn::make('name')
         ->label('البيان')
         ->searchable(),
-      TextColumn::make('amount')
-        ->label('المبلغ')
-        ->money('USD', locale: 'en_US')
+
 
     ])
       ->defaultSort('created_at', 'DESC')
