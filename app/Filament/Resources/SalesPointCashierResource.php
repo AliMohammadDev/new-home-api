@@ -86,8 +86,8 @@ class SalesPointCashierResource extends Resource
 
         TextColumn::make('daily_limit')
           ->label('حد الصندوق')
-          ->money('USD', locale: 'en_US')
-        ,
+          ->color('success')
+          ->money('USD', locale: 'en_US'),
 
         TextColumn::make('shift_type')
           ->label('الوردية')
