@@ -115,6 +115,7 @@ class CompanySalesTransferResource extends Resource
           ->money('USD', locale: 'en_US')
           ->sortable()
           ->label('المبلغ')
+          ->color('success')
           ->summarize(
             Sum::make()
               ->label('الإجمالي')
