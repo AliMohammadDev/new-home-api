@@ -12,18 +12,18 @@ class WarehouseSeeder extends Seeder
   {
     $subManagers = User::role('sub_warehouse_manager')->get();
 
-    if ($subManagers->isEmpty()) {
-      $this->command->error('لا يوجد مستخدمين بدور sub_warehouse_manager! يرجى تشغيل UserSeeder أولاً.');
-      return;
-    }
+
 
     $warehouses = [
+      ['name' => 'هدر', 'city' => 'دمشقحلب', 'address' => 'المنطقة الصناعية -  حلب'],
       ['name' => 'مستودع الفيحاء المركزي', 'city' => 'دمشق', 'address' => 'المنطقة الصناعية - ركن الدين'],
       ['name' => 'مستودع الشهباء الرئيسي', 'city' => 'حلب', 'address' => 'الليرمون - حي الصناعة'],
       ['name' => 'مستودع الخليج اللوجستي', 'city' => 'دبي', 'address' => 'جبل علي - المنطقة الحرة'],
       ['name' => 'مستودع النيل للتوريدات', 'city' => 'القاهرة', 'address' => 'مدينة السادس من أكتوبر'],
       ['name' => 'مستودع المتوسط الشامل', 'city' => 'اللاذقية', 'address' => 'قرب المرفأ - المنطقة الحرة'],
       ['name' => 'مستودع الرياض المتطور', 'city' => 'الرياض', 'address' => 'حي السلي - طريق الخرج'],
+      ['name' => 'هدر', 'city' => 'دمشقحلب', 'address' => 'المنطقة الصناعية -  حلب'],
+
     ];
 
     foreach ($warehouses as $index => $warehouse) {

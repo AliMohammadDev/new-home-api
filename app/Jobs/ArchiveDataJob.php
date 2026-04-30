@@ -2,6 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\CashierReturnFatora;
+use App\Models\CashierSale;
+use App\Models\CashierSalesFatora;
+use App\Models\CashierSalesReturn;
+use App\Models\CompanyEntry;
+use App\Models\CompanySalesTransfer;
+use App\Models\Order;
+use App\Models\ProductImportItem;
+use App\Models\SalesPointCashierTrans;
+use App\Models\ShippingWarehouse;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use App\Models\User;
+use App\Models\WarehouseReturn;
 
 class ArchiveDataJob implements ShouldQueue
 {
@@ -31,17 +42,17 @@ class ArchiveDataJob implements ShouldQueue
       DB::beginTransaction();
 
       $models = [
-        \App\Models\CashierReturnFatora::class,
-        \App\Models\CashierSale::class,
-        \App\Models\CashierSalesFatora::class,
-        \App\Models\CashierSalesReturn::class,
-        \App\Models\CompanyEntry::class,
-        \App\Models\CompanySalesTransfer::class,
-        \App\Models\Order::class,
-        \App\Models\SalesPointCashierTrans::class,
-        \App\Models\ShippingWarehouse::class,
-        \App\Models\WarehouseReturn::class,
-        \App\Models\ProductImportItem::class,
+        CashierReturnFatora::class,
+        CashierSale::class,
+        CashierSalesFatora::class,
+        CashierSalesReturn::class,
+        CompanyEntry::class,
+        CompanySalesTransfer::class,
+        Order::class,
+        SalesPointCashierTrans::class,
+        ShippingWarehouse::class,
+        WarehouseReturn::class,
+        ProductImportItem::class,
       ];
 
       $totalCount = 0;
