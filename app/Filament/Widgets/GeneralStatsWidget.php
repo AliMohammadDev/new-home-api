@@ -17,6 +17,9 @@ class GeneralStatsWidget extends BaseWidget
   use HasWidgetShield;
   protected static ?int $sort = -9;
 
+  protected ?string $heading = ' احصائيات عامة';
+
+
   protected function getStats(): array
   {
     return [

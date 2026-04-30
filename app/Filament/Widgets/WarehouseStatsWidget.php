@@ -15,8 +15,8 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 class WarehouseStatsWidget extends BaseWidget
 {
   use HasWidgetShield;
-
   protected static ?int $sort = -7;
+  protected ?string $heading = 'احصائيات المستودعات';
 
   protected function getStats(): array
   {

@@ -17,6 +17,9 @@ class LatestOrdersStats extends BaseWidget
   protected static ?int $sort = -10;
   protected static ?string $pollingInterval = '30s';
 
+  protected ?string $heading = 'احدث الطلبات';
+
+
   public static function canView(): bool
   {
     return auth()->check() && auth()->user()->hasRole('super_admin');
