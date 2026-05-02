@@ -128,12 +128,6 @@ class CompanySalesTransferResource extends Resource
       ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        SelectFilter::make('trans_type')
-          ->label('نوع الحركة')
-          ->options([
-            'deposit' => 'دائن',
-            'withdraw' => 'مدين',
-          ]),
 
         SelectFilter::make('sales_point_id')
           ->label('نقطة البيع')
