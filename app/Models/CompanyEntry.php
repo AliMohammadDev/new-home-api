@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyEntry extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
   protected $fillable = ['company_treasure_id', 'user_id', 'trans_type', 'name', 'amount'];
 
   public function treasure()

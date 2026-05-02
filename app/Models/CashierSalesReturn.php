@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CashierSalesReturn extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
 
   protected $fillable = [
     'cashier_return_fatora_id',

@@ -200,6 +200,7 @@ class CashierSalesFatoraResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['cashier.user', 'cashier.salesPoint']);
     $user = auth()->user();

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanySalesTransfer extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
 
   protected $fillable = [
     'sales_point_id',

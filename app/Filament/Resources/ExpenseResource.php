@@ -173,6 +173,14 @@ class ExpenseResource extends Resource
     ];
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear()
+      ->withTrashed()
+      ->with(['user']);
+  }
+
   public static function getPages(): array
   {
     return [

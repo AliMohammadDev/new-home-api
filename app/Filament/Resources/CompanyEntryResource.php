@@ -238,8 +238,6 @@ class CompanyEntryResource extends Resource
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
-
-
   }
   public static function getRelations(): array
   {
@@ -251,6 +249,7 @@ class CompanyEntryResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     return parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['treasure', 'user']);
   }

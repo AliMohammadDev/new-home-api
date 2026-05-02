@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
+
 
   protected $fillable = ['user_id', 'reason', 'amount', 'expense_date'];
 

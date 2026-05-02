@@ -155,6 +155,13 @@ class PersonalWithdrawalResource extends Resource
     ];
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear()
+      ->withTrashed();
+  }
+
   public static function getPages(): array
   {
     return [

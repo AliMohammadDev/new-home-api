@@ -214,13 +214,10 @@ class SalesPointCashierTransResource extends Resource
         ->summarize(
           Summarizer::make()
             ->label('إجمالي المدين')
-            ->using(
-              fn($query) =>
-              $query->where('trans_type', 'withdraw')
-                ->sum('amount')
-            )
+            ->using(function ($query) {
+              return $query->where('trans_type', 'withdraw')->sum('amount');
+            })
         ),
-
       TextColumn::make('credit')
         ->label('دائن')
         ->getStateUsing(
@@ -231,11 +228,9 @@ class SalesPointCashierTransResource extends Resource
         ->summarize(
           Summarizer::make()
             ->label('إجمالي الدائن')
-            ->using(
-              fn($query) =>
-              $query->where('trans_type', 'deposit')
-                ->sum('amount')
-            )
+            ->using(function ($query) {
+              return $query->where('trans_type', 'deposit')->sum('amount');
+            })
         ),
 
       TextColumn::make('name')
@@ -379,7 +374,6 @@ class SalesPointCashierTransResource extends Resource
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
-
   }
   public static function getRelations(): array
   {
@@ -401,6 +395,7 @@ class SalesPointCashierTransResource extends Resource
   {
     $user = auth()->user();
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with([
         'salesPoint',

@@ -175,11 +175,9 @@ class SupplierPaymentResource extends Resource
           ->summarize(
             Summarizer::make()
               ->label('إجمالي المدين')
-              ->using(
-                fn($query) =>
-                $query->where('trans_type', 'withdraw')
-                  ->sum('amount')
-              )
+              ->using(function ($query) {
+                return $query->where('trans_type', 'withdraw')->sum('amount');
+              })
           ),
 
         TextColumn::make('credit')
@@ -192,11 +190,9 @@ class SupplierPaymentResource extends Resource
           ->summarize(
             Summarizer::make()
               ->label('إجمالي الدائن')
-              ->using(
-                fn($query) =>
-                $query->where('trans_type', 'deposit')
-                  ->sum('amount')
-              )
+              ->using(function ($query) {
+                return $query->where('trans_type', 'deposit')->sum('amount');
+              })
           ),
 
         TextColumn::make('payment_method')
@@ -325,6 +321,14 @@ class SupplierPaymentResource extends Resource
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
   }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear()
+      ->with(['productImportItem.productImport', 'productImportItem.productVariant']);
+  }
+
 
   public static function getPages(): array
   {

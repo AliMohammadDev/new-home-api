@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductImportItem extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
 
   protected $fillable = [
     'product_import_id',
@@ -61,5 +63,4 @@ class ProductImportItem extends Model
   {
     return (float) $this->total_cost - $this->total_paid;
   }
-
 }

@@ -175,7 +175,7 @@ class CashierSalesReturnResource extends Resource
         ->getStateUsing(
           fn($record) =>
           $record->variant?->product?->name[App::getLocale()] ??
-          $record->variant?->product?->name['en'] ?? ''
+            $record->variant?->product?->name['en'] ?? ''
         )
         ->searchable(query: function (Builder $query, string $search): Builder {
           return $query->whereHas('variant.product', function (Builder $q) use ($search) {
@@ -288,6 +288,7 @@ class CashierSalesReturnResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['variant.product', 'cashier.user', 'fatora']);
     $user = auth()->user();

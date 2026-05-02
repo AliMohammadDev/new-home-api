@@ -201,6 +201,7 @@ class CashierReturnFatoraResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['cashier.user', 'cashier.salesPoint']);
 
@@ -228,6 +229,4 @@ class CashierReturnFatoraResource extends Resource
 
     return $query->whereRaw('1 = 0');
   }
-
-
 }

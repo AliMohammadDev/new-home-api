@@ -29,15 +29,15 @@ class WarehouseStatsWidget extends BaseWidget
         ->color('primary')
         ->url(WarehouseResource::getUrl('index')),
 
-      Stat::make('إجمالي المرتجعات', WarehouseReturn::sum('amount'))
+      Stat::make('إجمالي المرتجعات', WarehouseReturn::query()->forActiveYear()->sum('amount'))
         ->description('قطع عادت للمخازن')
         ->descriptionIcon('heroicon-m-arrow-path')
-        ->chart([15, 12, 18, 10, 15, 8, 12])
+        ->chart([10, 15, 12, 18, 14, 20, 18])
 
         ->color('danger')
         ->url(WarehouseReturnResource::getUrl('index')),
 
-      Stat::make('شحنات قيد الوصول', ShippingWarehouse::count())
+      Stat::make('شحنات قيد الوصول', ShippingWarehouse::query()->forActiveYear()->count())
         ->description('عمليات توزيع جارية')
         ->descriptionIcon('heroicon-m-truck')
         ->chart([15, 12, 18, 10, 15, 8, 12])

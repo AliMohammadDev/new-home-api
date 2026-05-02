@@ -54,8 +54,8 @@ class CompanySalesTransferResource extends Resource
             titleAttribute: 'name',
             modifyQueryUsing: fn(Builder $query) =>
             auth()->user()->hasRole('super_admin')
-            ? $query
-            : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
+              ? $query
+              : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
           )
           ->required()
           ->searchable()
@@ -214,7 +214,6 @@ class CompanySalesTransferResource extends Resource
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
-
   }
 
   public static function getRelations(): array
@@ -237,6 +236,7 @@ class CompanySalesTransferResource extends Resource
   {
 
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['salesPoint']);
 

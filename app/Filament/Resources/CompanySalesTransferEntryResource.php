@@ -10,6 +10,8 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class CompanySalesTransferEntryResource extends Resource
 {
   protected static ?string $model = CompanySalesTransferEntry::class;
@@ -60,12 +62,17 @@ class CompanySalesTransferEntryResource extends Resource
       ->filters([
         //
       ])
-      ->actions([
-      ])
+      ->actions([])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-        ]),
+        Tables\Actions\BulkActionGroup::make([]),
       ]);
+  }
+
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear();
   }
 
   public static function getRelations(): array

@@ -28,7 +28,8 @@ class LatestOrdersStats extends BaseWidget
 
   protected function getStats(): array
   {
-    $orderStats = Order::selectRaw("
+    $orderStats = Order::query()
+      ->forActiveYear()->selectRaw("
         COUNT(*) as total_count,
         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count,
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count
@@ -83,5 +84,4 @@ class LatestOrdersStats extends BaseWidget
 
     ];
   }
-
 }

@@ -279,8 +279,14 @@ class ProductImportItemResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     return parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
-      ->with(['productImport', 'productVariant.product', 'user', 'payments']);
+      ->with([
+        'productImport',
+        'productVariant.product',
+        'user',
+        'payments'
+      ]);
   }
 
   protected static function updateTotal($set, $get)

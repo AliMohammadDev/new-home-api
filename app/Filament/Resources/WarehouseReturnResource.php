@@ -350,12 +350,14 @@ class WarehouseReturnResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery()->with([
-      'productVariant.product',
-      'productVariant.images',
-      'user',
-      'warehouse'
-    ]);
+    $query = parent::getEloquentQuery()
+      ->forActiveYear()
+      ->with([
+        'productVariant.product',
+        'productVariant.images',
+        'user',
+        'warehouse'
+      ]);
     $user = auth()->user();
     if ($user->hasRole('super_admin')) {
       return $query;

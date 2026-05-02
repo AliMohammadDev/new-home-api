@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WarehouseReturn extends Model
 {
   use SoftDeletes;
+  use FilterByYear;
+
   protected $fillable = [
     'product_variant_id',
     'user_id',
@@ -35,7 +38,4 @@ class WarehouseReturn extends Model
   {
     return $this->belongsTo(User::class);
   }
-
-
-
 }

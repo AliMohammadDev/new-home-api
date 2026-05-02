@@ -114,21 +114,63 @@ class AdminPanelProvider extends PanelProvider
       ->renderHook(
         \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
         fn(): string => Blade::render('
-          <div class="flex items-center gap-x-3 ms-4">
-              <a href="https://almanzel-alhadith.com/"
-                target="_blank"
-                title="الذهاب إلى الموقع الإلكتروني"
-                class="fi-icon-btn relative flex items-center justify-center rounded-lg p-2
-                        text-gray-400 outline-none transition duration-75
-                        hover:bg-gray-500/10 hover:text-success-600
-                        focus:ring-2 focus:ring-primary-500
-                        dark:text-gray-400 dark:hover:bg-gray-500/20 dark:hover:text-success-400"
-              >
-                  <x-heroicon-o-globe-alt class="w-6 h-6 transition-colors duration-200" />
-                  <span class="hidden md:inline text-sm font-bold ms-1">الموقع</span>
-              </a>
-          </div>
-      '),
+        <div class="flex items-center gap-x-4 ms-4">
+            {{-- فلتر السنوات --}}
+     <div class="flex items-center gap-x-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 transition-all hover:ring-primary-500/50">
+    <!-- أيقونة التقويم بتصميم ناعم -->
+    <div class="flex items-center justify-center text-primary-600 dark:text-primary-400">
+        <x-heroicon-m-calendar-days class="w-5 h-5" />
+    </div>
+
+    <!-- فاصل عمودي بسيط -->
+    <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+    <form action="{{ route("set-active-year") }}" method="POST" id="year-filter-form" class="flex items-center">
+        @csrf
+        <div class="relative">
+            <select name="year"
+                onchange="document.getElementById(\'year-filter-form\').submit()"
+                class="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer p-0 pe-6 text-gray-700 dark:text-gray-200 appearance-none hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+                @php
+                    $startYear = 2026; // سنة بداية المشروع
+                    $endYear = (int)date("Y") + 1;
+                    $years = range($endYear, $startYear);
+                @endphp
+
+                @foreach($years as $year)
+                    <option value="{{ $year }}"
+                        {{ session("active_financial_year", date("Y")) == $year ? "selected" : "" }}
+                        class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
+                    >
+                        {{ $year }}
+                    </option>
+                @endforeach
+            </select>
+
+            <!-- سهم صغير مخصص للقائمة المنسدلة -->
+          <div class="absolute inset-y-0 right-1 flex items-center pointer-events-none text-gray-400 group-hover:text-primary-500 transition-colors">
+                <x-heroicon-m-chevron-up-down class="w-4 h-4" />
+            </div>
+        </div>
+    </form>
+</div>
+
+            {{-- زر الذهاب للموقع --}}
+            <a href="https://almanzel-alhadith.com/"
+               target="_blank"
+               title="الذهاب إلى الموقع الإلكتروني"
+               class="fi-icon-btn relative flex items-center justify-center rounded-lg p-2
+                      text-gray-400 outline-none transition duration-75
+                      hover:bg-gray-500/10 hover:text-success-600
+                      focus:ring-2 focus:ring-primary-500
+                      dark:text-gray-400 dark:hover:bg-gray-500/20 dark:hover:text-success-400"
+            >
+                <x-heroicon-o-globe-alt class="w-6 h-6 transition-colors duration-200" />
+                <span class="hidden md:inline text-sm font-bold ms-1">الموقع</span>
+            </a>
+        </div>
+    '),
       )
       ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
       ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

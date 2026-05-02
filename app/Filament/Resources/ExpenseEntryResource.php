@@ -10,6 +10,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+
 
 class ExpenseEntryResource extends Resource
 {
@@ -65,15 +68,18 @@ class ExpenseEntryResource extends Resource
           ->searchable()
           ->searchable(),
       ])
-      ->filters([
-      ])
+      ->filters([])
       ->defaultSort('created_at', 'DESC')
-      ->actions([
-      ])
+      ->actions([])
       ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-        ]),
+        Tables\Actions\BulkActionGroup::make([]),
       ]);
+  }
+
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear();
   }
 
   public static function getRelations(): array

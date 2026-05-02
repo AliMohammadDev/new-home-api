@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByYear;
 use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
+  use FilterByYear;
+
   protected $fillable = [
     'user_id',
     'status',

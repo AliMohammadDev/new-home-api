@@ -256,7 +256,6 @@ class OrderResource extends Resource
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
-
   }
 
 
@@ -408,6 +407,7 @@ class OrderResource extends Resource
   public static function getEloquentQuery(): Builder
   {
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->with(['user', 'deliveryCompany'])
       ->withSum('orderItems as items_subtotal_sum', 'total');
 

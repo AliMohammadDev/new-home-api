@@ -24,10 +24,12 @@ class OrdersCountWidget extends ChartWidget
 
   protected function getData(): array
   {
-    $orders = Order::select(
-      DB::raw('DATE(created_at) as date'),
-      DB::raw('count(*) as total')
-    )
+    $orders = Order::query()
+      ->forActiveYear()
+      ->select(
+        DB::raw('DATE(created_at) as date'),
+        DB::raw('count(*) as total')
+      )
       ->where('created_at', '>=', Carbon::now()->subDays(7))
       ->groupBy('date')
       ->orderBy('date')

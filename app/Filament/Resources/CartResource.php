@@ -11,6 +11,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\ViewAction;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class CartResource extends Resource
 {
@@ -95,6 +97,12 @@ class CartResource extends Resource
     ];
   }
 
+  public static function getEloquentQuery(): Builder
+  {
+    return parent::getEloquentQuery()
+      ->forActiveYear()
+      ->with(['user']);
+  }
 
   public static function getPages(): array
   {
@@ -103,5 +111,4 @@ class CartResource extends Resource
       'view' => Pages\ViewCart::route('/{record}'),
     ];
   }
-
 }

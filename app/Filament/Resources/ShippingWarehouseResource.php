@@ -167,10 +167,9 @@ class ShippingWarehouseResource extends Resource
               return "المتوفر في المستودع الرئيسي: " . $stock;
             })
             ->hintColor(
-              fn(Get $get) =>
-              ((int) $get('amount') > (ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 0))
-              ? 'danger'
-              : 'info'
+              fn(Get $get) => ((int) $get('amount') > (ProductVariant::find($get('product_variant_id'))?->stock_quantity ?? 0))
+                ? 'danger'
+                : 'info'
             ),
 
           DateTimePicker::make('arrival_time')
@@ -289,7 +288,6 @@ class ShippingWarehouseResource extends Resource
           ->formats([ExportFormat::Csv, ExportFormat::Xlsx])
           ->visible(fn() => auth()->user()->hasRole('super_admin')),
       ]);
-
   }
 
   public static function getRelations(): array
@@ -311,7 +309,9 @@ class ShippingWarehouseResource extends Resource
 
   public static function getEloquentQuery(): Builder
   {
-    $query = parent::getEloquentQuery();
+    $query = parent::getEloquentQuery()
+      ->forActiveYear()
+      ->withTrashed();
     $user = auth()->user();
 
     if ($user->hasRole('super_admin')) {
@@ -329,5 +329,4 @@ class ShippingWarehouseResource extends Resource
     }
     return $query->whereRaw('1 = 0');
   }
-
 }

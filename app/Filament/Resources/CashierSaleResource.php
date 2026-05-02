@@ -301,6 +301,7 @@ class CashierSaleResource extends Resource
   {
 
     $query = parent::getEloquentQuery()
+      ->forActiveYear()
       ->withTrashed()
       ->with(['variant.product', 'cashier.user', 'fatora']);
 
@@ -334,5 +335,4 @@ class CashierSaleResource extends Resource
       }),
     ];
   }
-
 }
