@@ -32,14 +32,14 @@ Schedule::job(new ArchiveDailyCompanyEntries)->daily();
  * Archive daily expense entries every minute.
  * Note: Check if this frequency is intended for production.
  */
-Schedule::job(new ArchiveDailyExpenseEntries)->everyMinute();
+Schedule::job(new ArchiveDailyExpenseEntries)->daily();
 
 /**
  * Archive daily personal withdrawal entries every minute.
  */
-Schedule::job(new ArchiveDailyPersonalWithdrawalEntries)->everyMinute();
+Schedule::job(new ArchiveDailyPersonalWithdrawalEntries)->daily();
 
 /**
  * Archive daily sales point entries every minute.
  */
-Schedule::job(new ArchiveDailySalesPointEntries)->everyMinute();
+Schedule::job(new ArchiveDailySalesPointEntries)->daily();

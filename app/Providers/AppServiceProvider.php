@@ -31,11 +31,9 @@ use App\Observers\ShippingWarehouseObserver;
 use App\Observers\SupplierPaymentObserver;
 use App\Observers\WarehouseReturnObserver;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Mail\Events\MessageSending;
-use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -71,14 +69,12 @@ class AppServiceProvider extends ServiceProvider
     CashierReturnFatora::observe(CashierReturnFatoraObserver::class);
     ShippingWarehouse::observe(ShippingWarehouseObserver::class);
     WarehouseReturn::observe(WarehouseReturnObserver::class);
-
     CashierSalesReturn::observe(CashierSalesReturnObserver::class);
     SalesPointCashierTrans::observe(CashierTransObserver::class);
-    CompanySalesTransfer::observe(CompanySalesTransferObserver::class);
-    CompanyEntry::observe(CompanyEntryObserver::class);
-
     SupplierPayment::observe(SupplierPaymentObserver::class);
 
+    CompanyEntry::observe(CompanyEntryObserver::class);
+    CompanySalesTransfer::observe(CompanySalesTransferObserver::class);
     Expense::observe(ExpenseObserver::class);
     PersonalWithdrawal::observe(PersonalWithdrawalObserver::class);
 
