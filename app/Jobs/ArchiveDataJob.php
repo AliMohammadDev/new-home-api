@@ -8,7 +8,9 @@ use App\Models\CashierSalesFatora;
 use App\Models\CashierSalesReturn;
 use App\Models\CompanyEntry;
 use App\Models\CompanySalesTransfer;
+use App\Models\Expense;
 use App\Models\Order;
+use App\Models\PersonalWithdrawal;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
@@ -22,6 +24,7 @@ use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use App\Models\User;
 use App\Models\WarehouseReturn;
+use Faker\Provider\Person;
 
 class ArchiveDataJob implements ShouldQueue
 {
@@ -46,13 +49,16 @@ class ArchiveDataJob implements ShouldQueue
         CashierSale::class,
         CashierSalesFatora::class,
         CashierSalesReturn::class,
-        CompanyEntry::class,
-        CompanySalesTransfer::class,
         Order::class,
         SalesPointCashierTrans::class,
         ShippingWarehouse::class,
         WarehouseReturn::class,
         ProductImportItem::class,
+
+        CompanyEntry::class,
+        CompanySalesTransfer::class,
+        Expense::class,
+        PersonalWithdrawal::class
       ];
 
       $totalCount = 0;
