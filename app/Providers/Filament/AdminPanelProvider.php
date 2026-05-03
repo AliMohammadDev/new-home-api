@@ -116,42 +116,58 @@ class AdminPanelProvider extends PanelProvider
         fn(): string => Blade::render('
         <div class="flex items-center gap-x-4 ms-4">
             {{-- فلتر السنوات --}}
-     <div class="flex items-center gap-x-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 transition-all hover:ring-primary-500/50">
-    <!-- أيقونة التقويم بتصميم ناعم -->
+
+
+            {{-- فلتر السنوات باستخدام DatePicker --}}
+{{-- فلتر السنوات - عرض السنة فقط --}}
+<div class="flex items-center gap-x-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:ring-white/10 transition-all hover:ring-primary-500/50">
+    <!-- أيقونة التقويم -->
     <div class="flex items-center justify-center text-primary-600 dark:text-primary-400">
         <x-heroicon-m-calendar-days class="w-5 h-5" />
     </div>
 
-    <!-- فاصل عمودي بسيط -->
+    <!-- فاصل عمودي -->
     <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
 
-    <form action="{{ route("set-active-year") }}" method="POST" id="year-filter-form" class="flex items-center">
+    <form action="{{ route(\'set-active-year\') }}" method="POST" id="year-filter-form" class="flex items-center">
         @csrf
-        <div class="relative">
-            <select name="year"
-                onchange="document.getElementById(\'year-filter-form\').submit()"
-                class="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer p-0 pe-6 text-gray-700 dark:text-gray-200 appearance-none hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-                @php
-                    $startYear = 2026; // سنة بداية المشروع
-                    $endYear = (int)date("Y") + 1;
-                    $years = range($endYear, $startYear);
-                @endphp
+        @php
+            $activeYear = session(\'active_financial_year\', date(\'Y\'));
+        @endphp
 
-                @foreach($years as $year)
-                    <option value="{{ $year }}"
-                        {{ session("active_financial_year", date("Y")) == $year ? "selected" : "" }}
-                        class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium"
-                    >
-                        {{ $year }}
-                    </option>
-                @endforeach
-            </select>
+        <div class="relative flex items-center">
+            <style>
+                /* إخفاء اليوم والشهر في المتصفحات التي تدعم webkit مثل Chrome و Edge */
+                #date_picker_display::-webkit-datetime-edit-month-field,
+                #date_picker_display::-webkit-datetime-edit-day-field,
+                #date_picker_display::-webkit-datetime-edit-text {
+                    display: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                }
+                /* لضمان ظهور السنة فقط بشكل عريض وواضح */
+                #date_picker_display {
+                    width: 55px;
+                }
+            </style>
 
-            <!-- سهم صغير مخصص للقائمة المنسدلة -->
-          <div class="absolute inset-y-0 right-1 flex items-center pointer-events-none text-gray-400 group-hover:text-primary-500 transition-colors">
-                <x-heroicon-m-chevron-up-down class="w-4 h-4" />
-            </div>
+            <input
+                type="date"
+                id="date_picker_display"
+                value="{{ $activeYear }}-01-01"
+                onchange="
+                    const selectedDate = new Date(this.value);
+                    const selectedYear = selectedDate.getFullYear();
+                    if (!isNaN(selectedYear)) {
+                        document.getElementById(\'hidden_year_input\').value = selectedYear;
+                        document.getElementById(\'year-filter-form\').submit();
+                    }
+                "
+                class="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer p-0 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            />
+
+            <!-- الحقل المخفي الذي يرسل السنة للباك اند -->
+            <input type="hidden" name="year" id="hidden_year_input" value="{{ $activeYear }}">
         </div>
     </form>
 </div>
