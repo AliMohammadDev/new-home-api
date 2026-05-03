@@ -24,8 +24,9 @@ jobs:
       - name: Prepare Laravel
         run: |
           cp .env.example .env
-          php artisan key:generate
+          echo "DB_CONNECTION=sqlite" >> .env
           touch database/database.sqlite
+          php artisan key:generate
 
       - name: Run migrations
         run: php artisan migrate --force
