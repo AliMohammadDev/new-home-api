@@ -43,3 +43,7 @@ Schedule::job(new ArchiveDailyPersonalWithdrawalEntries)->daily();
  * Archive daily sales point entries every minute.
  */
 Schedule::job(new ArchiveDailySalesPointEntries)->daily();
+
+Schedule::command('queue:work --stop-when-empty')
+  ->everyMinute()
+  ->withoutOverlapping();
