@@ -228,10 +228,6 @@
         </table>
     </div>
 
-    <div style="clear: both; margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-        <p style="color: #666; font-size: 12pt;">شكراً لتعاملكم معنا! تم إصدار هذه الفاتورة إلكترونياً.</p>
-    </div>
-
 </body>
 
 </html>
