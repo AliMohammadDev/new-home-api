@@ -3,33 +3,47 @@
 
 <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
+        * {
+            font-family: 'cairo', 'Cairo', sans-serif !important;
+        }
+
         body {
-            font-family: 'cairo', sans-serif;
             direction: rtl;
             color: #222;
-            line-height: 1.6;
-            font-size: 13pt;
+            line-height: 1.5;
+            margin: 0;
+            padding: 25px;
+            font-size: 12pt;
+            background-color: #fff;
         }
 
         .header-table {
             width: 100%;
             border-bottom: 3px solid #025043;
-            margin-bottom: 30px;
-            padding-bottom: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
         }
 
         .document-title h1 {
-            font-size: 32pt;
+            font-size: 28pt;
             margin: 0;
             color: #025043;
             text-align: right;
+            font-weight: 700;
+        }
+
+        .info-table {
+            width: 100%;
+            margin-bottom: 35px;
         }
 
         table.items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         .items-table th {
@@ -37,43 +51,64 @@
             color: #ffffff;
             padding: 12px 8px;
             text-align: center;
-            font-size: 14pt;
+            font-size: 13pt;
             border: 1px solid #025043;
         }
 
         .items-table td {
             padding: 12px 8px;
-            border-bottom: 1px solid #ddd;
-            border-left: 1px solid #eee;
-            border-right: 1px solid #eee;
-            font-size: 13pt;
+            border-bottom: 1px solid #eee;
+            border-left: 1px solid #fcfcfc;
+            border-right: 1px solid #fcfcfc;
+            font-size: 11.5pt;
             text-align: center;
+            vertical-align: middle;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background-color: #fbfdfc;
         }
 
         .totals-table {
             width: 380px;
-            border-top: 2px solid #eee;
+            float: left;
+            border-spacing: 0;
+        }
+
+        .totals-table td {
+            padding: 8px 12px;
+            font-size: 12pt;
+            border-bottom: 1px solid #f5f5f5;
         }
 
         .total-row.final {
-            background-color: #f8fcfb;
-            color: #025043;
+            background-color: #025043;
+            color: #ffffff;
             font-weight: bold;
-            font-size: 20pt;
+            font-size: 18pt;
+        }
+
+        .total-row.final td {
+            padding: 12px;
+            border: none;
         }
 
         .text-muted {
-            color: #888;
+            color: #666;
             font-size: 11pt;
         }
 
-        .text-danger {
-            color: #a80000;
-        }
+
 
         .price-bold {
-            font-weight: bold;
+            font-weight: 700;
             color: #025043;
+        }
+
+        small {
+            font-size: 10pt;
+            display: block;
+            margin-top: 3px;
         }
     </style>
 </head>
@@ -88,26 +123,30 @@
             <td style="width: 50%; text-align: left; vertical-align: middle;">
                 @php $logoPath = public_path('images/logo.png'); @endphp
                 @if (file_exists($logoPath))
-                    <img src="{{ $logoPath }}" width="150">
+                    <img src="{{ $logoPath }}" width="140">
                 @else
-                    <h2 style="color: #025043;">STORE NAME</h2>
+                    <h2 style="color: #025043; margin: 0; font-size: 22pt;">STORE NAME</h2>
                 @endif
             </td>
         </tr>
     </table>
 
-    <table style="width: 100%; margin-bottom: 40px;">
+    <table class="info-table">
         <tr>
-            <td style="text-align: right; width: 50%;">
-                <h4 class="text-muted" style="margin-bottom: 5px;">بيانات المورد والشحن:</h4>
-                <strong
-                    style="font-size: 18pt;">{{ $records->first()->productImport->supplier_name ?? 'مورد عام' }}</strong><br>
-                <span>العنوان: {{ $records->first()->productImport->address ?? 'غير محدد' }}</span>
+            <td style="text-align: right; width: 50%; vertical-align: top;">
+                <div style="border-right: 3px solid #eee; padding-right: 12px;">
+                    <h4 class="text-muted" style="margin: 0 0 4px 0;">بيانات المورد والشحن:</h4>
+                    <strong style="font-size: 16pt; color: #025043;">
+                        {{ $records->first()->productImport->supplier_name ?? 'مورد عام' }}
+                    </strong><br>
+                    <span style="color: #444; font-size: 12pt;">العنوان:
+                        {{ $records->first()->productImport->address ?? 'غير محدد' }}</span>
+                </div>
             </td>
-            <td style="text-align: left; vertical-align: top;">
-                <h4 class="text-muted" style="margin-bottom: 5px;">توثيق المستند:</h4>
-                <span>تاريخ الاستخراج: {{ now()->format('Y/m/d') }}</span><br>
-                <span>حالة القيد: <span style="color: #025043; font-weight: bold;">مكتمل (استيراد)</span></span>
+            <td style="text-align: left; vertical-align: top; width: 50%;">
+                <h4 class="text-muted" style="margin: 0 0 4px 0;">توثيق المستند:</h4>
+                <span style="font-size: 12pt;">تاريخ الاستخراج: <strong>{{ now()->format('Y/m/d') }}</strong></span><br>
+
             </td>
         </tr>
     </table>
@@ -115,12 +154,12 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 30%; text-align: right;">المنتج</th>
+                <th style="width: 35%; text-align: right;">المنتج والتفاصيل</th>
                 <th>الكمية</th>
                 <th>سعر الوحدة</th>
-                <th>شحن/وحدة</th>
-                <th>خصم صنف</th>
-                <th>الإجمالي</th>
+                <th>الشحن</th>
+                <th>الخصم</th>
+                <th style="text-align: left;">الإجمالي</th>
             </tr>
         </thead>
         <tbody>
@@ -141,17 +180,20 @@
                 @endphp
                 <tr>
                     <td style="text-align: right;">
-                        <strong
-                            style="color: #025043;">{{ $record->productVariant->product->name['ar'] ?? ($record->productVariant->product->name['en'] ?? 'منتج') }}</strong>
-                        <br>
-                        <small class="text-muted">{{ $record->productVariant->color->color['ar'] ?? '' }} /
-                            {{ $record->productVariant->size->size ?? '' }} ({{ $record->productVariant->sku }})</small>
+                        <strong style="color: #025043; font-size: 12pt;">
+                            {{ $record->productVariant->product->name['ar'] ?? ($record->productVariant->product->name['en'] ?? 'منتج') }}
+                        </strong>
+                        <small class="text-muted">
+                            {{ $record->productVariant->color->color['ar'] ?? '' }} /
+                            {{ $record->productVariant->size->size ?? '' }} ({{ $record->productVariant->sku }})
+                        </small>
                     </td>
-                    <td style="font-weight: bold;">{{ number_format($record->quantity) }}</td>
+                    <td style="font-weight: bold; font-size: 12pt;">{{ number_format($record->quantity) }}</td>
                     <td>${{ number_format($record->price, 2) }}</td>
                     <td>${{ number_format($record->shipping_price, 2) }}</td>
-                    <td class="text-danger">-${{ number_format($record->discount, 2) }}</td>
-                    <td class="price-bold">${{ number_format($record->total_cost, 2) }}</td>
+                    <td class="text-danger">${{ number_format($record->discount, 2) }}</td>
+                    <td class="price-bold" style="text-align: left; font-size: 12pt;">
+                        ${{ number_format($record->total_cost, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -160,29 +202,25 @@
     <table class="totals-table" align="left">
         <tr>
             <td class="text-muted">إجمالي قيمة المنتجات:</td>
-            <td style="text-align: left;">${{ number_format($sumBasePrice, 2) }}</td>
+            <td style="text-align: left; font-weight: 600;">${{ number_format($sumBasePrice, 2) }}</td>
         </tr>
         <tr>
             <td class="text-muted">إجمالي تكاليف الشحن:</td>
-            <td style="text-align: left;">${{ number_format($sumShipping, 2) }}</td>
+            <td style="text-align: left; font-weight: 600;">${{ number_format($sumShipping, 2) }}</td>
         </tr>
         <tr>
-            <td class="text-muted">إجمالي الخصومات الممنوحة:</td>
-            <td style="text-align: left;" class="text-danger">-${{ number_format($sumDiscounts, 2) }}</td>
+            <td class="text-muted">إجمالي الخصومات:</td>
+            <td style="text-align: left;" class="text-danger">${{ number_format($sumDiscounts, 2) }}</td>
         </tr>
         <tr>
-            <td class="text-muted">إجمالي عدد القطع:</td>
-            <td style="text-align: left;">{{ number_format($totalQty) }} قطعة</td>
+            <td class="text-muted">إجمالي الكمية:</td>
+            <td style="text-align: left; font-weight: 600;">{{ number_format($totalQty) }} قطعة</td>
         </tr>
-        <tr class="total-row final">
-            <td style="padding-top: 15px;">الصافي النهائي:</td>
-            <td style="text-align: left; padding-top: 15px;">${{ number_format($finalGrandTotal, 2) }}</td>
+        <tr class="total-row ">
+            <td>الصافي النهائي:</td>
+            <td style="text-align: left;">${{ number_format($finalGrandTotal, 2) }}</td>
         </tr>
     </table>
-
-    <div style="clear: both; margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-        <p class="text-muted">تم استخراج هذا البيان آلياً لإدارة شؤون الاستيراد والمستودعات.</p>
-    </div>
 
 </body>
 

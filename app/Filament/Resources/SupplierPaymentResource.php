@@ -35,6 +35,7 @@ use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Columns\Summarizers\Summarizer;
+use Filament\Tables\Actions\Action;
 
 class SupplierPaymentResource extends Resource
 {
@@ -268,6 +269,14 @@ class SupplierPaymentResource extends Resource
       ])
       ->actions([
         EditAction::make(),
+
+        Action::make('print_import_details')
+          ->label('طباعة بيان الصنف')
+          ->icon('heroicon-o-printer')
+          ->color('info')
+          ->url(fn($record) => route('supplier.print', ['ids' => [$record->product_import_item_id]]))
+          ->openUrlInNewTab(),
+
         // DeleteAction::make()
         //   ->label('أرشفة'),
         // RestoreAction::make()
@@ -305,6 +314,16 @@ class SupplierPaymentResource extends Resource
           //       $action->halt();
           //     }
           //   }),
+
+          Tables\Actions\BulkAction::make('print_selected_imports')
+            ->label('طباعة كشف مجمع')
+            ->icon('heroicon-o-printer')
+            ->color('success')
+            ->action(function (Collection $records) {
+              $itemIds = $records->pluck('product_import_item_id')->unique()->toArray();
+
+              return redirect()->route('supplier.print', ['ids' => $itemIds]);
+            }),
         ]),
         ExportBulkAction::make()->exporter(SupplierPaymentExporter::class)
           ->color('success')

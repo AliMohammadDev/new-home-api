@@ -3,59 +3,91 @@
 
 <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: 'cairo', sans-serif;
+            font-family: 'Cairo', sans-serif;
             direction: rtl;
-            color: #222;
-            line-height: 1.6;
-            font-size: 14pt;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            /* تصغير حجم الخط العام ليعطي طابع رسمي */
+            font-size: 11pt;
         }
 
         .header-table {
             width: 100%;
-            border-bottom: 3px solid #025043;
-            margin-bottom: 30px;
-            padding-bottom: 10px;
+            border-bottom: 2px solid #025043;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
         }
 
         .document-title h1 {
-            font-size: 32pt;
+            font-size: 24pt;
             margin: 0;
             color: #025043;
-            text-align: right;
+            font-weight: 700;
         }
 
+        /* تنسيق جدول المحتويات */
         table.items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .items-table th {
             background-color: #025043;
             color: #ffffff;
-            padding: 15px 10px;
+            padding: 10px;
             text-align: right;
-            font-size: 16pt;
+            font-size: 11pt;
+            border: 1px solid #025043;
         }
 
         .items-table td {
-            padding: 15px 10px;
-            border-bottom: 1px solid #ddd;
-            font-size: 15pt;
+            padding: 10px;
+            border: 1px solid #eee;
+            font-size: 10.5pt;
+            vertical-align: middle;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background-color: #fafafa;
         }
 
         .totals-table {
-            width: 400px;
-            border-top: 2px solid #eee;
+            width: 320px;
+            /* تقليل العرض ليكون متناسق */
+            float: left;
+            /* ليبقى جهة اليسار في نظام RTL */
+        }
+
+        .totals-table td {
+            padding: 8px 10px;
+            font-size: 11pt;
         }
 
         .total-row.final {
-            background-color: #f8fcfb;
-            color: #025043;
-            font-weight: bold;
-            font-size: 22pt;
+            background-color: #025043;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16pt;
+        }
+
+        .total-row.final td {
+            padding: 12px 10px;
+        }
+
+        small {
+            font-size: 9pt;
+            color: #777;
+        }
+
+        strong {
+            font-weight: 600;
         }
     </style>
 </head>
@@ -73,24 +105,28 @@
                 @endphp
 
                 @if (file_exists($logoPath))
-                    <img src="{{ $logoPath }}" width="150">
+                    <img src="{{ $logoPath }}" width="120">
                 @else
-                    <h2 style="color: #025043;">STORE NAME</h2>
+                    <h2 style="color: #025043; margin: 0;">STORE NAME</h2>
                 @endif
             </td>
         </tr>
     </table>
 
-    <table style="width: 100%; margin-bottom: 40px;">
+    <table style="width: 100%; margin-bottom: 30px;">
         <tr>
-            <td style="text-align: right; width: 50%;">
-                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">ملخص العملية:</h4>
-                <strong style="font-size: 18pt;">تقرير مبيعات الكاشير</strong><br>
-                <span>عدد الفواتير المشمولة: {{ count(request('ids', [])) }} فاتورة</span>
+            <td style="text-align: right; width: 50%; vertical-align: top;">
+                <span style="color: #666; font-size: 10pt;">ملخص العملية:</span><br>
+                <strong style="font-size: 14pt; color: #025043;">تقرير مبيعات الكاشير</strong><br>
+                <div style="margin-top: 5px;">
+                    <span>اسم الكاشير:
+                        <strong>{{ $salesItems->first()->fatora->cashier->user->name ?? 'غير محدد' }}</strong></span><br>
+                    <span>عدد الفواتير المشمولة: <strong>{{ count(request('ids', [])) }}</strong></span>
+                </div>
             </td>
-            <td style="text-align: left; vertical-align: top;">
-                <h4 style="color: #888; margin-bottom: 5px; font-size: 12pt;">تفاصيل المستند:</h4>
-                <span>تاريخ الطباعة: {{ now()->format('Y/m/d') }}</span><br>
+            <td style="text-align: left; vertical-align: top; width: 50%;">
+                <span style="color: #666; font-size: 10pt;">تفاصيل المستند:</span><br>
+                <span>تاريخ الطباعة: <strong>{{ now()->format('Y/m/d') }}</strong></span><br>
                 <span>الحالة: <span style="color: #025043; font-weight: bold;">تقرير نهائي</span></span>
             </td>
         </tr>
@@ -99,11 +135,11 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 15%;">رقم الفاتورة</th>
-                <th style="width: 35%;">المنتج</th>
-                <th style="text-align: center;">الكمية</th>
-                <th style="text-align: center;">سعر الوحدة</th>
-                <th style="text-align: left;">الإجمالي</th>
+                <th style="width: 12%; text-align: center;">رقم الفاتورة</th>
+                <th style="width: 40%;">المنتج</th>
+                <th style="text-align: center; width: 10%;">الكمية</th>
+                <th style="text-align: center; width: 18%;">سعر الوحدة</th>
+                <th style="text-align: left; width: 20%;">الإجمالي</th>
             </tr>
         </thead>
         <tbody>
@@ -111,16 +147,14 @@
             @foreach ($salesItems as $item)
                 @php $totalQuantity += $item->quantity; @endphp
                 <tr>
-                    <td style="text-align: center; color: #666;">
+                    <td style="text-align: center; color: #555;">
                         #{{ $item->cashier_sales_fatora_id }}
                     </td>
                     <td>
-                        <strong style="color: #025043;">
+                        <div style="font-weight: 600; color: #025043;">
                             {{ $item->variant->product->name['ar'] ?? ($item->variant->product->name['en'] ?? 'منتج غير معروف') }}
-                        </strong>
-                        <br>
-                        <small style="color: #666;">SKU: {{ $item->variant->sku }} | كاشير:
-                            {{ $item->fatora->cashier->user->name ?? '-' }}</small>
+                        </div>
+                        <small>SKU: {{ $item->variant->sku }}</small>
                     </td>
                     <td style="text-align: center;">
                         {{ number_format($item->quantity) }}
@@ -128,7 +162,7 @@
                     <td style="text-align: center;">
                         {{ number_format($item->price, 2) }} $
                     </td>
-                    <td style="text-align: left; font-weight: bold;">
+                    <td style="text-align: left; font-weight: 700;">
                         {{ number_format($item->full_price, 2) }} $
                     </td>
                 </tr>
@@ -138,22 +172,14 @@
 
     <table class="totals-table" align="left">
         <tr>
-            <td style="color: #666;">إجمالي عدد الأصناف:</td>
-            <td style="text-align: left;">{{ $salesItems->count() }} بند</td>
+            <td>إجمالي القطع المبيعة:</td>
+            <td style="text-align: left; font-weight: 600;">{{ number_format($totalQuantity) }} قطعة</td>
         </tr>
-        <tr>
-            <td style="color: #666;">إجمالي القطع المبيعة:</td>
-            <td style="text-align: left;">{{ number_format($totalQuantity) }} قطعة</td>
-        </tr>
-        <tr class="total-row final">
-            <td style="padding-top: 15px;">المجموع الكلي:</td>
-            <td style="text-align: left; padding-top: 15px;">{{ number_format($totalAmount, 2) }} $</td>
+        <tr class="total-row">
+            <td>المجموع الكلي:</td>
+            <td style="text-align: left;">{{ number_format($totalAmount, 2) }} $</td>
         </tr>
     </table>
-
-    <div style="clear: both; margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-        <p style="color: #666; font-size: 12pt;">تم توليد هذا التقرير آلياً لمراجعة مبيعات نقاط البيع.</p>
-    </div>
 
 </body>
 
