@@ -205,7 +205,6 @@ class SupplierPaymentResource extends Resource
             default => $state,
           }),
 
-
         TextColumn::make('notes')
           ->label('الطريقةالبيان'),
 

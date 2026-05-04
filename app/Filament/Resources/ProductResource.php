@@ -149,9 +149,9 @@ class ProductResource extends Resource
           ->searchable()
           ->preload(),
 
-        TrashedFilter::make()
-          ->label('حالة الأرشفة')
-          ->native(false),
+        // TrashedFilter::make()
+        //   ->label('حالة الأرشفة')
+        //   ->native(false),
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([

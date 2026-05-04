@@ -117,7 +117,7 @@ class PersonalWithdrawalResource extends Resource
               ->when($data['until'], fn($q, $date) => $q->whereDate('expense_date', '<=', $date));
           }),
 
-        TrashedFilter::make()->label('المؤرشفة'),
+        // TrashedFilter::make()->label('المؤرشفة'),
       ])
       ->defaultSort('created_at', 'DESC')
       ->actions([

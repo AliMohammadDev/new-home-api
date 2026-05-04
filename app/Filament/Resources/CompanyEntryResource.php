@@ -158,8 +158,6 @@ class CompanyEntryResource extends Resource
       TextColumn::make('name')
         ->label('البيان')
         ->searchable(),
-
-
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
@@ -173,14 +171,12 @@ class CompanyEntryResource extends Resource
           ->label('الصندوق')
           ->relationship('treasure', 'name'),
 
-
-
-        TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+        // TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
       ])
       ->actions([
         // Tables\Actions\EditAction::make(),

@@ -92,12 +92,12 @@ class CashierReturnFatoraResource extends Resource
     ])
       ->defaultSort('created_at', 'DESC')
       ->filters([
-        TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+        // TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
       ])
       ->actions([
         Action::make('print')

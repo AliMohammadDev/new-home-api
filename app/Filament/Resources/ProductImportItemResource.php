@@ -181,12 +181,12 @@ class ProductImportItemResource extends Resource
           ->relationship('productImport', 'supplier_name'),
 
 
-        TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+        // TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
 
       ])
       ->defaultSort('created_at', 'DESC')

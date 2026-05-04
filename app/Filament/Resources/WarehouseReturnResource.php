@@ -8,7 +8,6 @@ use App\Models\ProductVariant;
 use App\Models\ShippingWarehouse;
 use App\Models\WarehouseReturn;
 use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -274,12 +273,13 @@ class WarehouseReturnResource extends Resource
         SelectFilter::make('warehouse_id')
           ->label('تصفية حسب المستودع')
           ->relationship('warehouse', 'name'),
-        TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+
+        // TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
       ])
       ->actions([
         EditAction::make(),

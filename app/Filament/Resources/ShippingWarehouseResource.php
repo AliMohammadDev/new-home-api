@@ -226,12 +226,13 @@ class ShippingWarehouseResource extends Resource
         SelectFilter::make('warehouse_id')
           ->label('تصفية حسب المستودع')
           ->relationship('warehouse', 'name'),
-        TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+
+        // TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
       ])
       ->actions([
         EditAction::make(),

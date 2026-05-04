@@ -151,12 +151,13 @@ class CompanySalesTransferResource extends Resource
               $indicators[] = 'إلى: ' . $data['until'];
             return $indicators;
           }),
-        Tables\Filters\TrashedFilter::make()
-          ->label('حالة السجلات')
-          ->falseLabel('السجلات المؤرشفة فقط')
-          ->trueLabel('السجلات النشطة فقط')
-          ->placeholder('الكل')
-          ->native(false),
+
+        // Tables\Filters\TrashedFilter::make()
+        //   ->label('حالة السجلات')
+        //   ->falseLabel('السجلات المؤرشفة فقط')
+        //   ->trueLabel('السجلات النشطة فقط')
+        //   ->placeholder('الكل')
+        //   ->native(false),
       ])
       ->actions([
         EditAction::make(),
