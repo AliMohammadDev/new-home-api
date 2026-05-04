@@ -17,6 +17,7 @@ class CompanySalesTransferEntryResource extends Resource
   protected static ?string $model = CompanySalesTransferEntry::class;
   protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
   protected static ?string $navigationGroup = 'الأرشيف المالي';
+  protected static ?string $modelLabel = 'حركة تحويل نقاط';
   protected static ?string $navigationLabel = 'سجل حركات تحويلات النقاط';
   protected static ?string $pluralModelLabel = 'حركات تحويلات نقاط البيع';
 
