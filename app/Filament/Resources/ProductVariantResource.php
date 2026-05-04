@@ -635,14 +635,14 @@ class ProductVariantResource extends Resource
         EditAction::make(),
         ViewAction::make()->label('عرض'),
 
-        DeleteAction::make()
-          ->label('أرشفة'),
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
 
-        RestoreAction::make()
-          ->label('استعادة'),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
 
-        ForceDeleteAction::make()
-          ->label('حذف نهائي'),
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي'),
       ])
       ->headerActions([
         ExportAction::make()
@@ -653,14 +653,14 @@ class ProductVariantResource extends Resource
       ])
       ->bulkActions([
         BulkActionGroup::make([
-          DeleteBulkAction::make()
-            ->label('أرشفة المحدد'),
+          // DeleteBulkAction::make()
+          //   ->label('أرشفة المحدد'),
 
-          RestoreBulkAction::make()
-            ->label('استعادة المحدد'),
+          // RestoreBulkAction::make()
+          //   ->label('استعادة المحدد'),
 
-          ForceDeleteBulkAction::make()
-            ->label('حذف نهائي للمحدد'),
+          // ForceDeleteBulkAction::make()
+          //   ->label('حذف نهائي للمحدد'),
         ]),
         ExportBulkAction::make()
           ->exporter(ProductVariantExporter::class)

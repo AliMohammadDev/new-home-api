@@ -110,46 +110,47 @@ class CashierSalesFatoraResource extends Resource
           ->openUrlInNewTab(),
 
         EditAction::make(),
-        DeleteAction::make()
-          ->label('أرشفة'),
-        RestoreAction::make()
-          ->label('استعادة'),
-        ForceDeleteAction::make()
-          ->label('حذف نهائي')
-          ->before(function (ForceDeleteAction $action, $record) {
-            if (round((float) $record->full_price, 2) > 0) {
-              Notification::make()
-                ->title('غير مسموح')
-                ->body('لا يمكن حذف الفاتورة نهائياً لأن رصيدها (' . $record->full_price . ') لم يتم تصفيره.')
-                ->danger()
-                ->send();
 
-              $action->halt();
-            }
-          }),
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي')
+        //   ->before(function (ForceDeleteAction $action, $record) {
+        //     if (round((float) $record->full_price, 2) > 0) {
+        //       Notification::make()
+        //         ->title('غير مسموح')
+        //         ->body('لا يمكن حذف الفاتورة نهائياً لأن رصيدها (' . $record->full_price . ') لم يتم تصفيره.')
+        //         ->danger()
+        //         ->send();
+
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->bulkActions([
         BulkActionGroup::make([
 
-          DeleteBulkAction::make()
-            ->label('أرشفة المحدد'),
-          RestoreBulkAction::make()
-            ->label('استعادة المحدد'),
-          ForceDeleteBulkAction::make()
-            ->label('حذف نهائي للمحدد')
-            ->before(function (ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
-              $hasBalance = $records->contains(fn($record) => round((float) $record->full_price, 2) > 0);
+          // DeleteBulkAction::make()
+          //   ->label('أرشفة المحدد'),
+          // RestoreBulkAction::make()
+          //   ->label('استعادة المحدد'),
+          // ForceDeleteBulkAction::make()
+          //   ->label('حذف نهائي للمحدد')
+          //   ->before(function (ForceDeleteBulkAction $action, \Illuminate\Database\Eloquent\Collection $records) {
+          //     $hasBalance = $records->contains(fn($record) => round((float) $record->full_price, 2) > 0);
 
-              if ($hasBalance) {
-                Notification::make()
-                  ->title('إجراء محظور')
-                  ->body('بعض الفواتير المختارة تحتوي على مبالغ. يجب تصفير كافة الفواتير قبل الحذف النهائي.')
-                  ->danger()
-                  ->send();
+          //     if ($hasBalance) {
+          //       Notification::make()
+          //         ->title('إجراء محظور')
+          //         ->body('بعض الفواتير المختارة تحتوي على مبالغ. يجب تصفير كافة الفواتير قبل الحذف النهائي.')
+          //         ->danger()
+          //         ->send();
 
-                $action->halt();
-              }
-            }),
+          //       $action->halt();
+          //     }
+          //   }),
 
           BulkAction::make('print_selected')
             ->label('طباعة الفواتير المحددة')

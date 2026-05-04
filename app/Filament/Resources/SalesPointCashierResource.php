@@ -41,8 +41,8 @@ class SalesPointCashierResource extends Resource
               titleAttribute: 'name',
               modifyQueryUsing: fn(Builder $query) =>
               auth()->user()->hasRole('super_admin')
-              ? $query
-              : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
+                ? $query
+                : $query->whereHas('managers', fn($q) => $q->where('user_id', auth()->id()))
             )
             ->searchable()
             ->preload()
@@ -192,6 +192,5 @@ class SalesPointCashierResource extends Resource
     }
 
     return $query->whereRaw('1 = 0');
-
   }
 }

@@ -89,9 +89,7 @@ class CustomerResource extends Resource
         Tables\Actions\ViewAction::make()->label('عرض'),
 
       ])
-      ->bulkActions([
-
-      ]);
+      ->bulkActions([]);
   }
   public static function getPages(): array
   {

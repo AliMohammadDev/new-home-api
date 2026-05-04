@@ -147,8 +147,7 @@ class ProductImportResource extends Resource
             }
           }),
       ])
-      ->bulkActions([
-      ]);
+      ->bulkActions([]);
   }
 
   public static function getRelations(): array

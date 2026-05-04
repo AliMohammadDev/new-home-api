@@ -283,44 +283,44 @@ class WarehouseReturnResource extends Resource
       ])
       ->actions([
         EditAction::make(),
-        DeleteAction::make()
-          ->label('أرشفة'),
-        RestoreAction::make()
-          ->label('استعادة'),
-        ForceDeleteAction::make()
-          ->label('حذف نهائي')
-          ->before(function (ForceDeleteAction $action, $record) {
-            if ($record->amount > 0) {
-              Notification::make()
-                ->title('فشل الحذف النهائي')
-                ->body("لا يمكن حذف هذه الشحنة نهائياً لأن الكمية المسجلة بها ({$record->amount}) لم يتم تصفيرها أو استردادها.")
-                ->danger()
-                ->send();
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي')
+        //   ->before(function (ForceDeleteAction $action, $record) {
+        //     if ($record->amount > 0) {
+        //       Notification::make()
+        //         ->title('فشل الحذف النهائي')
+        //         ->body("لا يمكن حذف هذه الشحنة نهائياً لأن الكمية المسجلة بها ({$record->amount}) لم يتم تصفيرها أو استردادها.")
+        //         ->danger()
+        //         ->send();
 
-              $action->halt();
-            }
-          }),
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->bulkActions([
         BulkActionGroup::make([
-          DeleteBulkAction::make()->label('أرشفة المحدد'),
-          RestoreBulkAction::make()->label('استعادة المحدد'),
+          // DeleteBulkAction::make()->label('أرشفة المحدد'),
+          // RestoreBulkAction::make()->label('استعادة المحدد'),
 
-          ForceDeleteBulkAction::make()
-            ->label('حذف نهائي للمحدد')
-            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
-              $invalidRecords = $records->where('amount', '>', 0);
+          // ForceDeleteBulkAction::make()
+          //   ->label('حذف نهائي للمحدد')
+          //   ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+          //     $invalidRecords = $records->where('amount', '>', 0);
 
-              if ($invalidRecords->count() > 0) {
-                Notification::make()
-                  ->title('إجراء غير مسموح')
-                  ->body('بعض الشحنات المختارة لا تزال تحتوي على كميات. يجب تصفير الكميات قبل الحذف النهائي.')
-                  ->danger()
-                  ->send();
+          //     if ($invalidRecords->count() > 0) {
+          //       Notification::make()
+          //         ->title('إجراء غير مسموح')
+          //         ->body('بعض الشحنات المختارة لا تزال تحتوي على كميات. يجب تصفير الكميات قبل الحذف النهائي.')
+          //         ->danger()
+          //         ->send();
 
-                $action->halt();
-              }
-            }),
+          //       $action->halt();
+          //     }
+          //   }),
         ]),
         ExportBulkAction::make()
           ->exporter(WarehouseReturnExporter::class)

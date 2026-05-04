@@ -157,13 +157,13 @@ class ProductResource extends Resource
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()->label('أرشفة'),
-        Tables\Actions\RestoreAction::make()->label('استعادة'),
+        // Tables\Actions\DeleteAction::make()->label('أرشفة'),
+        // Tables\Actions\RestoreAction::make()->label('استعادة'),
 
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make(),
+          // Tables\Actions\DeleteBulkAction::make(),
         ]),
       ]);
   }
@@ -185,8 +185,4 @@ class ProductResource extends Resource
 
     ];
   }
-
-
-
-
 }

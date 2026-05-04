@@ -214,26 +214,27 @@ class ProductImportItemResource extends Resource
           ->openUrlInNewTab(),
 
 
-        DeleteAction::make()
-          ->label('أرشفة'),
-        RestoreAction::make()
-          ->label('استعادة'),
-        ForceDeleteAction::make()
-          ->label('حذف نهائي')
-          ->before(function (ForceDeleteAction $action, $record) {
-            if ((float) $record->quantity > 0) {
-              Notification::make()
-                ->title('غير مسموح')
-                ->body('لا يمكن حذف عملية استيراد تحتوي على كمية. يجب تصفير الكمية أولاً.')
-                ->warning()
-                ->send();
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي')
+        //   ->before(function (ForceDeleteAction $action, $record) {
+        //     if ((float) $record->quantity > 0) {
+        //       Notification::make()
+        //         ->title('غير مسموح')
+        //         ->body('لا يمكن حذف عملية استيراد تحتوي على كمية. يجب تصفير الكمية أولاً.')
+        //         ->warning()
+        //         ->send();
 
-              $action->halt();
-            }
-          }),
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->bulkActions([
         BulkActionGroup::make([
+
           BulkAction::make('print_selected')
             ->label('طباعة المحدد (PDF)')
             ->icon('heroicon-o-printer')
@@ -246,23 +247,24 @@ class ProductImportItemResource extends Resource
             })->openUrlInNewTab(),
 
 
-          DeleteBulkAction::make()
-            ->label('أرشفة المحدد'),
-          RestoreBulkAction::make()
-            ->label('استعادة المحدد'),
-          ForceDeleteBulkAction::make()
-            ->label('حذف نهائي للمحدد')
-            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
-              $hasQuantity = $records->contains(fn($record) => (float) $record->quantity > 0);
-              if ($hasQuantity) {
-                Notification::make()
-                  ->title('لا يمكن الحذف النهائي')
-                  ->body('بعض السجلات المختارة لا تزال تحتوي على كميات واردة. يرجى تصفيرها قبل الحذف.')
-                  ->danger()
-                  ->send();
-                $action->halt();
-              }
-            }),
+          // DeleteBulkAction::make()
+          //   ->label('أرشفة المحدد'),
+          // RestoreBulkAction::make()
+          //   ->label('استعادة المحدد'),
+          // ForceDeleteBulkAction::make()
+          //   ->label('حذف نهائي للمحدد')
+          //   ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+          //     $hasQuantity = $records->contains(fn($record) => (float) $record->quantity > 0);
+          //     if ($hasQuantity) {
+          //       Notification::make()
+          //         ->title('لا يمكن الحذف النهائي')
+          //         ->body('بعض السجلات المختارة لا تزال تحتوي على كميات واردة. يرجى تصفيرها قبل الحذف.')
+          //         ->danger()
+          //         ->send();
+          //       $action->halt();
+          //     }
+          //   }),
+
         ]),
       ]);
   }

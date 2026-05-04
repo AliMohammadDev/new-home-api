@@ -203,45 +203,49 @@ class OrderResource extends Resource
           ->color('warning')
           ->icon('heroicon-m-check-circle'),
 
-        DeleteAction::make()
-          ->label('أرشفة'),
-        RestoreAction::make()
-          ->label('استعادة'),
-        ForceDeleteAction::make()
-          ->label('حذف نهائي')
-          ->before(function (ForceDeleteAction $action, $record) {
-            if ($record->total_amount != 0) {
-              Notification::make()
-                ->title('غير مسموح')
-                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
-                ->warning()
-                ->send();
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
 
-              $action->halt();
-            }
-          }),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
+
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي')
+        //   ->before(function (ForceDeleteAction $action, $record) {
+        //     if ($record->total_amount != 0) {
+        //       Notification::make()
+        //         ->title('غير مسموح')
+        //         ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+        //         ->warning()
+        //         ->send();
+
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->recordUrl(
         fn(Order $record): string => Pages\ViewOrder::getUrl([$record->id]),
       )
       ->bulkActions([
-        DeleteBulkAction::make()
-          ->label('أرشفة المحدد'),
-        RestoreBulkAction::make()
-          ->label('استعادة المحدد'),
-        ForceDeleteBulkAction::make()
-          ->label('حذف نهائي للمحدد')
-          ->before(function (ForceDeleteBulkAction $action, Collection $records) {
-            $invalidRecords = $records->where('total_amount', '!=', 0);
-            if ($invalidRecords->count() > 0) {
-              Notification::make()
-                ->title('لا يمكن الحذف النهائي')
-                ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
-                ->danger()
-                ->send();
-              $action->halt();
-            }
-          }),
+        // DeleteBulkAction::make()
+        //   ->label('أرشفة المحدد'),
+
+        // RestoreBulkAction::make()
+        //   ->label('استعادة المحدد'),
+
+        // ForceDeleteBulkAction::make()
+        //   ->label('حذف نهائي للمحدد')
+        //   ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+        //     $invalidRecords = $records->where('total_amount', '!=', 0);
+        //     if ($invalidRecords->count() > 0) {
+        //       Notification::make()
+        //         ->title('لا يمكن الحذف النهائي')
+        //         ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+        //         ->danger()
+        //         ->send();
+        //       $action->halt();
+        //     }
+        //   }),
         ExportBulkAction::make()
           ->exporter(OrderExporter::class)
           ->color('success')

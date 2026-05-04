@@ -40,8 +40,6 @@ class UserResource extends Resource
           ->required()
           ->unique(ignoreRecord: true),
 
-
-
         Select::make('roles')
           ->label('الأدوار')
           ->multiple()
@@ -123,6 +121,7 @@ class UserResource extends Resource
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
+
         Tables\Filters\TernaryFilter::make('is_active')
           ->label('حالة الحساب')
           ->placeholder('الكل')
@@ -134,32 +133,34 @@ class UserResource extends Resource
           ->relationship('roles', 'name')
           ->getOptionLabelFromRecordUsing(fn($record) => $record->display_name[app()->getLocale()] ?? $record->display_name['ar'] ?? $record->name)
           ->preload(),
+
       ])
       ->actions([
         Tables\Actions\EditAction::make(),
         Tables\Actions\ViewAction::make()->label('عرض'),
-        Tables\Actions\DeleteAction::make()
-          ->label('حذف')
-          ->before(function (Tables\Actions\DeleteAction $action, User $record) {
-            if (
-              $record->reviews()->exists() ||
-              $record->wishlist()->exists() ||
-              $record->carts()->exists() ||
-              $record->checkouts()->exists() ||
-              $record->reviews()->exists() ||
-              $record->orders()->exists() ||
-              $record->salesPoints()->exists()
-            ) {
-              Notification::make()
-                ->danger()
-                ->title('لا يمكن حذف المستخدم')
-                ->body('هذا المستخدم مرتبط بسجلات أخرى (طلبات، سلة، أو نقاط بيع). يجب حذف التبعيات أولاً.')
-                ->persistent()
-                ->send();
 
-              $action->halt();
-            }
-          }),
+        // Tables\Actions\DeleteAction::make()
+        //   ->label('حذف')
+        //   ->before(function (Tables\Actions\DeleteAction $action, User $record) {
+        //     if (
+        //       $record->reviews()->exists() ||
+        //       $record->wishlist()->exists() ||
+        //       $record->carts()->exists() ||
+        //       $record->checkouts()->exists() ||
+        //       $record->reviews()->exists() ||
+        //       $record->orders()->exists() ||
+        //       $record->salesPoints()->exists()
+        //     ) {
+        //       Notification::make()
+        //         ->danger()
+        //         ->title('لا يمكن حذف المستخدم')
+        //         ->body('هذا المستخدم مرتبط بسجلات أخرى (طلبات، سلة، أو نقاط بيع). يجب حذف التبعيات أولاً.')
+        //         ->persistent()
+        //         ->send();
+
+        //       $action->halt();
+        //     }
+        //   }),
 
       ])
       ->bulkActions([
@@ -215,5 +216,4 @@ class UserResource extends Resource
       'view' => Pages\ViewUser::route('/{record}'),
     ];
   }
-
 }

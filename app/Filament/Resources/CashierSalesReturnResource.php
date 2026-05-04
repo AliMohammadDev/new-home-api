@@ -215,44 +215,44 @@ class CashierSalesReturnResource extends Resource
       ->defaultSort('created_at', 'DESC')
       ->actions([
         EditAction::make(),
-        DeleteAction::make()
-          ->label('أرشفة'),
-        RestoreAction::make()
-          ->label('استعادة'),
-        ForceDeleteAction::make()
-          ->label('حذف نهائي')
-          ->before(function (ForceDeleteAction $action, $record) {
-            if ($record->quantity != 0) {
-              Notification::make()
-                ->title('غير مسموح')
-                ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
-                ->warning()
-                ->send();
-              $action->halt();
-            }
-          }),
+        // DeleteAction::make()
+        //   ->label('أرشفة'),
+        // RestoreAction::make()
+        //   ->label('استعادة'),
+        // ForceDeleteAction::make()
+        //   ->label('حذف نهائي')
+        //   ->before(function (ForceDeleteAction $action, $record) {
+        //     if ($record->quantity != 0) {
+        //       Notification::make()
+        //         ->title('غير مسموح')
+        //         ->body('يجب تصفير المبلغ أولاً قبل الحذف النهائي.')
+        //         ->warning()
+        //         ->send();
+        //       $action->halt();
+        //     }
+        //   }),
       ])
       ->bulkActions([
         BulkActionGroup::make([
-          DeleteBulkAction::make()
-            ->label('أرشفة المحدد'),
-          RestoreBulkAction::make()
-            ->label('استعادة المحدد'),
-          ForceDeleteBulkAction::make()
-            ->label('حذف نهائي للمحدد')
-            ->before(function (ForceDeleteBulkAction $action, Collection $records) {
-              $invalidRecords = $records->where('quantity', '!=', 0);
+          // DeleteBulkAction::make()
+          //   ->label('أرشفة المحدد'),
+          // RestoreBulkAction::make()
+          //   ->label('استعادة المحدد'),
+          // ForceDeleteBulkAction::make()
+          //   ->label('حذف نهائي للمحدد')
+          //   ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+          //     $invalidRecords = $records->where('quantity', '!=', 0);
 
-              if ($invalidRecords->count() > 0) {
-                Notification::make()
-                  ->title('لا يمكن الحذف النهائي')
-                  ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
-                  ->danger()
-                  ->send();
+          //     if ($invalidRecords->count() > 0) {
+          //       Notification::make()
+          //         ->title('لا يمكن الحذف النهائي')
+          //         ->body('بعض السجلات المختارة تحتوي على مبالغ غير صفرية. يجب تصفير المبالغ أولاً.')
+          //         ->danger()
+          //         ->send();
 
-                $action->halt();
-              }
-            }),
+          //       $action->halt();
+          //     }
+          //   }),
         ]),
         ExportBulkAction::make()
           ->exporter(CashierSalesReturnExporter::class)

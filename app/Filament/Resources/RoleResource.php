@@ -60,7 +60,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                   // ->label(__('filament-shield::filament-shield.field.name'))
                   ->label('الرمز البرمجي (System Name)')
                   ->unique(
-                    ignoreRecord: true, /** @phpstan-ignore-next-line */
+                    ignoreRecord: true,
+                    /** @phpstan-ignore-next-line */
                     modifyRuleUsing: fn(Unique $rule) => Utils::isTenancyEnabled() ? $rule->where(Utils::getTenantModelForeignKey(), Filament::getTenant()?->id) : $rule
                   )
                   ->required()
