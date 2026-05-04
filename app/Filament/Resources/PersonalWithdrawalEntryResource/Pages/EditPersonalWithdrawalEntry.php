@@ -8,12 +8,10 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditPersonalWithdrawalEntry extends EditRecord
 {
-    protected static string $resource = PersonalWithdrawalEntryResource::class;
+  protected static string $resource = PersonalWithdrawalEntryResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [];
+  }
 }

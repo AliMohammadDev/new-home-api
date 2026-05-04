@@ -17,7 +17,6 @@ class EditExpense extends EditRecord
         ->label('رجوع')
         ->color('gray')
         ->url($this->getResource()::getUrl('index')),
-      Actions\DeleteAction::make(),
     ];
   }
 
