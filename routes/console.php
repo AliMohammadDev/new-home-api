@@ -44,6 +44,6 @@ Schedule::job(new ArchiveDailyPersonalWithdrawalEntries)->daily();
  */
 Schedule::job(new ArchiveDailySalesPointEntries)->daily();
 
-Schedule::command('queue:work --stop-when-empty')
+Schedule::command('queue:work --once')
   ->everyMinute()
   ->withoutOverlapping();
