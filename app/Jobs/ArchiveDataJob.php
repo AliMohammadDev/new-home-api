@@ -9,8 +9,10 @@ use App\Models\CashierSalesReturn;
 use App\Models\CompanyEntry;
 use App\Models\CompanySalesTransfer;
 use App\Models\Expense;
+use App\Models\ExpenseEntry;
 use App\Models\Order;
 use App\Models\PersonalWithdrawal;
+use App\Models\PersonalWithdrawalEntry;
 use App\Models\ProductImportItem;
 use App\Models\SalesPointCashierTrans;
 use App\Models\ShippingWarehouse;
@@ -47,18 +49,28 @@ class ArchiveDataJob implements ShouldQueue
       $models = [
         CashierReturnFatora::class,
         CashierSale::class,
+
         CashierSalesFatora::class,
         CashierSalesReturn::class,
+
         Order::class,
+
         SalesPointCashierTrans::class,
+
         ShippingWarehouse::class,
+
         WarehouseReturn::class,
+
         ProductImportItem::class,
 
         CompanyEntry::class,
         CompanySalesTransfer::class,
+
         Expense::class,
-        PersonalWithdrawal::class
+        PersonalWithdrawal::class,
+
+        ExpenseEntry::class,
+        PersonalWithdrawalEntry::class
       ];
 
       $totalCount = 0;
@@ -74,7 +86,6 @@ class ArchiveDataJob implements ShouldQueue
         ->success()
         ->body("تم بنجاح أرشفة ({$totalCount}) سجل.")
         ->sendToDatabase($this->user);
-
     } catch (\Exception $e) {
       DB::rollBack();
 
