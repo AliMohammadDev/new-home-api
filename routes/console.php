@@ -1,8 +1,8 @@
 <?php
 
+use App\Jobs\ArchiveDailyPersonalWithdrawalEntries;
 use App\Jobs\ArchiveDailyCompanyEntries;
 use App\Jobs\ArchiveDailyExpenseEntries;
-use App\Jobs\ArchiveDailyPersonalWithdrawalEntries;
 use App\Jobs\ArchiveDailySalesPointEntries;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
