@@ -75,7 +75,11 @@ class ProductImportResource extends Resource
           ->color('gray'),
 
         TextColumn::make('supplier_phone')
+          ->formatStateUsing(fn(string $state): string => "📞 " . $state)
           ->label('الهاتف')
+          ->url(fn($state) => "tel:{$state}")
+          ->label('الهاتف')
+
           ->searchable(),
 
         TextColumn::make('product_variants_count')
